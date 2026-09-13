@@ -305,6 +305,12 @@ input{ font-family:inherit; }
 .choice:hover{ background:rgba(255,255,255,.14); border-color:#ffd98a; }
 .choice-idx{ flex:0 0 auto; width:24px; height:24px; border-radius:50%; background:var(--red); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; }
 .stage-choices--final{ max-width:720px; margin:0 auto; }
+/* 最终危机页位于浅色背景，须覆盖 .choice 的浅色文字（原为深色章节场景设计），否则不可读 */
+.stage-choices--final .choice{
+  background:var(--paper); border:1px solid var(--line); color:var(--ink); box-shadow:var(--shadow);
+}
+.stage-choices--final .choice:hover{ background:#fff; border-color:var(--red); }
+.stage-choices--final .choice span:last-child{ color:var(--ink); }
 
 /* ---------- 手稿 ---------- */
 .manuscript{
