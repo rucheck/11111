@@ -1,0 +1,60 @@
+{
+  "events": [
+    {
+      "id": "ev1",
+      "name": "角色失控",
+      "desc": "写到关键处，{protagonist}在{place}做出的选择与你预设的{goal}完全相悖，人物自己「活」了过来，剧情脱离大纲。",
+      "effect": {"heat": 1, "quality": 2, "energy": -2, "sign": 0, "style": 2},
+      "comment": "作者是不是也控不住{protagonist}了？{decision}这个选择根本不符合他前面的人设，但莫名觉得比原计划更真实。"
+    },
+    {
+      "id": "ev2",
+      "name": "角色失控",
+      "desc": "{npc}的戏份失控膨胀，连续几章抢走了{protagonist}的主线，读者只关心配角的感情线。",
+      "effect": {"heat": 2, "quality": -2, "energy": -1, "sign": 0, "style": -3},
+      "comment": "能不能别写{protagonist}了，我想看{npc}和{npc2}的对手戏，谁还在乎主线。"
+    },
+    {
+      "id": "ev3",
+      "name": "伏笔暴露",
+      "desc": "有读者把你埋了三章的{cliff}伏笔截图挂出，推理帖把结局猜得八九不离十。",
+      "effect": {"heat": 1, "quality": -1, "energy": -1, "sign": 0, "style": 0},
+      "comment": "第4章{place}那个细节早就明示了，作者这伏笔埋得太浅，反转没悬念了。"
+    },
+    {
+      "id": "ev4",
+      "name": "伏笔暴露",
+      "desc": "你为制造反转临时改线，结果{theme}这条伏笔与前面的时间线互相矛盾，被剧情分析党逐条挑出。",
+      "effect": {"heat": -1, "quality": -3, "energy": -1, "sign": -1, "style": 0},
+      "comment": "第2章{decision}发生在周三，怎么第7章又变成周末了？这个坑作者自己都没圆上。"
+    },
+    {
+      "id": "ev5",
+      "name": "评论出圈",
+      "desc": "一条关于{theme}的读者评论被截到站外疯传，无数陌生人涌进来催更，还顺带考古你的旧回答。",
+      "effect": {"heat": 3, "quality": 0, "energy": -1, "sign": 2, "style": 0},
+      "comment": "从热榜来的，就想问{protagonist}最后到底选没选{decision}？"
+    },
+    {
+      "id": "ev6",
+      "name": "评论出圈",
+      "desc": "一条指责你在{genre}里「三观不正」的评论被顶上热榜，路人下场站队，评论区吵成两派。",
+      "effect": {"heat": 3, "quality": -1, "energy": -2, "sign": -2, "style": -2},
+      "comment": "写{theme}能不能别这么冷血？作者把自己的价值观藏进{protagonist}里了。"
+    },
+    {
+      "id": "ev7",
+      "name": "旧文翻红",
+      "desc": "你早期一篇写{genre}的旧回答因为新章节爆火被翻了出来，涨粉的同时也被拿来和你现在的文风做对比。",
+      "effect": {"heat": 2, "quality": 0, "energy": -1, "sign": 1, "style": 0},
+      "comment": "翻完作者旧文发现，原来{protagonist}这个设定他早就在写，老粉了。"
+    },
+    {
+      "id": "ev8",
+      "name": "旧文翻红",
+      "desc": "一篇你早年写的、立场含糊的旧文被翻出，有人指控你「自己抄自己」，节奏带到了新连载下面。",
+      "effect": {"heat": 2, "quality": 0, "energy": -2, "sign": -2, "style": -1},
+      "comment": "作者三年前就写过一模一样的{decision}桥段，这是复读自己还是真没活了？"
+    }
+  ]
+}
