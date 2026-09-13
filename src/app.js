@@ -691,9 +691,11 @@ function generateProse(ch){
   const open = fill(pick(genre.openings), ctx);
   const sceneLine = fill(ch.scene.desc, ctx);
   const consLine = fill(ch.decision.consequence, ctx);
-  const body = fill(pick(genre.bodies), ctx);
+  // 每章拼 5~7 段正文，比上一版再增约 50%，更接近盐选长篇的密度
+  const bodyCount = 5 + rand(3);
+  const bodies = shuffle(genre.bodies).slice(0, Math.min(bodyCount, genre.bodies.length)).map(b=>fill(b, ctx));
   const cliffRaw = fill(pick(genre.cliffhangers), ctx);
-  ch.prose = [open, sceneLine + '　' + consLine, body, cliffRaw];
+  ch.prose = [open, sceneLine, consLine, ...bodies, cliffRaw];
   ch.cliffHook = ch.goal;
 }
 
