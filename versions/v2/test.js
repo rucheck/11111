@@ -7,14 +7,24 @@ function run(length,specificity,genre){
   const g=new Function('window','document',code+'\nreturn {get:()=>state,act:(a,v,i)=>act(a,{dataset:{val:v,idx:i}})};')({CONTENT,scrollTo:()=>{}},doc);
   const click=(a,v,i)=>g.act(a,v,i);
   assert(app.innerHTML.includes('new-title'));
-  click('toDraw');click('toSetup');click('pickLength',length);click('pickGenre',genre);click('startGame');
-  const count={short:6,medium:9,long:12}[length],beats={short:3,medium:4,long:5}[length];
+  click('startPrologue');assert.equal(g.get().phase,'prologue');click('nextPrologue');click('nextPrologue');
+  assert(app.innerHTML.includes('知乎模式')&&app.innerHTML.includes('本地模式'));
+  click('chooseStartMode','local');assert.equal(g.get().phase,'draw');assert.equal(g.get().generationMode,'local');
+  click('toSetup');click('pickLength',length);click('pickGenre',genre);click('pickTheme','真相');click('nextSetup');click('pickRoute','quality');click('startGame');
+  const count={short:6,medium:9,long:12}[length],beats={short:4,medium:5,long:6}[length];
   for(let c=0;c<count;c++){
-    assert.equal(g.get().phase,'map');click('toWorkbench');click('pickSpec',specificity);
+    assert.equal(g.get().phase,'map');
+    if(c===0){
+      click('openOverlay','map');assert(app.innerHTML.includes('故事地图'));click('closeOverlay');
+      click('openOverlay','status');assert(app.innerHTML.includes('当前状态'));click('closeOverlay');
+    }
+    click('toWorkbench');assert.equal(g.get().workbenchStep,0);click('plan',c%2?'修复关系':'追寻事实');assert.equal(g.get().workbenchStep,1);
     click('prepare',null,2);click('prepare',null,0);
+    click('nextWorkbench');assert.equal(g.get().workbenchStep,2);click('pickSpec',specificity);
     click('enterChapter');assert.equal(g.get().phase,'transition');click('continueTransition');
     for(let b=0;b<beats;b++){
-      assert.equal(g.get().phase,'chapter');assert(g.get().currentChapter.decisions.length>=2);
+      assert.equal(g.get().phase,'chapter');assert(g.get().currentChapter.decisions.length>=3);
+      if(c>0&&b===0)assert(app.innerHTML.includes('前情承接'));
       click('makeDecision',null,b%2);assert.equal(g.get().phase,'consequence');
       const n=g.get().currentChapter.steps.length;click('makeDecision',null,0);assert.equal(g.get().currentChapter.steps.length,n);
       click('nextBeat');
@@ -23,6 +33,7 @@ function run(length,specificity,genre){
     for(const step of g.get().currentChapter.steps)assert(g.get().currentChapter.prose.join('').includes(step.result));
     click('publish');assert.equal(g.get().phase,'feedback');const n=g.get().chapters.length;click('publish');assert.equal(g.get().chapters.length,n);
     click('authorDecide',null,c%6);assert.equal(g.get().phase,'transition');click('continueTransition');
+    assert.equal(g.get().storyBible.length,c+1);assert.equal(g.get().storyBible[c].decisions.length,beats);assert(g.get().memory[c].includes('行动链'));
     for(const val of Object.values(g.get().resources))assert(val>=0&&val<=100);
   }
   assert.equal(g.get().phase,'crisis');click('finalChoice',null,0);assert.equal(g.get().phase,'ending');
@@ -30,6 +41,15 @@ function run(length,specificity,genre){
   assert(!/\{(?:npc|protagonist|place|goal)\}/.test(app.innerHTML));
 }
 let total=0;for(const length of ['short','medium','long'])for(const spec of ['specific','balanced','broad'])for(const genre of Object.keys(CONTENT.story.genres)){run(length,spec,genre);total++;}
-const {validatePlan}=require('./server');
+const {validatePlan,parseLooseJson,cliContent,cliError}=require('./server');
 assert.throws(()=>validatePlan('{"beats":[]}',3));assert.throws(()=>validatePlan('not json',3));
+const option={kind:'核实事实',hint:'增加线索',text:'检查记录',result:'找到矛盾',trust:0,evidence:1,quality:1,heat:0,energy:-1};
+const generated={beats:Array.from({length:4},()=>({situation:'新的情境',options:Array.from({length:5},()=>option)}))};
+assert.equal(validatePlan('日志\n```json\n'+JSON.stringify(generated)+'\n```\n完成',4).beats.length,4);
+assert.equal(parseLooseJson('prefix '+JSON.stringify({ok:true})+' suffix').ok,true);
+assert.equal(parseLooseJson('{"ok":true,}').ok,true);
+assert.equal(parseLooseJson(JSON.stringify(JSON.stringify({nested:true}))).nested,true);
+assert.equal(JSON.parse(cliContent(JSON.stringify({choices:[{message:{content:JSON.stringify(generated)}}]}))).beats.length,4);
+assert.equal(JSON.parse(cliContent(JSON.stringify({output_text:JSON.stringify(generated)}))).beats.length,4);
+assert.equal(cliError({code:4},'{"ok":false,"error":{"message":"直答额度不足"}}',''),'直答额度不足');
 console.log(`${total} full runs passed: all lengths, genres and specificity settings; phase guards, resource bounds and chapter validation passed.`);

@@ -423,6 +423,36 @@ button:focus-visible,input:focus-visible{outline:3px solid #cd8a47;outline-offse
 @keyframes page-turn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}@keyframes ink-line{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @media(max-width:700px){.new-title{grid-template-columns:1fr;padding:40px 24px}.title-art{height:330px}.art-book{inset:20px 45px 50px}.art-book span{font-size:28px}.length-grid,.prep-grid{grid-template-columns:1fr}.chapter-track{grid-template-columns:repeat(2,1fr)}.identity{font-size:11px;padding:14px}.map-heading h1{font-size:25px}.map-heading .kanshan{width:95px;height:95px}.story-meta{gap:12px}.story-panel{margin-top:30px}.story-text{font-size:16px}.manuscript{padding:24px}.passage h1,.passage h2{font-size:26px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.kanshan{display:none}}
+
+/* v2.1 · 决策体验、模式与连续叙事 */
+.identity{align-items:center}.identity-mode{margin-left:auto;margin-right:12px;padding:5px 10px;border:1px solid #ffffff28;border-radius:999px;color:#ead8aa;font-size:11px;letter-spacing:.02em}
+.planning-head{display:flex;align-items:center;justify-content:space-between;gap:24px}.planning-head .kanshan{width:110px;height:110px;margin:-18px 12px -34px 0}.planning-head .eyebrow{margin-bottom:10px}
+.continuity-card{position:relative;padding:20px 22px 18px 28px;border:1px solid #bdc8b9;border-radius:14px;background:linear-gradient(135deg,#f8fbf4,#edf2e8);box-shadow:0 10px 30px #20352f0a;overflow:hidden}.continuity-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:#4d745f}.continuity-card>span{display:block;margin-bottom:8px;color:#4d745f;font-size:11px;font-weight:800;letter-spacing:.16em}.continuity-card p{margin:0!important;font:15px/1.85 var(--serif);color:var(--ink)}.continuity-card small{display:block;margin-top:8px!important;color:var(--ink-3)}
+.choice-guide{display:flex;align-items:baseline;gap:12px;margin-top:4px}.choice-guide b{font-size:14px}.choice-guide span{font-size:12px;color:var(--ink-3)}
+.mode-picker{display:grid;grid-template-columns:1fr 1fr;gap:12px}.mode-card{position:relative;display:grid;grid-template-columns:42px 1fr auto;gap:12px;align-items:center;text-align:left;padding:16px;border:1px solid var(--line);border-radius:13px;background:#fff;color:var(--ink);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}.mode-card:hover{transform:translateY(-2px);border-color:#6e8478;box-shadow:0 10px 24px #20352f12}.mode-card.selected{border-color:#315a48;background:linear-gradient(145deg,#f9fff9,#e8f0e7);box-shadow:0 0 0 2px #315a4824}.mode-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#203a32;color:#f7e9bd;font:700 18px var(--serif)}.mode-card>span:nth-child(2){display:flex;flex-direction:column;gap:4px}.mode-card b{font-size:14px}.mode-card small{margin:0!important;font-size:11px;color:var(--ink-3)}.mode-card em{font-style:normal;font-size:11px;color:#4d745f;white-space:nowrap}.mode-card.selected::after{content:"已选择";position:absolute;right:10px;top:8px;font-size:9px;color:#315a48;letter-spacing:.08em}.mode-card:disabled{transform:none;box-shadow:none}
+.prep-card{position:relative;min-height:128px;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}.prep-card:hover:not(:disabled){transform:translateY(-3px);border-color:#819080;box-shadow:0 12px 24px #20352f10}.prep-card small{margin:auto 0 0!important;padding-top:10px;color:#567060!important;font-size:11px}.prep-status{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;background:#203a32;color:#f4efdf;font-size:12px}.prep-status span{opacity:.8}
+
+.story-stage{padding:28px 5vw 72px;background:radial-gradient(ellipse at 78% 0%,#40536a 0%,transparent 54%),radial-gradient(circle at 8% 78%,#432b32 0%,transparent 36%),linear-gradient(#111d2b,#0d1621)}
+.story-stage::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#0002,transparent 15% 85%,#0002)}
+.beat-progress{position:relative;z-index:5;display:flex;justify-content:center;max-width:980px;margin:24px auto 0}.beat-progress span{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;color:#84909d;font-size:10px;letter-spacing:.08em}.beat-progress span::before{content:"";position:absolute;left:-50%;right:50%;top:6px;height:1px;background:#ffffff20}.beat-progress span:first-child::before{display:none}.beat-progress i{position:relative;z-index:1;width:13px;height:13px;border:2px solid #687684;border-radius:50%;background:#111d2b}.beat-progress .done,.beat-progress .current{color:#e7d9b4}.beat-progress .done i{border-color:#bd9b63;background:#bd9b63}.beat-progress .current i{border-color:#f0c778;background:#f0c778;box-shadow:0 0 0 6px #f0c7781c,0 0 22px #f0c77870}.beat-progress .done::before,.beat-progress .current::before{background:#bd9b63}
+.story-panel{max-width:1020px;margin-top:38px;padding:34px 36px;border:1px solid #ffffff16;border-radius:20px;background:linear-gradient(145deg,#142130e8,#0e1825e8);box-shadow:0 34px 90px #0009,inset 0 1px #ffffff0c;backdrop-filter:blur(12px)}.story-panel h1{max-width:780px;margin-bottom:20px}.story-text{max-width:850px}
+.story-facts{display:flex;flex-wrap:wrap;gap:8px;border:0;margin:24px 0;padding:0}.story-facts span{padding:7px 11px;border:1px solid #ffffff15;border-radius:999px;background:#ffffff06;color:#aeb9c2;font-size:11px}.story-facts b{color:#f0dfb7;font-weight:700}
+.story-continuity{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;margin:0 0 20px;padding:13px 15px;border-left:3px solid #bd9b63;border-radius:0 10px 10px 0;background:#ffffff08;color:#c7d0d6;font-size:12px}.story-continuity b{color:#efd296;letter-spacing:.05em}.story-continuity small{grid-column:2;color:#8f9ca7}
+.decision-brief{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:28px 0 14px;padding-top:20px;border-top:1px solid #ffffff18}.decision-brief>div{display:flex;flex-direction:column;gap:5px}.decision-brief b{font:700 18px var(--serif);color:#fff2cf}.decision-brief span,.decision-brief small{color:#9ba8b4;font-size:12px}.decision-brief small{white-space:nowrap}
+.ui-notice{margin-bottom:12px;padding:10px 13px;border-radius:9px;background:#8d382a;color:#fff0dc;font-size:12px}
+.story-options{grid-template-columns:1fr 1fr;gap:12px}.story-options .choice{position:relative;min-height:118px;display:grid;grid-template-columns:34px 1fr;gap:13px;padding:17px 18px;border-radius:14px;background:linear-gradient(145deg,#ffffff0c,#ffffff05);overflow:hidden}.story-options .choice:last-child:nth-child(odd){grid-column:1/-1;min-height:104px}.story-options .choice::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,#ffffff0a 50%,transparent 70%);transform:translateX(-110%);transition:transform .45s ease}.story-options .choice:hover::after{transform:translateX(110%)}.story-options .choice:hover{transform:translateY(-3px);border-color:#e4bd76;box-shadow:0 14px 34px #0005}.story-options .choice:active,.story-options .choice.is-pressed{transform:scale(.985);background:#e4bd7620}.choice-copy{display:flex;flex-direction:column;gap:5px;min-width:0}.choice-copy>b{color:#eacb8e;font-size:11px;letter-spacing:.12em}.choice-copy>span{font:15px/1.65 var(--serif);color:#f4f0e8}.choice-copy>small{color:#8f9ca7;font-size:10.5px}.choice-impact{grid-column:2;justify-self:start;margin-top:2px;padding:3px 7px;border-radius:999px;background:#ffffff0a;color:#b6c4cb;font-size:9.5px}.story-options .choice-idx{width:30px;height:30px;background:#b5523d;color:#fff5e4;box-shadow:0 0 0 4px #b5523d22}
+.consequence{max-width:780px;padding:70px 30px}.consequence-mark{display:grid;place-items:center;width:58px;height:58px;margin-bottom:22px;border:1px solid #819b8a;border-radius:50%;background:#e8efe7;color:#315a48;font-size:24px;box-shadow:0 0 0 10px #315a4808}.memory-slip{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 16px;width:100%;margin:10px 0 30px;padding:18px 20px;border:1px solid #cbd3c7;border-radius:12px;background:#f8faf5}.memory-slip b{color:#315a48}.memory-slip span{color:#8b6330;font-size:12px}.memory-slip small{flex-basis:100%;margin:0;color:var(--ink-3)}
+.author-decision-block{gap:12px!important}.author-decision-head{padding:14px 15px;border-radius:10px;background:#edf2e8}.author-decision-head p{margin:6px 0 0;color:var(--ink-3);font-size:11.5px;line-height:1.65}.author-choice{position:relative;min-height:112px;padding:14px!important;overflow:hidden;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease!important}.author-choice:hover{transform:translateY(-2px);border-color:#567060!important;box-shadow:0 10px 22px #20352f12}.author-choice small{margin-top:auto;padding-top:8px;color:#8b6330;font-size:10px}.author-choice em{position:absolute;right:8px;top:8px;padding:3px 6px;border-radius:999px;background:#e5ece2;color:#426e58;font-size:9px;font-style:normal;opacity:0;transform:translateY(-4px);transition:.18s}.author-choice:hover em,.author-choice:focus-visible em{opacity:1;transform:none}
+
+@media(max-width:760px){.identity-mode{display:none}.mode-picker,.story-options{grid-template-columns:1fr}.story-options .choice:last-child:nth-child(odd){grid-column:auto}.choice-guide,.decision-brief{align-items:flex-start;flex-direction:column}.story-panel{padding:26px 18px;margin-top:26px}.story-continuity{grid-template-columns:1fr}.story-continuity small{grid-column:1}.beat-progress span{font-size:0}.beat-progress span i{font-size:initial}.planning-head .kanshan{width:82px;height:82px}.mode-card{grid-template-columns:38px 1fr}.mode-card em{grid-column:2}.prep-status{align-items:flex-start;flex-direction:column}}
+
+/* v2.2 · 分步流程、开场与全局导航 */
+.prologue{position:relative;min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr) minmax(380px,.85fr);align-items:center;gap:7vw;padding:8vh 9vw;overflow:hidden;background:#14241f;color:#f4eddb}.prologue::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 78% 30%,#62786755,transparent 32%),linear-gradient(120deg,transparent 58%,#ffffff08 58.2%,transparent 58.5%);pointer-events:none}.prologue-no{position:absolute;left:5vw;top:8vh;font:700 96px var(--serif);color:#ffffff08}.prologue-copy{position:relative;z-index:2;animation:prologue-in .65s ease both}.prologue-copy>span{color:#d5ad67;font-size:12px;letter-spacing:.22em}.prologue-copy h1{max-width:680px;margin:24px 0;font:700 clamp(38px,5vw,70px)/1.3 var(--serif)}.prologue-copy p{max-width:580px;font:20px/2 var(--serif);color:#d5d7cd}.prologue-next{margin-top:34px;padding:14px 26px;border:1px solid #d5ad67;border-radius:8px;background:transparent;color:#f5ddb1}.prologue-art{position:relative;z-index:1;height:560px;display:grid;place-items:center}.prologue-paper{position:absolute;width:72%;height:76%;border-radius:8px;background:#efeadd;box-shadow:18px 22px 0 #9f8f6a33,0 35px 90px #0007;transform:rotate(-7deg)}.prologue--portal .prologue-paper{background:#1b2a3b;box-shadow:0 0 0 12px #d7b66a18,0 0 100px #6e8fb966;transform:perspective(700px) rotateY(-12deg) rotate(-4deg)}.prologue-art .kanshan{position:relative;width:260px;height:260px;transform:translate(28%,28%);filter:drop-shadow(0 24px 30px #0005)}.prologue-dots{position:absolute;left:9vw;bottom:7vh;display:flex;gap:8px}.prologue-dots i{width:28px;height:3px;background:#ffffff25}.prologue-dots i.on{background:#d5ad67}.start-modes{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:620px;margin-top:34px}.start-modes button{display:flex;align-items:center;justify-content:space-between;padding:22px;border:1px solid #d5ad67;border-radius:12px;background:#f5edda;color:#18372d;font:700 18px var(--serif);transition:transform .18s,box-shadow .18s}.start-modes button:last-child{background:transparent;color:#f5edda}.start-modes button:hover:not(:disabled){transform:translateY(-4px);box-shadow:0 18px 40px #0005}.start-modes b{font:700 24px var(--sans)}
+.setup-wizard,.chapter-wizard{max-width:980px;min-height:calc(100vh - 64px);margin:auto;display:flex;flex-direction:column;justify-content:center;padding:64px 36px}.setup-wizard h1,.chapter-wizard h1{margin:24px 0 34px;font:700 clamp(30px,4vw,46px)/1.3 var(--serif)}.wizard-top{display:flex;align-items:center;justify-content:space-between;color:#7b6750;font-size:12px;letter-spacing:.12em}.wizard-top>div{display:flex;gap:7px}.wizard-top i{width:56px;height:4px;border-radius:9px;background:#d9d9d0}.wizard-top i.on{background:#315a48}.wizard-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.wizard-card{min-height:148px;display:flex;flex-direction:column;justify-content:center;gap:12px;padding:24px;border:1px solid #d3d7ce;border-radius:16px;background:#fff;text-align:left;color:var(--ink);transition:transform .18s,border-color .18s,box-shadow .18s}.wizard-card:hover:not(:disabled){transform:translateY(-4px);border-color:#527260;box-shadow:0 18px 40px #20352f14}.wizard-card.selected{border:2px solid #315a48;background:#edf3eb}.wizard-card b{font:700 20px var(--serif)}.wizard-card span{color:#69756f;line-height:1.6}.wizard-block{margin:24px 0}.wizard-block>b{display:block;margin-bottom:14px}.setup-question{padding:20px 24px;border-left:4px solid #315a48;border-radius:0 12px 12px 0;background:#edf2e8;font:18px/1.8 var(--serif)}.wizard-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:34px}.pen-label{display:flex;flex-direction:column;gap:10px;margin-top:28px;font-weight:700}.pen-label .pen-input{max-width:420px}.intent-card{min-height:180px}.intent-card b{font-size:25px}.prep-count{display:grid;place-items:center;width:62px;height:62px;margin:-8px 0 20px;border-radius:50%;background:#203a32;color:#f6d89b;font:700 20px var(--sans)}.action-result{margin-top:18px;padding:12px 16px;border-radius:9px;background:#e5ece2;color:#315a48}.chapter-ready{display:flex;justify-content:space-between;margin-top:22px;padding:16px 18px;border-radius:12px;background:#203a32;color:#f5edda}.script-grid .wizard-card{min-height:135px}
+.game-nav{justify-content:flex-start;padding:12px 4vw}.game-nav .nav-left{display:flex;gap:8px;margin-right:18px}.game-nav button{padding:8px 11px;border:1px solid #ffffff25;border-radius:8px;background:#ffffff08;color:inherit;font-size:12px}.game-nav button:hover{background:#ffffff15;border-color:#ffffff50}.game-nav>b{margin-right:auto}.game-nav .identity-mode{margin:0}.game-overlay{position:fixed;z-index:100;inset:0;display:grid;place-items:center;padding:28px;background:#101914c9;backdrop-filter:blur(10px);animation:overlay-in .2s ease both}.overlay-panel{position:relative;width:min(980px,100%);max-height:88vh;overflow:auto;padding:38px;border-radius:22px;background:#f7f5ee;color:var(--ink);box-shadow:0 35px 100px #0009}.overlay-close{position:absolute;right:22px;top:18px;width:38px;height:38px;border:0;border-radius:50%;background:#203a32;color:#fff;font-size:24px}.overlay-kicker{color:#9a733a;font-size:11px;letter-spacing:.17em}.overlay-panel h2{margin:12px 0 24px;font:700 30px var(--serif)}.overlay-progress{height:7px;border-radius:9px;background:#dedfd7;overflow:hidden}.overlay-progress i{display:block;height:100%;background:#315a48}.overlay-chapters{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin:22px 0}.overlay-chapters div{display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 5px;border:1px solid #d7d9d1;border-radius:10px;color:#8b918d}.overlay-chapters div.done{background:#dfe9dd;color:#315a48}.overlay-chapters div.current{background:#203a32;color:#f5edda}.overlay-chapters b{font-size:18px}.overlay-chapters span{font-size:10px}.map-now,.status-goal{display:flex;flex-direction:column;gap:9px;padding:18px;border-left:4px solid #b58a49;background:#efece2}.map-now span,.status-goal span{line-height:1.8;color:#59645f}.status-resources{display:grid;grid-template-columns:1fr 1fr;gap:18px 26px}.status-resources div{display:grid;grid-template-columns:1fr auto;gap:8px}.status-resources i{grid-column:1/-1;height:6px;border-radius:8px;background:#dedfd7;overflow:hidden}.status-resources em{display:block;height:100%}.status-facts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:28px 0}.status-facts span{display:flex;justify-content:space-between;padding:13px 15px;border-radius:9px;background:#ebece5;color:#65706a}.status-facts b{color:#20352f}.status-goal{margin-top:8px}
+.decision-brief{align-items:center;margin-top:26px}.decision-brief>b{font:700 18px var(--serif);color:#fff2cf}.author-decision-head{padding:12px 15px}.author-decision-head p{display:none}
+@keyframes prologue-in{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}@keyframes overlay-in{from{opacity:0}to{opacity:1}}
+@media(max-width:760px){.prologue{grid-template-columns:1fr;padding:12vh 24px 9vh}.prologue-art{position:absolute;right:-70px;bottom:4vh;width:260px;height:260px;opacity:.28}.prologue-copy h1{font-size:40px}.prologue-copy p{font-size:17px}.start-modes,.wizard-grid,.status-resources,.status-facts{grid-template-columns:1fr}.setup-wizard,.chapter-wizard{padding:46px 20px}.wizard-card{min-height:112px}.game-nav{flex-wrap:wrap}.game-nav>b{display:none}.game-nav .identity-mode{margin-left:auto}.overlay-panel{padding:30px 20px}.overlay-chapters{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
@@ -446,9 +476,9 @@ const ROUTES = [
 const ROUTE_MAP = Object.fromEntries(ROUTES.map(r=>[r.key,r]));
 const STAGES = ["起步期","增长期","危机期","收束期"];
 const SPECIFICS = [
-  { key:"specific", label:"具体", hint:"指定地点、人物、目标与结果 · 选择少，稳定推进", cost:15, choices:2, heat:1, quality:1 },
-  { key:"balanced", label:"适中", hint:"指定冲突、关键人物与必现事件 · 局部偏离",   cost:20, choices:3, heat:0, quality:0 },
-  { key:"broad",    label:"宽泛", hint:"只定主题、情绪与本章问题 · 高自由度，可能触发隐藏事件", cost:25, choices:4, heat:0, quality:0 },
+  { key:"specific", label:"具体", hint:"3 个聚焦行动 · 稳定推进主线，每一步都说明可能影响", cost:15, choices:3, heat:1, quality:1 },
+  { key:"balanced", label:"适中", hint:"4 个差异行动 · 主线与关系可以局部偏离", cost:20, choices:4, heat:0, quality:0 },
+  { key:"broad",    label:"宽泛", hint:"5 个开放行动 · 可观察、绕行或触发隐藏事件", cost:25, choices:5, heat:0, quality:0 },
 ];
 const RES_DEFS = [
   { key:"action",  label:"行动力",   icon:"⚡" },
@@ -1009,7 +1039,7 @@ function act(action, el){
     }
     case 'toWorkbench': openWorkbench(); render(); break;
     case 'pickSpec': state.currentChapter.specificity = el.dataset.val; render(); break;
-    case 'enterChapter': enterChapter(); render(); break;
+    case 'enterChapter': return enterChapter();
     case 'makeDecision': makeDecision(+el.dataset.idx); render(); break;
     case 'publish': publish(); render(); break;
     case 'authorDecide': authorDecide(+el.dataset.idx); render(); break;
@@ -1018,9 +1048,41 @@ function act(action, el){
   }
 }
 
+const pendingActions = new Set();
 document.addEventListener('click', (e)=>{
-  const t = e.target.closest('[data-action]');
-  if(t) act(t.dataset.action, t);
+  const origin = e.target;
+  const t = origin && typeof origin.closest==='function' ? origin.closest('[data-action]') : null;
+  if(!t || t.disabled || t.getAttribute?.('aria-disabled')==='true') return;
+  e.preventDefault();
+  const action = t.dataset.action;
+  const guarded = ['enterChapter','makeDecision','nextBeat','publish','authorDecide','finalChoice'].includes(action);
+  if(guarded && pendingActions.has(action)) return;
+  if(guarded){
+    pendingActions.add(action);
+    t.classList?.add('is-pressed');
+    t.setAttribute?.('aria-busy','true');
+  }
+  let result;
+  try{ result = act(action, t); }
+  catch(err){
+    if(state){ state.uiNotice = err?.message || '这次操作没有完成，请再试一次。'; render(); }
+    pendingActions.delete(action);
+    return;
+  }
+  if(result && typeof result.then==='function'){
+    Promise.resolve(result).catch((err)=>{
+      if(state){ state.uiNotice = err?.message || '这次操作没有完成，请再试一次。'; render(); }
+    }).finally(()=>pendingActions.delete(action));
+  }else pendingActions.delete(action);
+});
+document.addEventListener('keydown', (e)=>{
+  if(state?.overlay || state?.phase!=='chapter' || e.altKey || e.ctrlKey || e.metaKey) return;
+  const keys = ['1','2','3','4','5','a','b','c','d','e'];
+  const pos = keys.indexOf(String(e.key).toLowerCase());
+  if(pos<0) return;
+  const idx = pos%5;
+  const t = document.querySelector(`[data-action="makeDecision"][data-idx="${idx}"]`);
+  if(t){ e.preventDefault(); t.click(); }
 });
 document.addEventListener('input', (e)=>{
   if(e.target && e.target.id==='penName') state.penName = e.target.value;
@@ -1278,9 +1340,9 @@ if (false && typeof location !== 'undefined' && location.hash){
 
 /* 连载节奏、双层过场与持续叙事。复用基础资源与结局渲染。 */
 const LENGTHS = {
-  short:{name:'短篇', chapters:6, beats:3, tone:'克制现实', desc:'18 次故事决策 · 聚焦一条冲突，后果落在身边的人。'},
-  medium:{name:'中篇', chapters:9, beats:4, tone:'层层反转', desc:'36 次故事决策 · 关系与线索交织，秘密逐步扩散。'},
-  long:{name:'长篇', chapters:12, beats:5, tone:'戏剧升级', desc:'60 次故事决策 · 多方卷入，公开冲突与连锁反转。'},
+  short:{name:'短篇', chapters:6, beats:4, tone:'克制现实', desc:'24 次故事决策 · 每章四幕，聚焦一条冲突并完整落下后果。'},
+  medium:{name:'中篇', chapters:9, beats:5, tone:'层层反转', desc:'45 次故事决策 · 每章五幕，关系、线索与回收彼此咬合。'},
+  long:{name:'长篇', chapters:12, beats:6, tone:'戏剧升级', desc:'72 次故事决策 · 每章六幕，多方卷入并形成连锁反转。'},
 };
 const STORY_ARCS = {
   '悬疑反转':{object:'一份时间对不上的出入记录', question:'记录中的空白究竟在保护谁', turns:['门禁记录被人改过，原始记录却还留在旧设备里。','证人承认自己撒过谎，但坚持那是为了保护一个无辜的人。','两份证词终于指向同一个时间点，谁也无法再用巧合解释。'], stakes:['对方要求在天亮前私下谈一次。','第二名证人收到警告，调查开始牵连身边的人。','记录突然被公开，所有涉事者都必须当众给出解释。']},
@@ -1292,7 +1354,7 @@ const STORY_ARCS = {
 };
 const originalBoot = boot, originalAct = act, originalWorkbench = openWorkbench;
 const originalPublish = publish, originalAuthor = authorDecide, originalFinal = finalChoice;
-const originalRenderWB = renderWorkbench, originalRenderSetup = renderSetup, originalEnding = renderEnding;
+const originalRenderWB = renderWorkbench, originalRenderSetup = renderSetup, originalFeedback = renderFeedback, originalEnding = renderEnding;
 function mode(){ return LENGTHS[state.length || 'medium']; }
 function setSchedule(){
   CHAPTERS = Array.from({length:mode().chapters},(_,i)=>{
@@ -1300,27 +1362,55 @@ function setSchedule(){
     return {day,stage:day>60?'起步期':day>30?'增长期':day>10?'危机期':'收束期'};
   });
 }
+async function refreshUsage(){
+  if(typeof fetch==='undefined'||typeof location==='undefined'||location.protocol==='file:')return;
+  try{
+    const r=await fetch('/api/status',{cache:'no-store'}),data=await r.json();
+    if(r.ok&&data.usage){state.zhihuUsage=data.usage;if(['prologue','workbench','map'].includes(state.phase))render();}
+  }catch{}
+}
 boot = function(){
   originalBoot();
-  Object.assign(state,{length:'medium',memory:[],trust:0,evidence:0,prep:0,feedbackKey:'stick',transition:null,chapterPlan:'追寻事实'});
-  setSchedule(); render();
+  Object.assign(state,{length:'medium',memory:[],storyBible:[],trust:0,evidence:0,prep:0,feedbackKey:'stick',transition:null,chapterPlan:'追寻事实',generationMode:'zhihu',generationJob:'',zhihuUsage:{limit:5000,used:0,remaining:5000,date:''},prologueStep:0,setupStep:0,workbenchStep:0,overlay:'',uiNotice:''});
+  setSchedule(); render(); refreshUsage();
 };
 function mascot(kind='待机_5秒_320x320_20fps_透明.gif'){
   return `<img class="kanshan" src="assets/liu-kanshan/animations/${kind}" alt="刘看山写作助手" width="160" height="160">`;
 }
 function bridge(target,title,body){ state.transition={target,title,body}; state.phase='transition'; }
-screens.transition = ()=>`<section class="passage"><div class="passage-line"></div>${mascot()}<span class="eyebrow">视角切换 · ${state.transition.target==='chapter'?'进入小说':'回到书桌'}</span><h1>${esc(state.transition.title)}</h1><p>${esc(state.transition.body)}</p><button class="btn btn--primary" data-action="continueTransition">${state.transition.target==='chapter'?'以主角身份进入':'继续'}</button><small>可直接继续 · 动画不阻挡操作</small></section>`;
-screens.title = ()=>`<section class="new-title"><div class="title-copy"><span class="eyebrow">一部小说，两种人生 / 90 DAYS</span><h1>盐选人生<span>写下故事，<br>也被故事改变。</span></h1><p>白天，你在书桌前决定故事的方向。<br>夜里，你走进自己写下的世界，承担每一个选择。</p><button class="btn btn--primary btn--big" data-action="toDraw">翻开我的第一章 →</button><div class="title-foot">制定剧本 · 进入故事 · 承担后果 · 面对读者</div></div><div class="title-art"><div class="art-book"><span>未完成的<br>第九十天</span><small>一份等待你署名的手稿</small></div>${mascot('电脑_6秒_320x320_20fps_透明.gif')}<span class="art-note">距交稿还有 <b>90</b> 天</span></div></section>`;
-screens.setup = ()=>originalRenderSetup().replace('<div class="setup-grid">',`<div class="length-grid">${Object.entries(LENGTHS).map(([key,m])=>`<button class="length-card ${state.length===key?'selected':''}" data-action="pickLength" data-val="${key}" aria-pressed="${state.length===key}"><span>${m.name} / ${m.chapters} 章</span><h3>${m.tone}</h3><p>${m.desc}</p><small>每章 ${m.beats} 次主角决策 + 作者规划与反馈</small></button>`).join('')}</div><div class="setup-grid">`);
+screens.transition = ()=>`<section class="passage"><div class="passage-line"></div>${mascot()}<span class="eyebrow">${state.transition.target==='chapter'?'进入小说':'回到书桌'}</span><h1>${esc(state.transition.title)}</h1><p>${esc(state.transition.body)}</p><button class="btn btn--primary" data-action="continueTransition">继续</button></section>`;
+screens.title = ()=>`<section class="new-title"><div class="title-copy"><span class="eyebrow">知乎盐选互动叙事 / 90 DAYS</span><h1>盐选人生<span>写下故事，<br>也被故事改变。</span></h1><button class="btn btn--primary btn--big" data-action="startPrologue">开始游戏 →</button></div><div class="title-art"><div class="art-book"><span>未完成的<br>第九十天</span></div>${mascot('电脑_6秒_320x320_20fps_透明.gif')}<span class="art-note">距交稿还有 <b>90</b> 天</span></div></section>`;
+const PROLOGUE=[
+  {tag:'知乎盐选写手 · 匿名用户',title:'谢邀。人在第九十天，稿子还没活过来。',body:'起初，你以为这只是一次普通更新。直到评论区里，有人叫出了一个尚未写下的名字。',visual:'question'},
+  {tag:'高赞回答 · 修改于昨夜',title:'后来我才知道，故事并不是写给人看的。',body:'至少，不全是。每次按下发布，纸页背面都会多出一扇门。',visual:'manuscript'},
+  {tag:'该问题已被折叠',title:'门后的人，和你用着同一双手。',body:'你替他做选择。他替你承担后果。至于谁才是作者——写到最后再说。',visual:'portal'},
+];
+screens.prologue=()=>{const item=PROLOGUE[state.prologueStep],last=state.prologueStep===PROLOGUE.length-1;return `<section class="prologue prologue--${item.visual}"><div class="prologue-no">0${state.prologueStep+1}</div><div class="prologue-copy"><span>${item.tag}</span><h1>${item.title}</h1><p>${item.body}</p>${last?`<div class="start-modes"><button data-action="chooseStartMode" data-val="zhihu" ${(state.zhihuUsage?.remaining??5000)<=0?'disabled':''}>知乎模式 <b>${Math.max(0,state.zhihuUsage?.remaining??5000)}</b></button><button data-action="chooseStartMode" data-val="local">本地模式 <b>∞</b></button></div>`:`<button class="prologue-next" data-action="nextPrologue">继续 →</button>`}</div><div class="prologue-art"><div class="prologue-paper"></div>${mascot(item.visual==='portal'?'晃悠_320x320_3秒_20fps_透明.gif':'电脑_6秒_320x320_20fps_透明.gif')}</div><div class="prologue-dots">${PROLOGUE.map((_,i)=>`<i class="${i===state.prologueStep?'on':''}"></i>`).join('')}</div></section>`;};
+function setupShell(step,title,body){return `<section class="screen setup-wizard"><div class="wizard-top"><span>开局设置 ${step}/3</span><div>${[1,2,3].map(i=>`<i class="${i<=step?'on':''}"></i>`).join('')}</div></div><h1 class="wizard-title">${title}</h1>${body}</section>`;}
+screens.setup = ()=>{
+  if(state.setupStep===0)return setupShell(1,'这次写多长？',`<div class="wizard-grid">${Object.entries(LENGTHS).map(([key,m])=>`<button class="wizard-card" data-action="pickLength" data-val="${key}"><b>${m.name}</b><span>${m.chapters} 章 · ${m.chapters*m.beats} 次选择</span></button>`).join('')}</div>`);
+  if(state.setupStep===1)return setupShell(2,'故事写什么？',`<div class="setup-question">${esc(state.question.title)}</div><div class="wizard-block"><b>类型</b><div class="chip-row">${GENRES.map(g=>`<button class="chip ${g===state.genre?'chip--on':''}" data-action="pickGenre" data-val="${esc(g)}">${esc(g)}</button>`).join('')}</div></div><div class="wizard-block"><b>主题</b><div class="chip-row">${THEMES.map(t=>`<button class="chip ${t===state.theme?'chip--on':''}" data-action="pickTheme" data-val="${esc(t)}">${esc(t)}</button>`).join('')}</div></div><div class="wizard-actions"><button class="btn btn--ghost" data-action="setupBack">上一步</button><button class="btn btn--primary" data-action="nextSetup">下一步</button></div>`);
+  return setupShell(3,'你准备怎么写？',`<div class="wizard-grid route-wizard">${ROUTES.map(r=>`<button class="wizard-card ${r.key===state.routeLean?'selected':''}" data-action="pickRoute" data-val="${r.key}"><b>${esc(r.name)}</b><span>${esc(r.desc)}</span></button>`).join('')}</div><label class="pen-label">笔名<input class="pen-input" id="penName" maxlength="12" value="${esc(state.penName)}"></label><div class="wizard-actions"><button class="btn btn--ghost" data-action="setupBack">上一步</button><button class="btn btn--primary" data-action="startGame">进入第 90 天</button></div>`);
+};
 screens.map = ()=>`<section class="screen"><div class="map-heading"><div><span class="eyebrow">连载计划 / ${mode().name}</span><h1>还剩 ${state.day} 天，<br>故事正在向你索要答案。</h1></div>${mascot()}</div><div class="chapter-track">${CHAPTERS.map((c,i)=>`<div class="track-node ${i===state.chapterIndex?'current':''} ${i<state.chapterIndex?'complete':''}"><small>D-${c.day} · ${c.stage}</small><b>第 ${i+1} 章</b><span>${i<state.chapterIndex?'已归档':i===state.chapterIndex?'正在书写':'尚未发生'}</span></div>`).join('')}</div><div class="map-summary"><h3>上一章留下了什么</h3><p>${esc(state.memory.at(-1)||state.question.premise)}</p><p>行动力 ${state.resources.action} · 精力 ${state.resources.energy} · ${ROUTE_MAP[dominantRouteKey()].name}</p></div><button class="btn btn--primary btn--big" data-action="toWorkbench">打开第 ${state.chapterIndex+1} 章工作台 →</button></section>`;
 const PREP = [
   {label:'整理伏笔',detail:'行动力 −8 / 质量 +3 / 线索 +1',effect:{quality:3},action:-8},
   {label:'和读者聊聊',detail:'行动力 −8 / 热度 +3 / 精力 −2',effect:{heat:3,energy:-2},action:-8},
   {label:'休息一晚',detail:'行动力 +12 / 精力 +8 / 热度 −1',effect:{energy:8,heat:-1},action:12},
 ];
-screens.workbench = ()=>`<section class="screen planning"><div class="eyebrow">作者准备 / 第 ${state.currentChapter.num} 章</div><h2>先想清楚，这一章要留下什么。</h2><p>${esc(state.memory.at(-1)||state.question.premise)}</p><div class="plan-row">${['追寻事实','修复关系','正面冲突'].map(p=>`<button class="chip ${state.chapterPlan===p?'chip--on':''}" data-action="plan" data-val="${p}">${p}</button>`).join('')}</div><div class="prep-grid">${PREP.map((p,i)=>`<button class="prep-card" data-action="prepare" data-idx="${i}" ${state.prep>=2||state.resources.action+p.action<0?'disabled':''}><b>${p.label}</b><span>${p.detail}</span></button>`).join('')}</div><small>本章准备 ${state.prep}/2 · 可直接开始写作 · ${esc(state.prepNote||'')}</small></section>`+originalRenderWB();
+function usageLabel(){
+  const u=state.zhihuUsage||{limit:5000,used:0,remaining:5000};
+  return `今日剩余 ${Math.max(0,u.remaining)} / ${u.limit} 次`;
+}
+function workbenchShell(step,title,body){return `<section class="screen chapter-wizard"><div class="wizard-top"><span>第 ${state.currentChapter.num} 章 · ${step}/3</span><div>${[1,2,3].map(i=>`<i class="${i<=step?'on':''}"></i>`).join('')}</div></div><h1 class="wizard-title">${title}</h1>${body}</section>`;}
+screens.workbench = ()=>{
+  const ch=state.currentChapter;
+  if(state.workbenchStep===0)return workbenchShell(1,'这一章往哪里写？',`<div class="continuity-card"><span>前情</span><p>${esc(state.memory.at(-1)||state.question.premise)}</p></div><div class="wizard-grid intent-grid">${['追寻事实','修复关系','正面冲突'].map((plan,i)=>`<button class="wizard-card intent-card" data-action="plan" data-val="${plan}"><b>${plan}</b><span>${['查清矛盾，增加线索','推进人物关系','让冲突立即发生'][i]}</span></button>`).join('')}</div>`);
+  if(state.workbenchStep===1)return workbenchShell(2,'写之前做什么？',`<div class="prep-count">${state.prep}/2</div><div class="wizard-grid">${PREP.map((p,i)=>`<button class="wizard-card prep-card" data-action="prepare" data-idx="${i}" ${state.prep>=2||state.resources.action+p.action<0?'disabled':''}><b>${p.label}</b><span>${p.detail}</span></button>`).join('')}</div>${state.prepNote?`<div class="action-result">${esc(state.prepNote)}</div>`:''}<div class="wizard-actions"><button class="btn btn--ghost" data-action="workbenchBack">上一步</button><button class="btn btn--primary" data-action="nextWorkbench">${state.prep?'下一步':'跳过'}</button></div>`);
+  return workbenchShell(3,'给主角多少自由？',`<div class="wizard-grid script-grid">${SPECIFICS.map(s=>`<button class="wizard-card ${ch.specificity===s.key?'selected':''}" data-action="pickSpec" data-val="${s.key}"><b>${s.label}</b><span>${s.choices} 个选项 · −${s.cost} 行动力</span></button>`).join('')}</div><div class="chapter-ready"><span>${esc(state.chapterPlan)}</span><b>${state.generationMode==='local'?'本地模式':usageLabel()}</b></div>${state.uiNotice?`<div class="ui-notice">${esc(state.uiNotice)}</div>`:''}<div class="wizard-actions"><button class="btn btn--ghost" data-action="workbenchBack">上一步</button><button class="btn btn--primary btn--big" data-action="enterChapter">进入故事</button></div>`);
+};
 openWorkbench = function(){ originalWorkbench(); if(state.phase==='workbench'){
-  state.prep=0;state.prepNote='';state.currentChapter.steps=[];state.currentChapter.beat=0;
+  state.prep=0;state.prepNote='';state.workbenchStep=0;state.currentChapter.steps=[];state.currentChapter.beat=0;
   state.currentChapter.scene={...state.currentChapter.scene,name:state.question.setting};
   state.currentChapter.goal=`${['建立疑问','寻找证人','承担代价','发现矛盾','追问动机','兑现承诺'][state.chapterIndex%6]}：${STORY_ARCS[state.genre].question}`;
   state.currentChapter.before={...state.resources};
@@ -1328,7 +1418,8 @@ openWorkbench = function(){ originalWorkbench(); if(state.phase==='workbench'){
 function chapterIntro(){
   const a=STORY_ARCS[state.genre], ch=state.currentChapter;
   const ctx=baseCtx(ch.scene);
-  return `${fill(ch.scene.desc,ctx)} ${state.memory.length?'上一次的选择仍在起作用：'+state.memory.at(-1):state.question.premise} ${ctx.npc}把${a.object}放到面前，等着你先开口。`;
+  const carry=state.memory.length?`上一章留下的事实仍在起作用：${state.memory.at(-1)}`:state.question.premise;
+  return `${fill(ch.scene.desc,ctx)} ${carry} ${ctx.npc}把${a.object}放到面前，等着你先开口。`;
 }
 enterChapter = function(){
   const ch=state.currentChapter,s=SPECIFICS.find(x=>x.key===ch.specificity);
@@ -1350,30 +1441,53 @@ function beatText(){
 function options(){
   const a=STORY_ARCS[state.genre],ctx=baseCtx(state.currentChapter.scene),b=state.currentChapter.beat;
   const pool=[
-    {text:`核对${a.object}，要求补全${b?'刚才遗漏的细节':'来龙去脉'}`,effect:{quality:1,heat:0},evidence:1,trust:-1,result:`你把疑点逐一写下。${ctx.npc}终于指出了其中一个被忽略的细节；这条记录会保留在后续调查中。`},
-    {text:`让${ctx.npc}先解释，${state.trust>0?'延续上次的约定':'给对方一次坦白的机会'}`,effect:{style:1,energy:1},trust:1,evidence:0,result:`你没有打断。${ctx.npc}说完了最难开口的部分，并答应下次带来另一位知情人。你们的信任增加了。`},
-    {text:state.evidence>1?'带着已经核实的记录当面对质':'先试探对方，承担证据不足的风险',effect:{heat:2,energy:-1,quality:state.evidence>1?1:-1},trust:-1,evidence:0,result:state.evidence>1?'你按顺序摆出记录，对方没能解释其中的矛盾，答应在下一次会面补充证词。':'对方抓住了证据里的空白，拒绝继续回答。冲突升级了，你需要更多事实才能推进。'},
-    {text:`暂时离开，找${ctx.npc2}核实另一种说法`,effect:{quality:1,energy:-1},trust:0,evidence:1,result:`你找到${ctx.npc2}，得到了一份不同的说法。这条支线进入了你的行动记录，也让原先的判断不再那么确定。`},
+    {kind:'核实事实',hint:'增加线索，可能损伤信任',text:`核对${a.object}，要求补全${b?'刚才遗漏的细节':'来龙去脉'}`,effect:{quality:1,heat:0},evidence:1,trust:-1,result:`你把疑点逐一写下。${ctx.npc}终于指出了其中一个被忽略的细节；这条记录会保留在后续调查中。`},
+    {kind:'建立信任',hint:'改善关系，保留后续合作',text:`让${ctx.npc}先解释，${state.trust>0?'延续上次的约定':'给对方一次坦白的机会'}`,effect:{style:1,energy:1},trust:1,evidence:0,result:`你没有打断。${ctx.npc}说完了最难开口的部分，并答应下次带来另一位知情人。你们的信任增加了。`},
+    {kind:'正面对质',hint:state.evidence>1?'证据充分，推动主线':'证据不足，风险较高',text:state.evidence>1?'带着已经核实的记录当面对质':'先试探对方，承担证据不足的风险',effect:{heat:2,energy:-1,quality:state.evidence>1?1:-1},trust:-1,evidence:0,result:state.evidence>1?'你按顺序摆出记录，对方没能解释其中的矛盾，答应在下一次会面补充证词。':'对方抓住了证据里的空白，拒绝继续回答。冲突升级了，你需要更多事实才能推进。'},
+    {kind:'探索支线',hint:'获得另一种说法，消耗精力',text:`暂时离开，找${ctx.npc2}核实另一种说法`,effect:{quality:1,energy:-1},trust:0,evidence:1,result:`你找到${ctx.npc2}，得到了一份不同的说法。这条支线进入了你的行动记录，也让原先的判断不再那么确定。`},
+    {kind:'观察等待',hint:'保留主动权，热度可能下降',text:`先不表态，观察${ctx.npc}会如何处理眼前的压力`,effect:{style:1,heat:-1,energy:1},trust:0,evidence:0,result:`你把沉默留在现场。${ctx.npc}误以为你已经掌握更多事实，主动暴露了一个前后不一致的细节；代价是局面暂时没有向前推进。`},
   ];
   // 作者方向和上章反馈决定选项排序；具体度限制可探索分支。
   const preferred=state.chapterPlan==='修复关系'?1:state.chapterPlan==='正面冲突'?2:0;
-  const order=[preferred,...[0,1,2,3].filter(i=>i!==preferred)];
+  const order=[preferred,...[0,1,2,3,4].filter(i=>i!==preferred)];
   if(['cater','reply','argue'].includes(state.feedbackKey)&&preferred!==2){order.splice(order.indexOf(2),1);order.splice(1,0,2);}
-  const count=state.resources.energy<25?2:SPECIFICS.find(s=>s.key===state.currentChapter.specificity).choices;
-  return order.slice(0,count).map(i=>state.currentChapter.generated?.beats[b].options[i]||pool[i]);
+  const configured=SPECIFICS.find(s=>s.key===state.currentChapter.specificity).choices;
+  const count=state.resources.energy<25?Math.max(3,configured-1):configured;
+  return order.slice(0,count).map(i=>{
+    const generated=state.currentChapter.generated?.beats?.[b]?.options?.[i];
+    return generated?{...pool[i],...generated,kind:generated.kind||pool[i].kind,hint:generated.hint||pool[i].hint}:pool[i];
+  });
 }
-screens.chapter = ()=>{ const ch=state.currentChapter; ch.decisions=options(); return `<section class="story-stage"><div class="story-sky"></div><div class="story-meta"><span>小说世界 / ${esc(ch.scene.name)}</span><span>第 ${ch.num} 章 · ${ch.beat+1}/${mode().beats} 幕</span></div><article class="story-panel"><span class="eyebrow">${['抵达','试探','交锋','转折','余波'][ch.beat]} · ${mode().tone}</span><h1>${esc(STORY_ARCS[state.genre].question)}？</h1><p class="story-text">${esc(beatText())}</p><div class="story-facts">关系：${state.trust>0?'逐步信任':state.trust<0?'有所戒备':'尚未明朗'} · 已核实线索 ${state.evidence}<br>作者意图：${esc(ch.plan)} · 上章反馈：${esc(AUTHOR_DECISIONS.find(a=>a.key===state.feedbackKey).label)}</div><div class="story-options">${ch.decisions.map((d,i)=>`<button class="choice" data-action="makeDecision" data-idx="${i}"><span class="choice-idx">${String.fromCharCode(65+i)}</span><span>${esc(d.text)}</span></button>`).join('')}</div></article></section>`; };
+const BEAT_NAMES=['抵达','试探','交锋','追问','转折','余波'];
+function effectText(d){
+  const tags=[];
+  if(d.evidence>0)tags.push('线索 +1');
+  if(d.trust>0)tags.push('关系改善');
+  if(d.trust<0)tags.push('关系承压');
+  if(d.effect?.heat>0)tags.push('热度上升');
+  if(d.effect?.quality>0)tags.push('质量提升');
+  if(d.effect?.energy<0)tags.push('消耗精力');
+  return tags.slice(0,2).join(' · ')||'影响将在选择后揭晓';
+}
+screens.chapter = ()=>{
+  const ch=state.currentChapter,previous=state.storyBible.at(-1);ch.choiceLocked=false;ch.decisions=options();
+  const carry=previous?`<div class="story-continuity"><b>前情承接 · 第 ${previous.chapter} 章</b><span>${esc(trunc(previous.lastResult,120))}</span><small>未解决：${esc(trunc(previous.cliff,72))}</small></div>`:'';
+  return `<section class="story-stage"><div class="story-sky"></div><div class="story-meta"><span>小说世界 / ${esc(ch.scene.name)}</span><span>第 ${ch.num} 章 · ${ch.beat+1}/${mode().beats} 幕</span></div><div class="beat-progress" aria-label="章节进度">${Array.from({length:mode().beats},(_,i)=>`<span class="${i<ch.beat?'done':i===ch.beat?'current':''}"><i></i>${BEAT_NAMES[i]||`第${i+1}幕`}</span>`).join('')}</div><article class="story-panel"><span class="eyebrow">${BEAT_NAMES[ch.beat]||`第 ${ch.beat+1} 幕`} · ${mode().tone}</span><h1>${esc(STORY_ARCS[state.genre].question)}？</h1>${carry}<p class="story-text">${esc(beatText())}</p><div class="story-facts"><span>关系 <b>${state.trust>0?'逐步信任':state.trust<0?'有所戒备':'尚未明朗'}</b></span><span>已核实线索 <b>${state.evidence}</b></span><span>作者意图 <b>${esc(ch.plan)}</b></span><span>${previous?'上章回应':'本章任务'} <b>${esc(previous?previous.authorResponse:'建立人物与核心冲突')}</b></span></div><div class="decision-brief"><b>你怎么做？</b></div>${state.uiNotice?`<div class="ui-notice" role="alert">${esc(state.uiNotice)}</div>`:''}<div class="story-options">${ch.decisions.map((d,i)=>`<button type="button" class="choice choice--${i}" data-action="makeDecision" data-idx="${i}" aria-label="${String.fromCharCode(65+i)}：${esc(d.text)}"><span class="choice-idx">${String.fromCharCode(65+i)}</span><span class="choice-copy"><b>${esc(d.kind||'采取行动')}</b><span>${esc(d.text)}</span><small>${esc(d.hint||effectText(d))}</small></span><span class="choice-impact">${esc(effectText(d))}</span></button>`).join('')}</div></article></section>`;
+};
 makeDecision = function(idx){
   if(state.phase!=='chapter')return;
-  const ch=state.currentChapter,d=ch.decisions[idx];if(!d)return;
+  const ch=state.currentChapter,d=ch.decisions[idx];
+  if(ch.choiceLocked)return;
+  if(!d){state.uiNotice='这个选项已失效，页面已为你刷新。';render();return;}
+  ch.choiceLocked=true;state.uiNotice='';
   ch.decision={...d,consequence:d.result};
   applyEffect(d.effect);state.trust+=d.trust;state.evidence+=d.evidence;
-  ch.steps.push({text:d.text,result:d.result,situation:beatText()});
+  ch.steps.push({kind:d.kind||'行动',text:d.text,result:d.result,situation:beatText(),impact:effectText(d)});
   state.phase='consequence';
 };
-screens.consequence = ()=>`<section class="passage consequence"><span class="eyebrow">选择已经发生 / 第 ${state.currentChapter.beat+1} 幕</span><h2>${esc(state.currentChapter.steps.at(-1).text)}</h2><p>${esc(state.currentChapter.steps.at(-1).result)}</p><small>这次行动将写入本章，并被后续剧情记住。</small><button class="btn btn--primary" data-action="nextBeat">${state.currentChapter.beat+1<mode().beats?'看看接下来发生什么 →':'收起这一幕，回到书桌 →'}</button></section>`;
+screens.consequence = ()=>{const step=state.currentChapter.steps.at(-1);return `<section class="passage consequence"><div class="consequence-mark">✓</div><span class="eyebrow">${esc(step.kind)} / 第 ${state.currentChapter.beat+1} 幕</span><h2>${esc(step.text)}</h2><p>${esc(step.result)}</p><div class="memory-slip"><b>${esc(step.impact)}</b></div><button class="btn btn--primary btn--big" data-action="nextBeat">${state.currentChapter.beat+1<mode().beats?'继续 →':'回到书桌 →'}</button></section>`;};
 generateProse = function(ch){
-  ch.prose=[ch.intro,...ch.steps.flatMap(s=>[s.situation,s.result])];
+  ch.prose=[ch.intro,...ch.steps.flatMap((s,i)=>[`${BEAT_NAMES[i]||`第${i+1}幕`}：${s.situation}`,`你选择了「${s.text}」。${s.result}`])];
   ch.prose=[...new Set(ch.prose)];
   ch.cliffHook=state.question.mystery||STORY_ARCS[state.genre].question;
   ch.prose.push(`这一章停在了这里：${ch.cliffHook}。${state.trust>0?'有人愿意同你一起寻找答案。':'下一次开口，可能需要付出更大的代价。'}`);
@@ -1389,7 +1503,12 @@ publish = function(){
 authorDecide = function(idx){
   if(state.phase!=='feedback')return;
   const a=AUTHOR_DECISIONS[idx];if(!a)return;
-  state.feedbackKey=a.key;state.memory.push(state.currentChapter.steps.map(s=>s.result).join(' '));
+  state.feedbackKey=a.key;
+  const ch=state.currentChapter,last=ch.steps.at(-1);
+  const actionTrail=ch.steps.map((step,i)=>`${i+1}.${step.kind}：${trunc(step.result,90)}`).join('；');
+  const memory=`第${ch.num}章行动链：${actionTrail}。最终结果：${trunc(last.result,180)} 未解决的问题：${ch.cliffHook}。作者回应：${a.label}。`;
+  state.memory.push(memory);
+  state.storyBible.push({chapter:ch.num,goal:ch.goal,decisions:ch.steps.map(step=>({kind:step.kind,text:trunc(step.text,90),result:trunc(step.result,120)})),lastAction:last.text,lastResult:last.result,cliff:ch.cliffHook,authorResponse:a.label,trust:state.trust,evidence:state.evidence});
   originalAuthor(idx);state.resources.action=clamp(state.resources.action+20,0,100);
   bridge(state.phase,'关掉评论区，留下一条新的承诺。',`${a.note} 下一章的选项会回应你这次的「${a.label}」。${state.chapterIndex<CHAPTERS.length?'日历翻到剩余 '+state.day+' 天。':'接下来为作品写下最终答案。'}`);
 };
@@ -1400,53 +1519,119 @@ finalChoice = function(idx){
 };
 screens.ending = ()=>`<section class="screen novel-ending"><span class="eyebrow">作品结局</span><h2>最后一页，终于有了答案。</h2><p>${esc(state.novelEnding||'')}</p><p>${mode().chapters} 章 · ${mode().chapters*mode().beats} 次主角决策 · ${state.evidence} 条核实线索</p></section>`+originalEnding();
 act = function(action,el){
-  if(action==='pickLength'&&state.phase==='setup'){state.length=el.dataset.val;setSchedule();render();return;}
+  if(action==='startPrologue'&&state.phase==='title'){state.phase='prologue';state.prologueStep=0;render();return;}
+  if(action==='nextPrologue'&&state.phase==='prologue'){state.prologueStep=Math.min(PROLOGUE.length-1,state.prologueStep+1);render();return;}
+  if(action==='chooseStartMode'&&state.phase==='prologue'){
+    if(el.dataset.val==='zhihu'&&(state.zhihuUsage?.remaining??5000)<=0)return;
+    state.generationMode=el.dataset.val==='local'?'local':'zhihu';drawQuestion();render();return;
+  }
+  if(action==='openOverlay'&&state.question){state.overlay=el.dataset.val;render();return;}
+  if(action==='closeOverlay'){state.overlay='';render();return;}
+  if(action==='toSetup'&&state.phase==='draw'){state.setupStep=0;state.phase='setup';render();return;}
+  if(action==='pickLength'&&state.phase==='setup'&&state.setupStep===0){state.length=el.dataset.val;setSchedule();state.setupStep=1;render();return;}
+  if(action==='nextSetup'&&state.phase==='setup'){state.setupStep=Math.min(2,state.setupStep+1);render();return;}
+  if(action==='setupBack'&&state.phase==='setup'){state.setupStep=Math.max(0,state.setupStep-1);render();return;}
   if(action==='continueTransition'&&state.phase==='transition'){state.phase=state.transition.target;state.transition=null;render();return;}
-  if(action==='plan'&&state.phase==='workbench'){state.chapterPlan=el.dataset.val;render();return;}
-  if(action==='prepare'&&state.phase==='workbench'){
+  if(action==='plan'&&state.phase==='workbench'&&state.workbenchStep===0){state.chapterPlan=el.dataset.val;state.workbenchStep=1;render();return;}
+  if(action==='prepare'&&state.phase==='workbench'&&state.workbenchStep===1){
     const i=+el.dataset.idx,p=PREP[i];if(!p||state.prep>=2||state.resources.action+p.action<0)return;
     state.prep++;state.resources.action=clamp(state.resources.action+p.action,0,100);applyEffect(p.effect);if(i===0)state.evidence++;
     state.prepNote=`已完成「${p.label}」`;render();return;
   }
+  if(action==='nextWorkbench'&&state.phase==='workbench'&&state.workbenchStep===1){state.workbenchStep=2;render();return;}
+  if(action==='workbenchBack'&&state.phase==='workbench'){state.workbenchStep=Math.max(0,state.workbenchStep-1);render();return;}
+  if(action==='pickSpec'&&state.phase==='workbench'){if(state.workbenchStep!==2)return;state.currentChapter.specificity=el.dataset.val;render();return;}
   if(action==='nextBeat'&&state.phase==='consequence'){
-    const ch=state.currentChapter;ch.beat++;
+    const ch=state.currentChapter;ch.beat++;ch.choiceLocked=false;
     if(ch.beat<mode().beats)state.phase='chapter';else{generateProse(ch);bridge('manuscript','角色的经历，变成你桌上的手稿。','你重新成为作者。读完这一章，决定是否发布，再面对读者的反应。');}render();return;
   }
   if(action==='pickRoute'&&state.phase==='setup'){state.routeLean=el.dataset.val;state.routeAffinity={traffic:0,quality:0,controversy:0,commercial:0,self:0};state.routeAffinity[el.dataset.val]=8;render();return;}
-  if(action==='enterChapter'&&state.phase==='workbench'&&state.resources.action<SPECIFICS.find(s=>s.key===state.currentChapter.specificity).cost&&state.prep>=2){state.resources.action=25;applyEffect({quality:-4,energy:-8});}
-  originalAct(action,el);
+  if(action==='enterChapter'&&state.phase==='workbench'){
+    if(state.workbenchStep!==2)return;
+    if(state.resources.action<SPECIFICS.find(s=>s.key===state.currentChapter.specificity).cost&&state.prep>=2){state.resources.action=25;applyEffect({quality:-4,energy:-8});}
+  }
+  return originalAct(action,el);
 };
+function mapOverlay(){
+  const completed=state.chapters.length,current=state.currentChapter&&!state.chapters.includes(state.currentChapter)?state.currentChapter.steps?.length||0:0;
+  const done=Math.min(mode().chapters*mode().beats,completed*mode().beats+current),percent=Math.round(done/(mode().chapters*mode().beats)*100);
+  return `<div class="game-overlay" role="dialog" aria-modal="true"><div class="overlay-panel map-panel"><button class="overlay-close" data-action="closeOverlay">×</button><span class="overlay-kicker">故事地图 · ${percent}%</span><h2>${mode().chapters} 章 / ${mode().chapters*mode().beats} 次选择</h2><div class="overlay-progress"><i style="width:${percent}%"></i></div><div class="overlay-chapters">${CHAPTERS.map((chapter,i)=>`<div class="${i<completed?'done':i===state.chapterIndex?'current':''}"><b>${i+1}</b><span>D-${chapter.day}</span></div>`).join('')}</div><div class="map-now"><b>${state.phase==='chapter'||state.phase==='consequence'?`第 ${state.currentChapter.num} 章 · 第 ${state.currentChapter.beat+1} 幕`:`第 ${Math.min(state.chapterIndex+1,mode().chapters)} 章`}</b><span>${esc(state.currentChapter?.goal||state.memory.at(-1)||state.question.premise)}</span></div></div></div>`;
+}
+function statusOverlay(){
+  const modeValue=state.generationMode==='local'?'本地模式 · 不限次数':`知乎模式 · ${usageLabel()}`;
+  return `<div class="game-overlay" role="dialog" aria-modal="true"><div class="overlay-panel status-panel"><button class="overlay-close" data-action="closeOverlay">×</button><span class="overlay-kicker">当前状态</span><h2>${esc(state.penName)} · D-${state.day}</h2><div class="status-resources">${RES_DEFS.map(item=>`<div><span>${item.label}</span><b>${Math.round(state.resources[item.key])}</b><i><em style="width:${state.resources[item.key]}%;background:${resColor(item.key)}"></em></i></div>`).join('')}</div><div class="status-facts"><span>模式 <b>${modeValue}</b></span><span>路线 <b>${ROUTE_MAP[dominantRouteKey()].name}</b></span><span>关系 <b>${state.trust}</b></span><span>线索 <b>${state.evidence}</b></span></div>${state.currentChapter?`<div class="status-goal"><b>当前目标</b><span>${esc(state.currentChapter.goal)}</span></div>`:''}</div></div>`;
+}
 const baseRender=render;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&state?.overlay){state.overlay='';render();}});
 render = function(){
   baseRender();
-  const el=$('#app');if(!state.question||['title','draw','setup'].includes(state.phase))return;
+  const el=$('#app');if(!state.question||['title','prologue','draw','setup'].includes(state.phase))return;
   const inner=['chapter','consequence'].includes(state.phase);
-  el.innerHTML=`<header class="identity ${inner?'identity-story':''}"><b>${inner?'小说世界 · 你是主角':'作者世界 · 你是写手'}</b><span>${inner?esc(state.question.protagonist.role):esc(state.penName)} / D-${state.day}</span></header>`+el.innerHTML;
+  const modeText=state.generationMode==='local'?'本地模式 · 不限次数':`知乎模式 · ${usageLabel()}`;
+  el.innerHTML=`<header class="identity game-nav ${inner?'identity-story':''}"><div class="nav-left"><button data-action="openOverlay" data-val="map">← 返回地图</button><button data-action="openOverlay" data-val="status">当前状态</button></div><b>${inner?'小说世界 · 你是主角':'作者世界 · 你是写手'}</b><span class="identity-mode">${modeText}</span></header>`+el.innerHTML+(state.overlay==='map'?mapOverlay():state.overlay==='status'?statusOverlay():'');
 };
 screens.manuscript = ()=>renderManuscript().replace('AI 续写 · 章节成稿','作者世界 · 审阅本章').replace('AI 依大纲、人物状态与已埋伏笔续写。','正文根据本章行动记录整理。');
+function authorImpact(eff){
+  return Object.entries(eff).filter(([,value])=>value).map(([key,value])=>`${RES_DEFS.find(item=>item.key===key)?.label||key} ${value>0?'+':''}${value}`).join(' · ')||'资源不变';
+}
+screens.feedback = ()=>{
+  let html=originalFeedback();
+  html=html.replace('<div class="doc-block"><div class="doc-h">作者层决策</div>', '<div class="doc-block author-decision-block"><div class="author-decision-head"><div class="doc-h">作者层决策</div></div>');
+  return html.replace(/<button class="author-choice" data-action="authorDecide" data-idx="(\d+)">([\s\S]*?)<\/button>/g,(match,index,body)=>{const decision=AUTHOR_DECISIONS[Number(index)];return `<button class="author-choice" data-action="authorDecide" data-idx="${index}">${body}<small>${esc(authorImpact(decision.eff))}</small><em>写入下一章</em></button>`;});
+};
 const enterLocal=enterChapter;
-enterChapter = async function(){
+const pollDelay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function waitForGeneration(ch,jobId){
+  try{
+    while(true){
+      await pollDelay(1200);
+      const r=await fetch(`/api/chapter/${encodeURIComponent(jobId)}`,{cache:'no-store'});
+      let data;try{data=await r.json();}catch{throw Error('本地生成服务返回了无法识别的内容。');}
+      if(data.usage)state.zhihuUsage=data.usage;
+      if(r.status===202)continue;
+      if(!r.ok){state.generationJob='';throw Error(data.error||'生成失败');}
+      state.generationJob='';ch.generated=data;
+      if(state.memory.length)ch.generated.beats[0].situation=`承接上章：${state.memory.at(-1)}\n\n${ch.generated.beats[0].situation}`;
+      state.phase='workbench';enterLocal();render();return;
+    }
+  }catch(e){
+    const network=/network|fetch|网络请求|failed/i.test(String(e.message));
+    state.generationError=network?'本地生成服务连接中断。任务可能仍在继续。':e.message;
+    state.phase='generationError';render();
+  }
+}
+enterChapter = function(){
   if(state.phase!=='workbench')return;
   const cost=SPECIFICS.find(s=>s.key===state.currentChapter.specificity).cost;
   if(state.resources.action<cost){enterLocal();return;}
+  if(state.generationMode==='local'){enterLocal();render();return;}
+  if((state.zhihuUsage?.remaining??5000)<=0){state.uiNotice='今日知乎模式次数已用完，请切换到本地模式。';render();return;}
   if(typeof fetch==='undefined'||typeof location==='undefined'||location.protocol==='file:'){enterLocal();return;}
-  const ch=state.currentChapter;state.phase='generating';state.generationError='';render();
-  try{
-    const r=await fetch('/api/chapter',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({genre:state.genre,question:state.question,chapter:ch.num,chapters:mode().chapters,beats:mode().beats,tone:mode().tone,plan:state.chapterPlan,history:state.memory.slice(-4),editor:state.pendingDemand?.constraint,feedback:state.feedbackKey,trust:state.trust,evidence:state.evidence}),signal:AbortSignal.timeout(100000)});
-    const data=await r.json();if(!r.ok)throw Error(data.error||'生成失败');ch.generated=data;
-    state.phase='workbench';enterLocal();render();
-  }catch(e){state.generationError=e.name==='TimeoutError'?'本章生成超时。':e.message;state.phase='generationError';render();}
+  return (async()=>{
+    const ch=state.currentChapter;state.phase='generating';state.generationError='';render();
+    try{
+      const r=await fetch('/api/chapter',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({genre:state.genre,question:state.question,chapter:ch.num,chapters:mode().chapters,beats:mode().beats,tone:mode().tone,plan:state.chapterPlan,history:state.memory.slice(-6),storyBible:state.storyBible.slice(-6),continuity:{lastChapter:state.storyBible.at(-1)||null,openThreads:state.foreshadowing.slice(-5),relationship:state.trust,evidence:state.evidence},editor:state.pendingDemand?.constraint,feedback:state.feedbackKey,trust:state.trust,evidence:state.evidence})});
+      let data;try{data=await r.json();}catch{throw Error('本地生成服务返回了无法识别的内容。');}
+      if(data.usage)state.zhihuUsage=data.usage;if(!r.ok)throw Error(data.error||'生成失败');
+      if(!data.jobId)throw Error('本地生成服务没有返回任务编号。');
+      state.generationJob=data.jobId;return waitForGeneration(ch,data.jobId);
+    }catch(e){
+      const network=/network|fetch|网络请求|failed/i.test(String(e.message));
+      state.generationError=network?'无法连接本地生成服务，请刷新页面后重试。':e.message;state.phase='generationError';render();
+    }
+  })();
 };
-screens.generating=()=>`<section class="passage">${mascot('电脑_6秒_320x320_20fps_透明.gif')}<span class="eyebrow">刘看山正在整理这一章</span><h2>让前面的选择，成为接下来的故事。</h2><p>正在参考知乎故事，并结合人物关系、作者意图和上一章的后果构思剧情。</p><small>通常需要几十秒；完成后会进入视角过场。</small></section>`;
-screens.generationError=()=>`<section class="passage"><h2>这一页暂时没写出来。</h2><p>${esc(state.generationError)}</p><button class="btn btn--primary" data-action="retryGeneration">重新构思</button><button class="btn btn--ghost" data-action="localChapter">使用内置剧情继续本章</button></section>`;
+screens.generating=()=>`<section class="passage">${mascot('电脑_6秒_320x320_20fps_透明.gif')}<span class="eyebrow">知乎模式</span><h2>正在写下一章。</h2><p>今日剩余 ${state.zhihuUsage?.remaining??5000} 次</p></section>`;
+screens.generationError=()=>`<section class="passage"><h2>这一页暂时没写出来。</h2><p>${esc(state.generationError)}</p><button class="btn btn--primary" data-action="retryGeneration">${state.generationJob?'继续等待':'重新构思'}</button><button class="btn btn--ghost" data-action="localChapter">切换本地模式</button></section>`;
 const beforeRemoteAct=act;
 act=function(action,el){
-  if(state.phase==='generationError'&&action==='retryGeneration'){state.phase='workbench';enterChapter();return;}
-  if(state.phase==='generationError'&&action==='localChapter'){state.phase='workbench';enterLocal();render();return;}
-  beforeRemoteAct(action,el);
+  if(state.phase==='generationError'&&action==='retryGeneration'){
+    if(state.generationJob){state.phase='generating';render();return waitForGeneration(state.currentChapter,state.generationJob);}
+    state.phase='workbench';return enterChapter();
+  }
+  if(state.phase==='generationError'&&action==='localChapter'){state.generationJob='';state.generationMode='local';state.phase='workbench';enterLocal();render();return;}
+  return beforeRemoteAct(action,el);
 };
-const manuscriptWithSource=screens.manuscript;
-screens.manuscript=()=>manuscriptWithSource()+`<div class="screen source-note">${state.currentChapter.generated?`本章由知乎直答结合行动记录生成。节奏参考：${state.currentChapter.generated.sources.map(s=>`<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a>`).join('、')}。参考作品归原作者所有，本章为原创游戏剧情。`:'本章使用内置剧情。'}</div>`;
 boot();
 </script>
 </body>

@@ -17,7 +17,7 @@ const documentStub = {
 const windowStub = { CONTENT, scrollTo:()=>{}, addEventListener:()=>{} };
 new Function('window','document', code)(windowStub, documentStub);
 
-function click(action,val,idx){ handlers.click({target:{closest:()=>({dataset:{action,val,idx}})}}); return appEl.innerHTML; }
+function click(action,val,idx){ handlers.click({preventDefault:()=>{},target:{closest:()=>({dataset:{action,val,idx}})}}); return appEl.innerHTML; }
 function strip(html){ return html.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim(); }
 function grab(html, token){
   const re = new RegExp(`class="[^"]*\\b${token}\\b[^"]*"[^>]*>([\\s\\S]*?)<\\/`, 'g');
@@ -25,16 +25,17 @@ function grab(html, token){
   return m ? strip(m[1]) : '(none)';
 }
 
-click('toDraw');
+click('startPrologue');click('nextPrologue');click('nextPrologue');click('chooseStartMode','local');
 console.log('=== 抽题 ===');
 console.log(grab(appEl.innerHTML,'qcard-title'));
 console.log('类型:', grab(appEl.innerHTML,'qtag'));
 
-click('toSetup'); click('pickLength','short'); click('startGame');
+click('toSetup'); click('pickLength','short');click('nextSetup');click('startGame');
 click('toWorkbench');
 console.log('\n=== 第1章 工作台 ===');
-console.log('目标:', grab(appEl.innerHTML,'wb-goal-line'));
+console.log('步骤:', grab(appEl.innerHTML,'wizard-title'));
 
+click('plan','追寻事实');click('prepare',null,'2');click('nextWorkbench');
 click('enterChapter');
 click('continueTransition');
 console.log('场景:', grab(appEl.innerHTML,'story-meta'));
@@ -42,7 +43,7 @@ console.log('情境:', grab(appEl.innerHTML,'story-text'));
 console.log('选项A:', grab(appEl.innerHTML,'choice').split('  ')[0]);
 
 click('makeDecision', null, '0');
-click('nextBeat');click('makeDecision',null,'0');click('nextBeat');click('makeDecision',null,'0');click('nextBeat');click('continueTransition');
+click('nextBeat');click('makeDecision',null,'0');click('nextBeat');click('makeDecision',null,'0');click('nextBeat');click('makeDecision',null,'0');click('nextBeat');click('continueTransition');
 console.log('\n--- AI 续写正文 ---');
 console.log(grab(appEl.innerHTML,'ms-body'));
 
@@ -55,7 +56,7 @@ while((m=cre.exec(fb)) && i<5){ console.log('·', strip(m[1])); i++; }
 
 click('authorDecide', null, '0');
 click('continueTransition');
-for(let c=2;c<=6;c++){ click('toWorkbench');click('prepare',null,'2'); click('enterChapter');click('continueTransition'); for(let b=0;b<3;b++){click('makeDecision',null,'0');click('nextBeat');}click('continueTransition'); click('publish'); click('authorDecide',null,'0');click('continueTransition'); }
+for(let c=2;c<=6;c++){ click('toWorkbench');click('plan','追寻事实');click('prepare',null,'2');click('nextWorkbench');click('enterChapter');click('continueTransition'); for(let b=0;b<4;b++){click('makeDecision',null,'0');click('nextBeat');}click('continueTransition'); click('publish'); click('authorDecide',null,'0');click('continueTransition'); }
 click('finalChoice', null, '0');
 const end = appEl.innerHTML;
 console.log('\n=== 结局 ===');

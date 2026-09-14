@@ -16,9 +16,9 @@ const ROUTES = [
 const ROUTE_MAP = Object.fromEntries(ROUTES.map(r=>[r.key,r]));
 const STAGES = ["起步期","增长期","危机期","收束期"];
 const SPECIFICS = [
-  { key:"specific", label:"具体", hint:"指定地点、人物、目标与结果 · 选择少，稳定推进", cost:15, choices:2, heat:1, quality:1 },
-  { key:"balanced", label:"适中", hint:"指定冲突、关键人物与必现事件 · 局部偏离",   cost:20, choices:3, heat:0, quality:0 },
-  { key:"broad",    label:"宽泛", hint:"只定主题、情绪与本章问题 · 高自由度，可能触发隐藏事件", cost:25, choices:4, heat:0, quality:0 },
+  { key:"specific", label:"具体", hint:"3 个聚焦行动 · 稳定推进主线，每一步都说明可能影响", cost:15, choices:3, heat:1, quality:1 },
+  { key:"balanced", label:"适中", hint:"4 个差异行动 · 主线与关系可以局部偏离", cost:20, choices:4, heat:0, quality:0 },
+  { key:"broad",    label:"宽泛", hint:"5 个开放行动 · 可观察、绕行或触发隐藏事件", cost:25, choices:5, heat:0, quality:0 },
 ];
 const RES_DEFS = [
   { key:"action",  label:"行动力",   icon:"⚡" },
@@ -579,7 +579,7 @@ function act(action, el){
     }
     case 'toWorkbench': openWorkbench(); render(); break;
     case 'pickSpec': state.currentChapter.specificity = el.dataset.val; render(); break;
-    case 'enterChapter': enterChapter(); render(); break;
+    case 'enterChapter': return enterChapter();
     case 'makeDecision': makeDecision(+el.dataset.idx); render(); break;
     case 'publish': publish(); render(); break;
     case 'authorDecide': authorDecide(+el.dataset.idx); render(); break;
@@ -588,9 +588,41 @@ function act(action, el){
   }
 }
 
+const pendingActions = new Set();
 document.addEventListener('click', (e)=>{
-  const t = e.target.closest('[data-action]');
-  if(t) act(t.dataset.action, t);
+  const origin = e.target;
+  const t = origin && typeof origin.closest==='function' ? origin.closest('[data-action]') : null;
+  if(!t || t.disabled || t.getAttribute?.('aria-disabled')==='true') return;
+  e.preventDefault();
+  const action = t.dataset.action;
+  const guarded = ['enterChapter','makeDecision','nextBeat','publish','authorDecide','finalChoice'].includes(action);
+  if(guarded && pendingActions.has(action)) return;
+  if(guarded){
+    pendingActions.add(action);
+    t.classList?.add('is-pressed');
+    t.setAttribute?.('aria-busy','true');
+  }
+  let result;
+  try{ result = act(action, t); }
+  catch(err){
+    if(state){ state.uiNotice = err?.message || '这次操作没有完成，请再试一次。'; render(); }
+    pendingActions.delete(action);
+    return;
+  }
+  if(result && typeof result.then==='function'){
+    Promise.resolve(result).catch((err)=>{
+      if(state){ state.uiNotice = err?.message || '这次操作没有完成，请再试一次。'; render(); }
+    }).finally(()=>pendingActions.delete(action));
+  }else pendingActions.delete(action);
+});
+document.addEventListener('keydown', (e)=>{
+  if(state?.overlay || state?.phase!=='chapter' || e.altKey || e.ctrlKey || e.metaKey) return;
+  const keys = ['1','2','3','4','5','a','b','c','d','e'];
+  const pos = keys.indexOf(String(e.key).toLowerCase());
+  if(pos<0) return;
+  const idx = pos%5;
+  const t = document.querySelector(`[data-action="makeDecision"][data-idx="${idx}"]`);
+  if(t){ e.preventDefault(); t.click(); }
 });
 document.addEventListener('input', (e)=>{
   if(e.target && e.target.id==='penName') state.penName = e.target.value;
