@@ -15,6 +15,7 @@ const STORY_ARCS = {
 const originalBoot = boot, originalAct = act, originalWorkbench = openWorkbench;
 const originalPublish = publish, originalAuthor = authorDecide, originalFinal = finalChoice;
 const originalRenderWB = renderWorkbench, originalRenderSetup = renderSetup, originalFeedback = renderFeedback, originalEnding = renderEnding;
+let resumableState = null;
 function mode(){ return LENGTHS[state.length || 'medium']; }
 function setSchedule(){
   CHAPTERS = Array.from({length:mode().chapters},(_,i)=>{
@@ -32,14 +33,44 @@ async function refreshUsage(){
 boot = function(){
   originalBoot();
   Object.assign(state,{length:'medium',memory:[],storyBible:[],trust:0,evidence:0,prep:0,feedbackKey:'stick',transition:null,chapterPlan:'追寻事实',generationMode:'zhihu',generationJob:'',zhihuUsage:{limit:5000,used:0,remaining:5000,date:''},prologueStep:0,setupStep:0,workbenchStep:0,overlay:'',uiNotice:''});
-  setSchedule(); render(); refreshUsage();
+  setSchedule();
+  resumableState=hydrateSavedGame(SaveSystem.loadGame());
+  render();refreshUsage();
 };
+
+function hydrateSavedGame(saved){
+  if(!saved)return null;
+  try{
+    const question=saved.questionId===null?null:CONTENT.questions.questions.find(item=>item.id===saved.questionId);
+    const pendingDemand=saved.pendingDemandId===null?null:CONTENT.editor.demands.find(item=>item.id===saved.pendingDemandId);
+    const pendingEvent=saved.pendingEventId===null?null:CONTENT.events.events.find(item=>item.id===saved.pendingEventId);
+    const ending=saved.endingId===null?null:CONTENT.endings.endings.find(item=>item.id===saved.endingId);
+    if((saved.questionId!==null&&!question)||(saved.pendingDemandId!==null&&!pendingDemand)||(saved.pendingEventId!==null&&!pendingEvent)||(saved.endingId!==null&&!ending))return null;
+    const restored={...saved,question,pendingDemand,pendingEvent,ending,crisisChoices:CONTENT.story.crisis.finalChoices.slice(),overlay:'',uiNotice:''};
+    delete restored.questionId;delete restored.pendingDemandId;delete restored.pendingEventId;delete restored.endingId;
+    if(restored.currentChapter&&restored.chapters.length&&restored.chapters.at(-1).num===restored.currentChapter.num)restored.currentChapter=restored.chapters.at(-1);
+    return restored;
+  }catch{return null;}
+}
+
+function beginFreshGame(){
+  SaveSystem.clearSave();resumableState=null;boot();state.phase='prologue';state.prologueStep=0;render();
+}
+
+function continueSavedGame(){
+  if(!resumableState)return;
+  state=resumableState;resumableState=null;setSchedule();render();refreshUsage();
+  if(state.phase==='generating'){
+    if(state.generationJob)return waitForGeneration(state.currentChapter,state.generationJob);
+    state.phase='generationError';state.generationError='生成任务尚未建立，请重新构思或切换本地模式。';render();
+  }
+}
 function mascot(kind='待机_5秒_320x320_20fps_透明.gif'){
   return `<img class="kanshan" src="assets/liu-kanshan/animations/${kind}" alt="刘看山写作助手" width="160" height="160">`;
 }
 function bridge(target,title,body){ state.transition={target,title,body}; state.phase='transition'; }
 screens.transition = ()=>`<section class="passage"><div class="passage-line"></div>${mascot()}<span class="eyebrow">${state.transition.target==='chapter'?'进入小说':'回到书桌'}</span><h1>${esc(state.transition.title)}</h1><p>${esc(state.transition.body)}</p><button class="btn btn--primary" data-action="continueTransition">继续</button></section>`;
-screens.title = ()=>`<section class="new-title"><div class="title-copy"><span class="eyebrow">知乎盐选互动叙事 / 90 DAYS</span><h1>盐选人生<span>写下故事，<br>也被故事改变。</span></h1><button class="btn btn--primary btn--big" data-action="startPrologue">开始游戏 →</button></div><div class="title-art"><div class="art-book"><span>未完成的<br>第九十天</span></div>${mascot('电脑_6秒_320x320_20fps_透明.gif')}<span class="art-note">距交稿还有 <b>90</b> 天</span></div></section>`;
+screens.title = ()=>`<section class="new-title"><div class="title-copy"><span class="eyebrow">知乎盐选互动叙事 / 90 DAYS</span><h1>盐选人生<span>写下故事，<br>也被故事改变。</span></h1>${resumableState?`<p>检测到第 ${Math.min(resumableState.chapterIndex+1,LENGTHS[resumableState.length].chapters)} 章 · D-${resumableState.day} 的本地存档。选择新游戏会清除这份进度。</p><div class="btn-row"><button class="btn btn--primary btn--big" data-action="continueGame">继续游戏 →</button><button class="btn btn--ghost btn--big" data-action="newGame">新游戏（清除存档）</button></div>`:`<button class="btn btn--primary btn--big" data-action="startPrologue">开始游戏 →</button>`}</div><div class="title-art"><div class="art-book"><span>未完成的<br>第九十天</span></div>${mascot('电脑_6秒_320x320_20fps_透明.gif')}<span class="art-note">距交稿还有 <b>90</b> 天</span></div></section>`;
 const PROLOGUE=[
   {tag:'知乎盐选写手 · 匿名用户',title:'谢邀。人在第九十天，稿子还没活过来。',body:'起初，你以为这只是一次普通更新。直到评论区里，有人叫出了一个尚未写下的名字。',visual:'question'},
   {tag:'高赞回答 · 修改于昨夜',title:'后来我才知道，故事并不是写给人看的。',body:'至少，不全是。每次按下发布，纸页背面都会多出一扇门。',visual:'manuscript'},
@@ -274,7 +305,7 @@ enterChapter = function(){
       let data;try{data=await r.json();}catch{throw Error('本地生成服务返回了无法识别的内容。');}
       if(data.usage)state.zhihuUsage=data.usage;if(!r.ok)throw Error(data.error||'生成失败');
       if(!data.jobId)throw Error('本地生成服务没有返回任务编号。');
-      state.generationJob=data.jobId;return waitForGeneration(ch,data.jobId);
+      state.generationJob=data.jobId;persistGame();return waitForGeneration(ch,data.jobId);
     }catch(e){
       const network=/network|fetch|网络请求|failed/i.test(String(e.message));
       state.generationError=network?'无法连接本地生成服务，请刷新页面后重试。':e.message;state.phase='generationError';render();
@@ -291,5 +322,16 @@ act=function(action,el){
   }
   if(state.phase==='generationError'&&action==='localChapter'){state.generationJob='';state.generationMode='local';state.phase='workbench';enterLocal();render();return;}
   return beforeRemoteAct(action,el);
+};
+
+const beforeSaveAct=act;
+act=function(action,el){
+  let result;
+  if(action==='continueGame'&&state.phase==='title')result=continueSavedGame();
+  else if((action==='newGame'&&state.phase==='title')||action==='replay')result=beginFreshGame();
+  else result=beforeSaveAct(action,el);
+  persistGame();
+  if(result&&typeof result.then==='function')return Promise.resolve(result).finally(()=>persistGame());
+  return result;
 };
 boot();

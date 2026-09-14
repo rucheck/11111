@@ -5,7 +5,7 @@ const ROOT = __dirname;
 const files = ['questions','story','readers','editor','endings','events'];
 const CONTENT = {};
 for (const f of files) CONTENT[f] = JSON.parse(fs.readFileSync(path.join(ROOT,'content',f+'.json'),'utf8'));
-const code = ['app.js','pacing.js'].map(f=>fs.readFileSync(path.join(ROOT,'src',f),'utf8')).join('\n');
+const code = ['save.js','app.js','pacing.js'].map(f=>fs.readFileSync(path.join(ROOT,'src',f),'utf8')).join('\n');
 
 let handlers = {};
 const appEl = { innerHTML:'', scrollTop:0 };
