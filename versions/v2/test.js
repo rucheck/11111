@@ -29,7 +29,7 @@ function run(length,specificity,genre){
     for(let b=0;b<beats;b++){
       assert.equal(g.get().phase,'chapter');assert(g.get().currentChapter.decisions.length>=3);assert(app.innerHTML.includes('story-atmosphere')&&app.innerHTML.includes('data-tension='));
       if(c>0&&b===0)assert(app.innerHTML.includes('前情承接'));
-      click('makeDecision',null,b%2);assert.equal(g.get().phase,'consequence');
+      click('makeDecision',null,b%2);assert.equal(g.get().phase,'consequence');assert(app.innerHTML.includes('consequence-stage')&&app.innerHTML.includes('suspense-motes'));
       const n=g.get().currentChapter.steps.length;click('makeDecision',null,0);assert.equal(g.get().currentChapter.steps.length,n);
       click('nextBeat');
     }

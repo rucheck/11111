@@ -698,6 +698,8 @@ body.game-atmosphere[data-tension="3"]{--ambient-top:#e5e3df;--ambient-bottom:#d
 body.game-atmosphere[data-tension="4"]{--ambient-top:#dedbd7;--ambient-bottom:#d1d2cf;--ambient-shadow:rgba(67,30,31,.29);--ambient-scene:rgba(137,55,48,.27)}
 body.game-atmosphere[data-tension="3"]::after{opacity:.78;filter:contrast(1.08)}
 body.game-atmosphere[data-tension="4"]::after{opacity:.94;filter:contrast(1.15);animation:author-shadow-shift 7s ease-in-out infinite alternate}
+body.game-atmosphere[data-realm="story"]{--ambient-top:#111d29;--ambient-bottom:#081118;--ambient-light:rgba(116,156,173,.24);--ambient-scene:rgba(111,63,62,.2);--ambient-shadow:rgba(0,0,0,.5)}
+body.game-atmosphere[data-realm="story"]::before{animation-duration:6s}
 body.game-atmosphere[data-condition="exhausted"]::before{filter:grayscale(.35);opacity:.55;animation-duration:18s}
 body.game-atmosphere[data-condition="fractured"]::after{background:radial-gradient(ellipse at 18% 45%,rgba(35,61,76,.2),transparent 39%),radial-gradient(ellipse at 84% 61%,rgba(112,42,39,.21),transparent 42%)}
 body.game-atmosphere[data-condition="clue"]::before{background:radial-gradient(ellipse at 82% 30%,rgba(255,220,145,.43),transparent 25%),radial-gradient(circle at 58% 72%,rgba(207,177,111,.16),transparent 18%)}
@@ -732,6 +734,8 @@ body.game-atmosphere[data-realm="author"] .map-screen::after{
 .story-stage[data-tension="3"]{--scene-shadow:rgba(4,5,10,.88);--scene-glow:color-mix(in srgb,var(--scene-glow) 74%,rgba(183,54,42,.5))}
 .story-stage[data-tension="4"]{--scene-top:#352026;--scene-bottom:#090b10;--scene-shadow:rgba(1,2,5,.94);--scene-glow:rgba(184,57,43,.45);--scene-accent:rgba(242,129,62,.62)}
 .story-atmosphere{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.story-atmosphere::before{content:"";position:absolute;left:12%;top:20%;width:7px;height:7px;border-radius:50%;background:rgba(221,205,158,.45);box-shadow:18vw 14vh 0 -1px rgba(218,210,178,.2),42vw -5vh 0 rgba(185,208,211,.2),67vw 19vh 0 -2px rgba(228,188,132,.3),78vw 53vh 0 rgba(194,211,211,.16),29vw 61vh 0 -1px rgba(236,220,176,.22);filter:blur(.3px);animation:suspense-dust 8s ease-in-out infinite alternate}
+.story-atmosphere::after{content:"";position:absolute;right:8%;top:12%;width:22vw;height:22vw;border:1px solid rgba(210,190,145,.09);border-radius:50%;box-shadow:0 0 65px rgba(191,155,101,.08),inset 0 0 55px rgba(159,194,194,.04);animation:suspense-ring 6s ease-in-out infinite}
 .story-atmosphere i{position:absolute;display:block}
 .story-light{left:38%;top:-32%;width:70%;height:94%;border-radius:50%;background:radial-gradient(ellipse,var(--scene-glow),transparent 67%);filter:blur(4px);transform:rotate(-10deg);animation:scene-light-drift 12s ease-in-out infinite alternate}
 .story-shadow{background:var(--scene-shadow);filter:blur(2px);opacity:.58;transition:opacity .8s ease,transform 1.2s ease}
@@ -751,6 +755,12 @@ body.game-atmosphere[data-realm="author"] .map-screen::after{
 .story-stage[data-condition="fractured"] .story-light{background:radial-gradient(ellipse at 35% 50%,rgba(89,133,155,.36),transparent 43%),radial-gradient(ellipse at 72% 50%,rgba(190,68,50,.38),transparent 48%)}
 .story-stage[data-condition="clue"] .story-light{box-shadow:-25vw 18vh 9vw -10vw var(--scene-accent);opacity:1}
 .story-panel{background:linear-gradient(145deg,color-mix(in srgb,var(--scene-top) 70%,rgba(10,17,24,.94)),rgba(8,14,20,.9));box-shadow:0 34px 100px rgba(0,0,0,.72),inset 0 1px rgba(255,255,255,.08)}
+
+.consequence-stage{display:grid;place-items:center;min-height:calc(100vh - 64px);padding:34px max(22px,5vw) 58px}
+.consequence-stage .story-atmosphere{z-index:0}.consequence-stage>.story-sky{z-index:1}.consequence-stage .consequence{position:relative;z-index:3;width:min(800px,100%);min-height:0;margin:0;padding:48px 42px;border:0;border-radius:22px;background:linear-gradient(145deg,rgba(18,32,43,.9),rgba(8,17,24,.86));box-shadow:0 32px 100px rgba(0,0,0,.65),inset 0 1px rgba(255,255,255,.07);backdrop-filter:blur(14px)}
+.consequence-stage .consequence h2{color:#f1eddf}.consequence-stage .consequence>p{color:#bfc9c7}.consequence-stage .consequence>.eyebrow{color:#d3ab69}.consequence-stage .consequence-mark{border-color:rgba(209,188,137,.45);background:rgba(227,210,164,.1);color:#e5c783;box-shadow:0 0 0 10px rgba(219,190,126,.04),0 0 42px rgba(216,168,90,.14)}
+.consequence-stage .memory-slip{border-color:rgba(255,255,255,.11);background:rgba(255,255,255,.055)}.consequence-stage .memory-slip b{color:#d9c89e}
+.suspense-motes{position:absolute;inset:0;z-index:2;overflow:hidden;pointer-events:none}.suspense-motes i{position:absolute;width:3px;height:3px;border-radius:50%;background:#d8c490;box-shadow:0 0 10px #d4b878;opacity:.2;animation:mote-rise 6s ease-in-out infinite}.suspense-motes i:nth-child(1){left:12%;top:76%;animation-delay:-1s}.suspense-motes i:nth-child(2){left:27%;top:62%;animation-delay:-4s;animation-duration:8s}.suspense-motes i:nth-child(3){left:48%;top:84%;animation-delay:-2s}.suspense-motes i:nth-child(4){left:67%;top:71%;animation-delay:-5s;animation-duration:7s}.suspense-motes i:nth-child(5){left:82%;top:58%;animation-delay:-3s;animation-duration:9s}.suspense-motes i:nth-child(6){left:91%;top:82%;animation-delay:-6s}
 
 /* 教程浮层 */
 .tutorial-panel{width:min(1040px,100%)}
@@ -785,10 +795,13 @@ body.game-atmosphere[data-realm="author"] .map-screen::after{
 .draw-screen.is-complete .draw-controls{opacity:1;pointer-events:auto;transform:none}.draw-screen.is-complete .typing-dots{display:none}.draw-screen.is-complete .typing-caret{animation:caret-blink .7s step-end 3}.draw-screen.is-complete .enter-hint{opacity:.35;animation:none}
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 
-@keyframes author-light-breathe{to{transform:rotate(1.8deg) scale(1.04);opacity:.72}}
-@keyframes author-shadow-shift{to{transform:translateX(-1.6vw);filter:contrast(1.22)}}
-@keyframes scene-light-drift{to{transform:translate(-4%,5%) rotate(-5deg) scale(1.08);opacity:.72}}
-@keyframes scene-weather{to{transform:translate(12%,18%)}}
+@keyframes author-light-breathe{from{transform:translate3d(-2vw,-1vh,0) scale(1);opacity:.62}to{transform:translate3d(4vw,3vh,0) scale(1.1);opacity:.94}}
+@keyframes author-shadow-shift{from{transform:translate3d(1.5vw,-1vh,0);filter:contrast(1.05)}to{transform:translate3d(-3vw,2vh,0) scale(1.06);filter:contrast(1.22)}}
+@keyframes scene-light-drift{from{transform:translate(-3%,-2%) rotate(-11deg) scale(.96);opacity:.55}to{transform:translate(6%,7%) rotate(-4deg) scale(1.13);opacity:.9}}
+@keyframes scene-weather{from{transform:translate(-7%,-3%) scale(.94);opacity:.14}to{transform:translate(13%,9%) scale(1.08);opacity:.38}}
+@keyframes suspense-dust{to{transform:translate3d(4vw,-5vh,0);opacity:.55}}
+@keyframes suspense-ring{0%,100%{transform:scale(.86);opacity:.15}50%{transform:scale(1.12);opacity:.52}}
+@keyframes mote-rise{0%,100%{transform:translateY(18px) scale(.7);opacity:.08}50%{transform:translate(12px,-38px) scale(1.25);opacity:.5}}
 @keyframes draw-orbit{to{transform:translate(3vw,2vh) scale(1.08);opacity:.62}}
 @keyframes question-arrive{from{opacity:0;transform:translateY(-14px) scale(.992)}to{opacity:1;transform:none}}
 @keyframes answer-arrive{from{opacity:0;transform:translateY(14px) scale(.992)}to{opacity:1;transform:none}}
@@ -796,7 +809,7 @@ body.game-atmosphere[data-realm="author"] .map-screen::after{
 @keyframes typing-dot{50%{transform:translateY(-3px);opacity:.35}}
 @keyframes hint-breathe{50%{opacity:.38;transform:translateY(2px)}}
 @media(max-width:900px){.tutorial-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:760px){.tutorial-loop{overflow-x:auto}.tutorial-loop span{min-width:92px}.tutorial-grid{grid-template-columns:1fr}.tutorial-step{min-height:0}.game-nav .nav-left{gap:2px}.draw-screen{padding:22px 14px 48px}.draw-heading{margin-bottom:14px}.question-post{padding:18px}.kanshan-answer{width:calc(100% - 20px);margin-left:20px;padding:18px}.question-post h1{font-size:23px}.typed-answer{min-height:180px;font-size:15px}.draw-controls{flex-direction:column}.draw-controls .btn{width:100%}}
+@media(max-width:760px){.tutorial-loop{overflow-x:auto}.tutorial-loop span{min-width:92px}.tutorial-grid{grid-template-columns:1fr}.tutorial-step{min-height:0}.game-nav .nav-left{gap:2px}.draw-screen{padding:22px 14px 48px}.draw-heading{margin-bottom:14px}.question-post{padding:18px}.kanshan-answer{width:calc(100% - 20px);margin-left:20px;padding:18px}.question-post h1{font-size:23px}.typed-answer{min-height:180px;font-size:15px}.draw-controls{flex-direction:column}.draw-controls .btn{width:100%}.consequence-stage{padding:20px 14px 40px}.consequence-stage .consequence{padding:34px 20px}}
 @media(prefers-reduced-motion:reduce){body.game-atmosphere::before,body.game-atmosphere::after,.story-atmosphere i,.draw-ambient i{animation:none!important}.draw-controls{transition:none}}
 </style>
 </head>
@@ -2140,7 +2153,10 @@ makeDecision = function(idx){
   ch.steps.push({kind:d.kind||'行动',text:d.text,result:d.result,situation:beatText(),impact:effectText(d)});
   state.phase='consequence';
 };
-screens.consequence = ()=>{const step=state.currentChapter.steps.at(-1),last=state.currentChapter.beat+1>=mode().beats;return `<section class="passage consequence"><div class="consequence-mark">${uiIcon('check')}</div><span class="eyebrow">${esc(step.kind)} / 第 ${state.currentChapter.beat+1} 幕</span><h2>${esc(step.text)}</h2><p>${esc(step.result)}</p><div class="memory-slip"><b>${esc(step.impact)}</b></div><button class="btn btn--primary btn--big" data-action="nextBeat"><span>${last?'回到书桌':'继续'}</span>${uiIcon('arrowRight')}</button></section>`;};
+screens.consequence = ()=>{
+  const step=state.currentChapter.steps.at(-1),last=state.currentChapter.beat+1>=mode().beats,visual=narrativeVisualState(true);
+  return `<section class="story-stage consequence-stage" data-tension="${visual.tension}" data-mood="${visual.mood}" data-condition="${visual.condition}"><div class="story-atmosphere" aria-hidden="true"><i class="story-light"></i><i class="story-shadow story-shadow--one"></i><i class="story-shadow story-shadow--two"></i><i class="story-horizon"></i><i class="story-weather"></i><i class="story-grain"></i></div><div class="story-sky"></div><div class="suspense-motes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="passage consequence"><div class="consequence-mark">${uiIcon('check')}</div><span class="eyebrow">${esc(step.kind)} / 第 ${state.currentChapter.beat+1} 幕</span><h2>${esc(step.text)}</h2><p>${esc(step.result)}</p><div class="memory-slip"><b>${esc(step.impact)}</b></div><button class="btn btn--primary btn--big" data-action="nextBeat"><span>${last?'回到书桌':'继续'}</span>${uiIcon('arrowRight')}</button></div></section>`;
+};
 generateProse = function(ch){
   ch.prose=[ch.intro,...ch.steps.flatMap((s,i)=>[`${BEAT_NAMES[i]||`第${i+1}幕`}：${s.situation}`,`你选择了「${s.text}」。${s.result}`])];
   ch.prose=[...new Set(ch.prose)];

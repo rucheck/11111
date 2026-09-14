@@ -224,7 +224,10 @@ makeDecision = function(idx){
   ch.steps.push({kind:d.kind||'行动',text:d.text,result:d.result,situation:beatText(),impact:effectText(d)});
   state.phase='consequence';
 };
-screens.consequence = ()=>{const step=state.currentChapter.steps.at(-1),last=state.currentChapter.beat+1>=mode().beats;return `<section class="passage consequence"><div class="consequence-mark">${uiIcon('check')}</div><span class="eyebrow">${esc(step.kind)} / 第 ${state.currentChapter.beat+1} 幕</span><h2>${esc(step.text)}</h2><p>${esc(step.result)}</p><div class="memory-slip"><b>${esc(step.impact)}</b></div><button class="btn btn--primary btn--big" data-action="nextBeat"><span>${last?'回到书桌':'继续'}</span>${uiIcon('arrowRight')}</button></section>`;};
+screens.consequence = ()=>{
+  const step=state.currentChapter.steps.at(-1),last=state.currentChapter.beat+1>=mode().beats,visual=narrativeVisualState(true);
+  return `<section class="story-stage consequence-stage" data-tension="${visual.tension}" data-mood="${visual.mood}" data-condition="${visual.condition}"><div class="story-atmosphere" aria-hidden="true"><i class="story-light"></i><i class="story-shadow story-shadow--one"></i><i class="story-shadow story-shadow--two"></i><i class="story-horizon"></i><i class="story-weather"></i><i class="story-grain"></i></div><div class="story-sky"></div><div class="suspense-motes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="passage consequence"><div class="consequence-mark">${uiIcon('check')}</div><span class="eyebrow">${esc(step.kind)} / 第 ${state.currentChapter.beat+1} 幕</span><h2>${esc(step.text)}</h2><p>${esc(step.result)}</p><div class="memory-slip"><b>${esc(step.impact)}</b></div><button class="btn btn--primary btn--big" data-action="nextBeat"><span>${last?'回到书桌':'继续'}</span>${uiIcon('arrowRight')}</button></div></section>`;
+};
 generateProse = function(ch){
   ch.prose=[ch.intro,...ch.steps.flatMap((s,i)=>[`${BEAT_NAMES[i]||`第${i+1}幕`}：${s.situation}`,`你选择了「${s.text}」。${s.result}`])];
   ch.prose=[...new Set(ch.prose)];
