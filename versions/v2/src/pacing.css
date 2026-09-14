@@ -218,6 +218,14 @@ button:focus-visible,input:focus-visible{outline:3px solid #cd8a47;outline-offse
   .game-overlay{padding:12px}.overlay-panel{padding:20px 15px}.overlay-title{padding-right:42px}.overlay-title>b{display:none}.status-resources{grid-template-columns:1fr}.status-facts{grid-template-columns:1fr 1fr}.overlay-chapters{margin-inline:-4px}
 }
 @media(prefers-reduced-motion:reduce){.intent-option:hover,.prep-option:hover:not(:disabled),.author-action:hover,.wizard-card:hover:not(:disabled),.script-option:hover{transform:none}}
+/* 低行动力/资源不足弹窗（游戏机制） */
+.low-action-panel{width:min(540px,100%);text-align:center}
+.low-action-num{font:800 clamp(44px,8vw,66px)/1 var(--sans);color:#c2402a}
+.low-action-sep{color:#7b6750;font-size:14px;font-weight:400}
+.low-action-panel p{margin:12px 0 28px;color:#59645f;line-height:1.7;font-size:15px}
+.low-action-panel .wizard-actions{justify-content:center}
+.btn--danger{background:#c2402a;border:1px solid #c2402a;color:#fff}
+.btn--danger:hover{background:#a5351f;border-color:#a5351f}
 
 /* v2.4 · 叙事光影系统：作者桌面与小说世界共享一套情绪色温 */
 body.game-atmosphere{

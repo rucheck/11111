@@ -19,7 +19,7 @@ function run(length,specificity,genre){
       click('openOverlay','status');assert(app.innerHTML.includes('当前状态'));click('closeOverlay');
       click('openOverlay','tutorial');assert(app.innerHTML.includes('游戏教程')&&app.innerHTML.includes('一篇故事，两个身份'));click('closeOverlay');
     }
-    click('toWorkbench');assert.equal(g.get().workbenchStep,0);click('plan',c%2?'修复关系':'追寻事实');assert.equal(g.get().workbenchStep,1);
+    click('toWorkbench');assert.equal(g.get().workbenchStep,0);click('plan',c%2?'修复关系':'追寻事实');assert.equal(g.get().workbenchStep,1);click('closeOverlay');
     click('prepare',null,2);click('prepare',null,0);
     click('nextWorkbench');assert.equal(g.get().workbenchStep,2);click('pickSpec',specificity);
     click('enterChapter');assert.equal(g.get().phase,'transition');click('continueTransition');
@@ -46,6 +46,73 @@ function run(length,specificity,genre){
   assert(!/\{(?:npc|protagonist|place|goal)\}/.test(app.innerHTML));
 }
 let total=0;for(const length of ['short','medium','long'])for(const spec of ['specific','balanced','broad'])for(const genre of Object.keys(CONTENT.story.genres)){run(length,spec,genre);total++;}
+// 行动力不足时不得静默卡死：先弹窗确认，确认后走低效更新并离开工作台（回归测试）
+{
+  const app={innerHTML:'',scrollTop:0};const doc={querySelector:s=>s==='#app'?app:null,querySelectorAll:()=>[],addEventListener:()=>{}};
+  const g=new Function('window','document',code+'\nreturn {get:()=>state,act:(a,v,i)=>act(a,{dataset:{val:v,idx:i}})};')({CONTENT,scrollTo:()=>{}},doc);
+  const click=(a,v,i)=>g.act(a,v,i);
+  click('startPrologue');click('nextPrologue');click('nextPrologue');click('chooseStartMode','local');
+  click('toSetup');click('pickLength','short');click('pickGenre','悬疑反转');click('nextSetup');click('startGame');
+  click('toWorkbench');click('plan','追寻事实');click('closeOverlay');click('nextWorkbench');click('pickSpec','broad');
+  g.get().resources.action=3;
+  click('enterChapter');
+  assert.equal(g.get().phase,'workbench','行动力不足时应先停在 workbench 弹窗');
+  assert.equal(g.get().overlay,'lowAction','应弹出低效更新确认框');
+  click('confirmLowAction');
+  assert.notEqual(g.get().phase,'workbench','确认低效更新后应离开 workbench');
+  assert.equal(g.get().phase,'transition');
+  assert(g.get().uiNotice.includes('低效更新'),'应提示低效更新兜底');
+}
+// 准备动作精力不足时点选应弹提示（回归测试）
+{
+  const app={innerHTML:'',scrollTop:0};const doc={querySelector:s=>s==='#app'?app:null,querySelectorAll:()=>[],addEventListener:()=>{}};
+  const g=new Function('window','document',code+'\nreturn {get:()=>state,act:(a,v,i)=>act(a,{dataset:{val:v,idx:i}})};')({CONTENT,scrollTo:()=>{}},doc);
+  const click=(a,v,i)=>g.act(a,v,i);
+  click('startPrologue');click('nextPrologue');click('nextPrologue');click('chooseStartMode','local');
+  click('toSetup');click('pickLength','short');click('pickGenre','悬疑反转');click('nextSetup');click('startGame');
+  click('toWorkbench');click('plan','追寻事实');click('closeOverlay');
+  g.get().resources.action=50;g.get().resources.energy=1;
+  click('prepare',null,1);
+  assert.equal(g.get().prep,0,'精力不足时不应执行「和读者聊聊」');
+  assert.equal(g.get().overlay,'hint','精力不足点击时应弹提示');
+  assert.equal(g.get().hintTitle,'精力不足','提示标题应为精力不足');
+}
+// 作者层决策精力不足时应弹提示（回归测试）
+{
+  const app={innerHTML:'',scrollTop:0};const doc={querySelector:s=>s==='#app'?app:null,querySelectorAll:()=>[],addEventListener:()=>{}};
+  const g=new Function('window','document',code+'\nreturn {get:()=>state,act:(a,v,i)=>act(a,{dataset:{val:v,idx:i}})};')({CONTENT,scrollTo:()=>{}},doc);
+  const click=(a,v,i)=>g.act(a,v,i);
+  click('startPrologue');click('nextPrologue');click('nextPrologue');click('chooseStartMode','local');
+  click('toSetup');click('pickLength','short');click('pickGenre','悬疑反转');click('nextSetup');click('startGame');
+  click('toWorkbench');click('plan','追寻事实');click('closeOverlay');click('nextWorkbench');click('pickSpec','balanced');
+  click('enterChapter');click('continueTransition');
+  for(let b=0;b<4;b++){click('makeDecision',null,0);click('nextBeat');}
+  click('continueTransition');click('publish');
+  assert.equal(g.get().phase,'feedback','应到达作者层反馈');
+  g.get().resources.energy=0;
+  click('authorDecide',null,2);
+  assert.equal(g.get().phase,'feedback','精力不足时不应执行作者决策');
+  assert.equal(g.get().overlay,'hint','精力不足时应弹提示');
+  assert.equal(g.get().hintTitle,'精力不足');
+}
+// 进入「写之前做什么」的提醒逻辑（回归测试）
+{
+  const app={innerHTML:'',scrollTop:0};const doc={querySelector:s=>s==='#app'?app:null,querySelectorAll:()=>[],addEventListener:()=>{}};
+  const g=new Function('window','document',code+'\nreturn {get:()=>state,act:(a,v,i)=>act(a,{dataset:{val:v,idx:i}})};')({CONTENT,scrollTo:()=>{}},doc);
+  const click=(a,v,i)=>g.act(a,v,i);
+  click('startPrologue');click('nextPrologue');click('nextPrologue');click('chooseStartMode','local');
+  click('toSetup');click('pickLength','short');click('pickGenre','悬疑反转');click('nextSetup');click('startGame');
+  click('toWorkbench');click('plan','追寻事实');
+  assert.equal(g.get().overlay,'prepAdvice','首次进入准备页应弹提醒');
+  click('closeOverlay');
+  g.get().prepAdvised=false;g.get().resources.action=20;
+  click('workbenchBack');click('plan','追寻事实');
+  assert.equal(g.get().overlay,'prepAdvice','行动力偏低时应再弹提醒');
+  click('closeOverlay');
+  g.get().prepAdvised=false;g.get().resources.action=80;g.get().resources.energy=80;
+  click('workbenchBack');click('plan','追寻事实');
+  assert.equal(g.get().overlay,'','资源充足时不应弹提醒');
+}
 const {validatePlan,parseLooseJson,cliContent,cliError}=require('./server');
 assert.throws(()=>validatePlan('{"beats":[]}',3));assert.throws(()=>validatePlan('not json',3));
 const option={kind:'核实事实',hint:'增加线索',text:'检查记录',result:'找到矛盾',trust:0,evidence:1,quality:1,heat:0,energy:-1};

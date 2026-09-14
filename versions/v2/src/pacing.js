@@ -32,7 +32,7 @@ async function refreshUsage(){
 }
 boot = function(){
   originalBoot();
-  Object.assign(state,{length:'medium',memory:[],storyBible:[],trust:0,evidence:0,prep:0,feedbackKey:'stick',transition:null,chapterPlan:'追寻事实',generationMode:'zhihu',generationJob:'',zhihuUsage:{limit:5000,used:0,remaining:5000,date:''},prologueStep:0,setupStep:0,workbenchStep:0,overlay:'',uiNotice:''});
+  Object.assign(state,{length:'medium',memory:[],storyBible:[],trust:0,evidence:0,prep:0,feedbackKey:'stick',transition:null,chapterPlan:'追寻事实',generationMode:'zhihu',generationJob:'',zhihuUsage:{limit:5000,used:0,remaining:5000,date:''},prologueStep:0,setupStep:0,workbenchStep:0,overlay:'',lowActionConfirmed:false,prepAdvised:false,prepAdvisedEver:false,hintTitle:'',hintText:'',uiNotice:''});
   setSchedule();
   resumableState=hydrateSavedGame(SaveSystem.loadGame());
   render();refreshUsage();
@@ -104,11 +104,25 @@ screens.setup = ()=>{
   return setupShell(3,'你准备怎么写？',`<div class="wizard-grid route-wizard">${ROUTES.map(r=>`<button class="wizard-card route-option ${r.key===state.routeLean?'selected':''}" data-action="pickRoute" data-val="${r.key}"><span class="wizard-card-icon">${uiIcon(ROUTE_ICONS[r.key])}</span><b>${esc(r.name)}</b><span>${esc(r.desc)}</span><i>${r.key===state.routeLean?uiIcon('check'):''}</i></button>`).join('')}</div><label class="pen-label"><span>笔名</span><input class="pen-input" id="penName" maxlength="12" value="${esc(state.penName)}"></label><div class="wizard-actions"><button class="btn btn--ghost" data-action="setupBack">${uiIcon('arrowLeft')}<span>上一步</span></button><button class="btn btn--primary" data-action="startGame"><span>进入第 90 天</span>${uiIcon('arrowRight')}</button></div>`);
 };
 screens.map = ()=>`<section class="screen map-screen"><div class="map-heading"><div><span class="eyebrow">连载计划 / ${mode().name}</span><h1>还剩 <b>${state.day}</b> 天。<br>下一章等你落笔。</h1></div>${mascot()}</div><div class="chapter-track" aria-label="章节进度">${CHAPTERS.map((c,i)=>`<div class="track-node ${i===state.chapterIndex?'current':''} ${i<state.chapterIndex?'complete':''}"><i>${i<state.chapterIndex?uiIcon('check'):i+1}</i><small>D-${c.day}</small><b>第 ${i+1} 章</b><span>${i<state.chapterIndex?'已归档':i===state.chapterIndex?c.stage:'未开启'}</span></div>`).join('')}</div><div class="map-focus"><div class="map-focus-icon">${uiIcon('feather')}</div><div><span>上一章留下的线索</span><p>${esc(state.memory.at(-1)||state.question.premise)}</p></div><dl><div><dt>${uiIcon('bolt')} 行动力</dt><dd>${state.resources.action}</dd></div><div><dt>${uiIcon('heart')} 精力</dt><dd>${state.resources.energy}</dd></div><div><dt>${uiIcon(ROUTE_ICONS[dominantRouteKey()])} 路线</dt><dd>${ROUTE_MAP[dominantRouteKey()].name}</dd></div></dl></div><div class="map-action"><button class="btn btn--primary btn--big" data-action="toWorkbench"><span>打开第 ${state.chapterIndex+1} 章工作台</span>${uiIcon('arrowRight')}</button></div></section>`;
+const LOW_ACTION_WARN = 30;
+const LOW_ENERGY_WARN = 10;
 const PREP = [
   {label:'整理伏笔',detail:'行动力 −8 / 质量 +3 / 线索 +1',effect:{quality:3},action:-8},
   {label:'和读者聊聊',detail:'行动力 −8 / 热度 +3 / 精力 −2',effect:{heat:3,energy:-2},action:-8},
   {label:'休息一晚',detail:'行动力 +12 / 精力 +8 / 热度 −1',effect:{energy:8,heat:-1},action:12},
 ];
+function prepBlocked(p){
+  if(state.prep>=2)return true;
+  if(state.resources.action+(p.action||0)<0)return true;
+  if(state.resources.energy+(p.effect?.energy||0)<0)return true;
+  return false;
+}
+function prepBlockReason(p){
+  if(state.prep>=2)return {title:'准备次数已用完',text:'这一章的准备次数已经用完（2/2），先进入故事吧。'};
+  if(state.resources.action+(p.action||0)<0)return {title:'行动力不足',text:`「${p.label}」需要 ${-p.action} 行动力，当前只剩 ${state.resources.action} 点（还差 ${-(state.resources.action+(p.action||0))} 点）。`};
+  if(state.resources.energy+(p.effect?.energy||0)<0)return {title:'精力不足',text:`「${p.label}」需要 ${-(p.effect.energy)} 精力，当前只剩 ${state.resources.energy} 点（还差 ${-(state.resources.energy+(p.effect?.energy||0))} 点）。`};
+  return {title:'暂时做不了',text:'这个准备动作现在无法执行。'};
+}
 function usageLabel(){
   const u=state.zhihuUsage||{limit:5000,used:0,remaining:5000};
   return `今日剩余 ${Math.max(0,u.remaining)} / ${u.limit} 次`;
@@ -117,11 +131,11 @@ function workbenchShell(step,title,body){return `<section class="screen chapter-
 screens.workbench = ()=>{
   const ch=state.currentChapter;
   if(state.workbenchStep===0)return workbenchShell(1,'这一章，先解决什么？',`<div class="continuity-card"><span>${uiIcon('book')} 前情</span><p>${esc(state.memory.at(-1)||state.question.premise)}</p></div><div class="intent-list">${Object.entries(PLAN_META).map(([plan,meta],i)=>`<button class="intent-option" data-action="plan" data-val="${plan}"><span class="intent-index">0${i+1}</span><span class="intent-icon">${uiIcon(meta.icon)}</span><span class="intent-copy"><small>${meta.eyebrow}</small><b>${plan}</b><em>${meta.desc}</em></span><span class="intent-effect">${meta.effect}</span>${uiIcon('arrowRight')}</button>`).join('')}</div>`);
-  if(state.workbenchStep===1)return workbenchShell(2,'落笔前，怎样调整状态？',`<div class="prep-head"><div class="prep-slots"><span>本章可准备</span><i class="${state.prep>0?'filled':''}"></i><i class="${state.prep>1?'filled':''}"></i><b>${Math.max(0,2-state.prep)} 次</b></div><span>当前行动力 <b>${state.resources.action}</b></span></div><div class="prep-list">${PREP.map((p,i)=>{const icons=['search','message','heart'];const desc=['整理前文的伏笔与证据','观察读者正在争论什么','暂时离开书桌恢复状态'];return `<button class="prep-option" data-action="prepare" data-idx="${i}" ${state.prep>=2||state.resources.action+p.action<0?'disabled':''}><span class="prep-icon">${uiIcon(icons[i])}</span><span class="prep-copy"><b>${p.label}</b><small>${desc[i]}</small></span><span class="prep-effects">${effectChips({...p.effect,action:p.action},true)}</span>${uiIcon('arrowRight')}</button>`;}).join('')}</div>${state.prepNote?`<div class="action-result">${uiIcon('check')}<span>${esc(state.prepNote)}</span></div>`:''}<div class="wizard-actions"><button class="btn btn--ghost" data-action="workbenchBack">${uiIcon('arrowLeft')}<span>上一步</span></button><button class="btn btn--primary" data-action="nextWorkbench"><span>${state.prep?'下一步':'跳过准备'}</span>${uiIcon('arrowRight')}</button></div>`);
+  if(state.workbenchStep===1)return workbenchShell(2,'落笔前，怎样调整状态？',`<div class="prep-head"><div class="prep-slots"><span>本章可准备</span><i class="${state.prep>0?'filled':''}"></i><i class="${state.prep>1?'filled':''}"></i><b>${Math.max(0,2-state.prep)} 次</b></div><span>当前行动力 <b>${state.resources.action}</b></span></div><div class="prep-list">${PREP.map((p,i)=>{const icons=['search','message','heart'];const desc=['整理前文的伏笔与证据','观察读者正在争论什么','暂时离开书桌恢复状态'];return `<button class="prep-option" data-action="prepare" data-idx="${i}"><span class="prep-icon">${uiIcon(icons[i])}</span><span class="prep-copy"><b>${p.label}</b><small>${desc[i]}</small></span><span class="prep-effects">${effectChips({...p.effect,action:p.action},true)}</span>${uiIcon('arrowRight')}</button>`;}).join('')}</div>${state.prepNote?`<div class="action-result">${uiIcon('check')}<span>${esc(state.prepNote)}</span></div>`:''}<div class="wizard-actions"><button class="btn btn--ghost" data-action="workbenchBack">${uiIcon('arrowLeft')}<span>上一步</span></button><button class="btn btn--primary" data-action="nextWorkbench"><span>${state.prep?'下一步':'跳过准备'}</span>${uiIcon('arrowRight')}</button></div>`);
   return workbenchShell(3,'你替主角决定到哪一步？',`<div class="freedom-scale"><div class="freedom-axis"><span>作者控制更多</span><i></i><span>主角空间更大</span></div><div class="script-grid">${SPECIFICS.map((s,i)=>`<button class="script-option ${ch.specificity===s.key?'selected':''}" data-action="pickSpec" data-val="${s.key}"><span class="script-level">0${i+1}</span><b>${s.label}</b><small>${s.hint}</small><span class="script-meta"><em>${s.choices} 个选项</em><em>-${s.cost} 行动力</em></span><i>${ch.specificity===s.key?uiIcon('check'):''}</i></button>`).join('')}</div></div><div class="chapter-ready"><span><small>本章方向</small><b>${esc(state.chapterPlan)}</b></span><span><small>生成方式</small><b>${state.generationMode==='local'?`${uiIcon('infinity')} 本地模式`:`${uiIcon('cloud')} ${usageLabel()}`}</b></span></div>${state.uiNotice?`<div class="ui-notice">${esc(state.uiNotice)}</div>`:''}<div class="wizard-actions wizard-actions--enter"><button class="btn btn--ghost" data-action="workbenchBack">${uiIcon('arrowLeft')}<span>上一步</span></button><button class="btn btn--primary btn--big" data-action="enterChapter"><span>进入故事</span>${uiIcon('arrowRight')}</button></div>`);
 };
 openWorkbench = function(){ originalWorkbench(); if(state.phase==='workbench'){
-  state.prep=0;state.prepNote='';state.workbenchStep=0;state.currentChapter.steps=[];state.currentChapter.beat=0;
+  state.prep=0;state.prepAdvised=false;state.prepNote='';state.uiNotice='';state.workbenchStep=0;state.currentChapter.steps=[];state.currentChapter.beat=0;
   state.currentChapter.scene={...state.currentChapter.scene,name:state.question.setting};
   state.currentChapter.goal=`${['建立疑问','寻找证人','承担代价','发现矛盾','追问动机','兑现承诺'][state.chapterIndex%6]}：${STORY_ARCS[state.genre].question}`;
   state.currentChapter.before={...state.resources};
@@ -228,6 +242,11 @@ publish = function(){
 authorDecide = function(idx){
   if(state.phase!=='feedback')return;
   const a=AUTHOR_DECISIONS[idx];if(!a)return;
+  const energyCost=-(a.eff?.energy||0);
+  if(energyCost>0&&state.resources.energy<energyCost){
+    state.hintTitle='精力不足';state.hintText=`「${a.label}」需要 ${energyCost} 精力，当前只剩 ${state.resources.energy} 点（还差 ${energyCost-state.resources.energy} 点）。`;
+    state.overlay='hint';render();return;
+  }
   state.feedbackKey=a.key;
   const ch=state.currentChapter,last=ch.steps.at(-1);
   const actionTrail=ch.steps.map((step,i)=>`${i+1}.${step.kind}：${trunc(step.result,90)}`).join('；');
@@ -252,14 +271,23 @@ act = function(action,el){
   }
   if(action==='openOverlay'&&state.question){state.overlay=el.dataset.val;render();return;}
   if(action==='closeOverlay'){state.overlay='';render();return;}
+  if(action==='confirmLowAction'&&state.overlay==='lowAction'){state.lowActionConfirmed=true;state.overlay='';enterChapter();return;}
   if(action==='toSetup'&&state.phase==='draw'){state.setupStep=0;state.phase='setup';render();return;}
   if(action==='pickLength'&&state.phase==='setup'&&state.setupStep===0){state.length=el.dataset.val;setSchedule();state.setupStep=1;render();return;}
   if(action==='nextSetup'&&state.phase==='setup'){state.setupStep=Math.min(2,state.setupStep+1);render();return;}
   if(action==='setupBack'&&state.phase==='setup'){state.setupStep=Math.max(0,state.setupStep-1);render();return;}
   if(action==='continueTransition'&&state.phase==='transition'){state.phase=state.transition.target;state.transition=null;render();return;}
-  if(action==='plan'&&state.phase==='workbench'&&state.workbenchStep===0){state.chapterPlan=el.dataset.val;state.workbenchStep=1;render();return;}
+  if(action==='plan'&&state.phase==='workbench'&&state.workbenchStep===0){
+    state.chapterPlan=el.dataset.val;state.workbenchStep=1;
+    // 每章最多弹一次：首次进入必弹（教学），之后仅在行动力/精力偏低时提醒
+    if(!state.prepAdvised && (!state.prepAdvisedEver || state.resources.action<LOW_ACTION_WARN || state.resources.energy<LOW_ENERGY_WARN)){
+      state.prepAdvised=true;state.prepAdvisedEver=true;state.overlay='prepAdvice';
+    }
+    render();return;
+  }
   if(action==='prepare'&&state.phase==='workbench'&&state.workbenchStep===1){
-    const i=+el.dataset.idx,p=PREP[i];if(!p||state.prep>=2||state.resources.action+p.action<0)return;
+    const i=+el.dataset.idx,p=PREP[i];if(!p)return;
+    if(prepBlocked(p)){ const r=prepBlockReason(p); state.hintTitle=r.title; state.hintText=r.text; state.overlay='hint'; render(); return; }
     state.prep++;state.resources.action=clamp(state.resources.action+p.action,0,100);applyEffect(p.effect);if(i===0)state.evidence++;
     state.prepNote=`已完成「${p.label}」`;render();return;
   }
@@ -271,10 +299,6 @@ act = function(action,el){
     if(ch.beat<mode().beats)state.phase='chapter';else{generateProse(ch);bridge('manuscript','角色的经历，变成你桌上的手稿。','你重新成为作者。读完这一章，决定是否发布，再面对读者的反应。');}render();return;
   }
   if(action==='pickRoute'&&state.phase==='setup'){state.routeLean=el.dataset.val;state.routeAffinity={traffic:0,quality:0,controversy:0,commercial:0,self:0};state.routeAffinity[el.dataset.val]=8;render();return;}
-  if(action==='enterChapter'&&state.phase==='workbench'){
-    if(state.workbenchStep!==2)return;
-    if(state.resources.action<SPECIFICS.find(s=>s.key===state.currentChapter.specificity).cost&&state.prep>=2){state.resources.action=25;applyEffect({quality:-4,energy:-8});}
-  }
   return originalAct(action,el);
 };
 function mapOverlay(){
@@ -285,6 +309,20 @@ function mapOverlay(){
 function statusOverlay(){
   const modeValue=state.generationMode==='local'?'本地模式 · 不限次数':`知乎模式 · ${usageLabel()}`;
   return `<div class="game-overlay" role="dialog" aria-modal="true" aria-label="当前状态"><div class="overlay-panel status-panel"><button class="overlay-close" data-action="closeOverlay" aria-label="关闭">${uiIcon('close')}</button><div class="overlay-title"><span class="overlay-title-icon">${uiIcon('status')}</span><div><span class="overlay-kicker">当前状态</span><h2>${esc(state.penName)}</h2></div><b>D-${state.day}</b></div><div class="status-resources">${RES_DEFS.map(item=>`<div class="status-resource"><span class="status-resource-icon">${uiIcon(item.icon)}</span><span>${item.label}<i><em style="width:${state.resources[item.key]}%;background:${resColor(item.key)}"></em></i></span><b>${Math.round(state.resources[item.key])}</b></div>`).join('')}</div><div class="status-facts"><span>${uiIcon(state.generationMode==='local'?'infinity':'cloud')}<small>模式</small><b>${modeValue}</b></span><span>${uiIcon(ROUTE_ICONS[dominantRouteKey()])}<small>路线</small><b>${ROUTE_MAP[dominantRouteKey()].name}</b></span><span>${uiIcon('users')}<small>关系</small><b>${state.trust}</b></span><span>${uiIcon('search')}<small>线索</small><b>${state.evidence}</b></span></div>${state.currentChapter?`<div class="status-goal"><span>${uiIcon('compass')}</span><div><small>当前目标</small><b>${esc(state.currentChapter.goal)}</b></div></div>`:''}</div></div>`;
+}
+function lowActionOverlay(){
+  const cost=SPECIFICS.find(s=>s.key===state.currentChapter.specificity).cost;
+  const remain=Math.max(0,state.resources.action);
+  return `<div class="game-overlay low-action-overlay" role="dialog" aria-modal="true"><div class="overlay-panel low-action-panel"><span class="overlay-kicker">⚠ 行动力不足</span><h2>剩余行动力 <b class="low-action-num">${remain}</b> <span class="low-action-sep">/ 本章需要</span> <b>${cost}</b></h2><p>直接进入将触发「低效更新」：<b>质量 −4、精力 −8</b>。确定要这样写这一章吗？</p><div class="wizard-actions"><button class="btn btn--ghost" data-action="closeOverlay">再想想</button><button class="btn btn--primary btn--danger" data-action="confirmLowAction">低效更新并进入</button></div></div></div>`;
+}
+function hintOverlay(){
+  return `<div class="game-overlay" role="dialog" aria-modal="true"><div class="overlay-panel low-action-panel"><span class="overlay-kicker">⚠ 无法执行</span><h2>${esc(state.hintTitle||'暂时做不了')}</h2><p>${esc(state.hintText||'')}</p><div class="wizard-actions"><button class="btn btn--primary" data-action="closeOverlay">知道了</button></div></div></div>`;
+}
+function prepAdviceOverlay(){
+  const a=Math.max(0,state.resources.action), e=Math.max(0,state.resources.energy);
+  const lowA=a<LOW_ACTION_WARN, lowE=e<LOW_ENERGY_WARN;
+  const warn=(lowA||lowE)?`当前${lowA?'行动力':'精力'}偏低，建议优先考虑「休息一晚」恢复后再选择。`:'准备动作会消耗对应资源，本章限 2 次，请谨慎选择。';
+  return `<div class="game-overlay" role="dialog" aria-modal="true"><div class="overlay-panel low-action-panel"><span class="overlay-kicker">⚠ 选择前请注意</span><h2>先看看还剩多少</h2><p>剩余 <b>行动力 ${a}</b> · <b>精力 ${e}</b>。${warn}</p><div class="wizard-actions"><button class="btn btn--primary" data-action="closeOverlay">知道了，谨慎选择</button></div></div></div>`;
 }
 function tutorialOverlay(){
   const steps=[
@@ -309,7 +347,7 @@ render = function(){
   if(document.body){document.body.classList.add('game-atmosphere');document.body.dataset.realm=visual.realm;document.body.dataset.tension=visual.tension;document.body.dataset.mood=visual.mood;document.body.dataset.condition=visual.condition;}
   const modeText=state.generationMode==='local'?'本地模式 · 不限次数':`知乎模式 · ${usageLabel()}`;
   const mini=RES_DEFS.slice(0,3).map(item=>`<span class="hud-resource" title="${item.label}">${uiIcon(item.icon)}<b>${Math.round(state.resources[item.key])}</b></span>`).join('');
-  const overlay=state.overlay==='map'?mapOverlay():state.overlay==='status'?statusOverlay():state.overlay==='tutorial'?tutorialOverlay():'';
+  const overlay=state.overlay==='map'?mapOverlay():state.overlay==='status'?statusOverlay():state.overlay==='tutorial'?tutorialOverlay():state.overlay==='lowAction'?lowActionOverlay():state.overlay==='hint'?hintOverlay():state.overlay==='prepAdvice'?prepAdviceOverlay():'';
   el.innerHTML=`<header class="identity game-nav ${inner?'identity-story':''}"><div class="nav-left"><button class="nav-tool" data-action="openOverlay" data-val="map" aria-label="打开故事地图">${uiIcon('map')}<span>地图</span></button><button class="nav-tool" data-action="openOverlay" data-val="status" aria-label="查看当前状态">${uiIcon('status')}<span>状态</span></button><button class="nav-tool" data-action="openOverlay" data-val="tutorial" aria-label="打开游戏教程">${uiIcon('guide')}<span>教程</span></button></div><div class="hud-context"><span>${inner?'小说世界':'作者工作台'}</span><b>${inner?'你是主角':esc(state.penName)}</b></div><div class="hud-resources">${mini}</div><span class="identity-mode">${modeText}</span></header>`+el.innerHTML+overlay;
 };
 screens.manuscript = ()=>renderManuscript().replace('AI 续写 · 章节成稿','作者世界 · 审阅本章').replace('AI 依大纲、人物状态与已埋伏笔续写。','正文根据本章行动记录整理。');
@@ -327,7 +365,7 @@ async function waitForGeneration(ch,jobId){
       let data;try{data=await r.json();}catch{throw Error('本地生成服务返回了无法识别的内容。');}
       if(data.usage)state.zhihuUsage=data.usage;
       if(r.status===202)continue;
-      if(!r.ok){state.generationJob='';throw Error(data.message||data.error||'生成失败');}
+      if(!r.ok){state.generationJob='';throw Error(data.error||'生成失败');}
       state.generationJob='';ch.generated=data;
       if(state.memory.length)ch.generated.beats[0].situation=`承接上章：${state.memory.at(-1)}\n\n${ch.generated.beats[0].situation}`;
       state.phase='workbench';enterLocal();render();return;
@@ -340,8 +378,19 @@ async function waitForGeneration(ch,jobId){
 }
 enterChapter = function(){
   if(state.phase!=='workbench')return;
+  if(state.workbenchStep!==2)return;
   const cost=SPECIFICS.find(s=>s.key===state.currentChapter.specificity).cost;
-  if(state.resources.action<cost){enterLocal();return;}
+  // 行动力不足：先弹窗确认，避免玩家顺手误触低效更新
+  if(state.resources.action<cost && !state.lowActionConfirmed){
+    state.overlay='lowAction'; render(); return;
+  }
+  // 已确认：走低效更新兜底，保证流程永不卡死
+  if(state.resources.action<cost){
+    state.lowActionConfirmed=false;
+    state.resources.action=Math.max(cost,25);
+    applyEffect({quality:-4,energy:-8});
+    state.uiNotice='行动力不足，本章按低效更新结算：质量 −4、精力 −8。';
+  }
   if(state.generationMode==='local'){enterLocal();render();return;}
   if((state.zhihuUsage?.remaining??5000)<=0){state.uiNotice='今日知乎模式次数已用完，请切换到本地模式。';render();return;}
   if(typeof fetch==='undefined'||typeof location==='undefined'||location.protocol==='file:'){enterLocal();return;}
@@ -350,7 +399,7 @@ enterChapter = function(){
     try{
       const r=await fetch('/api/chapter',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({genre:state.genre,question:state.question,chapter:ch.num,chapters:mode().chapters,beats:mode().beats,tone:mode().tone,plan:state.chapterPlan,history:state.memory.slice(-6),storyBible:state.storyBible.slice(-6),continuity:{lastChapter:state.storyBible.at(-1)||null,openThreads:state.foreshadowing.slice(-5),relationship:state.trust,evidence:state.evidence},editor:state.pendingDemand?.constraint,feedback:state.feedbackKey,trust:state.trust,evidence:state.evidence})});
       let data;try{data=await r.json();}catch{throw Error('本地生成服务返回了无法识别的内容。');}
-      if(data.usage)state.zhihuUsage=data.usage;if(!r.ok)throw Error(data.message||data.error||'生成失败');
+      if(data.usage)state.zhihuUsage=data.usage;if(!r.ok)throw Error(data.error||'生成失败');
       if(!data.jobId)throw Error('本地生成服务没有返回任务编号。');
       state.generationJob=data.jobId;persistGame();return waitForGeneration(ch,data.jobId);
     }catch(e){
