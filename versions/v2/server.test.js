@@ -21,6 +21,37 @@ const AUTH_OK = JSON.stringify({
 const QUOTA_OK = JSON.stringify({
   Data: [{APIID: 'zhida_openai', TotalQuota: 100, TotalUsed: 4, RemainingQuota: 96}]
 });
+const FRONTEND_QUESTION = require('./content/questions.json').questions[0];
+const GENERATED_PLAN = JSON.stringify({beats: Array.from({length: 4}, () => ({
+  situation: '新的情境推动故事发展。',
+  options: Array.from({length: 5}, (_, index) => ({
+    kind: ['核实事实', '建立信任', '正面对质', '探索支线', '观察等待'][index],
+    hint: '影响将在选择后揭晓',
+    text: `行动 ${index + 1}`,
+    result: `行动 ${index + 1} 的具体后果`,
+    trust: 0,
+    evidence: index === 0 ? 1 : 0,
+    quality: 1,
+    heat: 0,
+    energy: -1
+  }))
+}))});
+const FRONTEND_CHAPTER_PAYLOAD = {
+  genre: '悬疑反转',
+  question: FRONTEND_QUESTION,
+  chapter: 1,
+  chapters: 6,
+  beats: 4,
+  tone: '克制现实',
+  plan: '追寻事实',
+  history: [],
+  storyBible: [],
+  continuity: {lastChapter: null, openThreads: [], relationship: 0, evidence: 0},
+  editor: '加强开篇冲突，但不要改变既定人物动机。',
+  feedback: 'stick',
+  trust: 0,
+  evidence: 0
+};
 
 function mockExec(handlers) {
   return (_binary, args, _options, callback) => {
@@ -59,6 +90,14 @@ const validChapterRequest = {
   headers: {'Content-Type': 'application/json'},
   body: JSON.stringify({genre: '悬疑反转', beats: 4})
 };
+
+function chapterRequest(payload) {
+  return {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  };
+}
 
 test('runtime config defaults to loopback and honors deployment environment', () => {
   const local = resolveRuntimeConfig({LOCALAPPDATA: 'C:\\Local'});
@@ -158,6 +197,32 @@ test('GET /api/health reports a ready server without running generation', async 
     assert.equal(result.body.usage.source, 'zhihu-cli');
     assert.equal(result.body.usage.remaining, 96);
     assert.equal(calls.some(args => args[0] === 'answer'), false);
+  });
+});
+
+test('formal frontend chapter payload accepts the narrative protagonist secret', async () => {
+  await withServer({
+    fetch: async () => ({ok: true, json: async () => []}),
+    execFile: mockExec({
+      'auth status': AUTH_OK,
+      'quota --api-id': QUOTA_OK,
+      'answer --query': GENERATED_PLAN
+    })
+  }, async base => {
+    const result = await getJson(base, '/api/chapter', chapterRequest(FRONTEND_CHAPTER_PAYLOAD));
+    assert.equal(result.status, 202);
+    assert.equal(result.body.ok, true);
+    assert.equal(result.body.status, 'pending');
+    assert.equal(typeof result.body.jobId, 'string');
+  });
+});
+
+test('secret fields outside the narrative protagonist path remain rejected', async () => {
+  const payload = {...FRONTEND_CHAPTER_PAYLOAD, secret: 'test-only-not-a-real-credential'};
+  await withServer({execFile: mockExec({})}, async base => {
+    const result = await getJson(base, '/api/chapter', chapterRequest(payload));
+    assert.equal(result.status, 400);
+    assert.equal(result.body.error, 'INVALID_REQUEST');
   });
 });
 
