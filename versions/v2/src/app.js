@@ -182,15 +182,30 @@ function renderTitle(){
 /* ============ 界面：抽题 ============ */
 function renderDraw(){
   const q = state.question;
-  const tag = q.genre;
+  const answer = `${q.hook} ${q.premise}`;
+  const chars = [...answer];
+  const typed = chars.map((char,i)=>`<span class="type-char" style="--char:${i}" aria-hidden="true">${char===' '? '&nbsp;':esc(char)}</span>`).join('');
   return `
-  <div class="screen screen--center">
-    <div class="phase-tag">第 0 步 · 抽取热门问题</div>
-    ${questionCard(q, true)}
-    <div class="btn-row">
-      <button class="btn btn--ghost" data-action="redraw">再抽一题</button>
-      <button class="btn btn--primary" data-action="toSetup">就写这个问题</button>
+  <div class="draw-screen ${state.drawFast?'is-fast':''}" style="--chars:${chars.length}">
+    <div class="draw-ambient" aria-hidden="true"><i></i><i></i><i></i></div>
+    <header class="draw-heading"><span>知乎 · 为你推荐</span><b>${esc(q.genre)}</b></header>
+    <main class="qa-thread">
+      <article class="question-post">
+        <div class="qa-person"><span class="zh-avatar" aria-hidden="true"><i></i></span><div><b>知乎用户</b><small>${esc(q.setting)} · 刚刚提问</small></div></div>
+        <h1>${esc(q.title)}</h1>
+        <div class="question-stats"><span>等待回答</span><i></i><span>关注问题</span></div>
+      </article>
+      <article class="kanshan-answer">
+        <div class="qa-person"><img src="assets/liu-kanshan/animations/打招呼_4秒_320x320_20fps_透明.gif" alt="刘看山"><div><b>刘看山</b><small>知乎官方账号 · 正在回答</small></div><span class="typing-dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+        <p class="typed-answer" aria-label="${esc(answer)}">${typed}<span class="typing-caret" aria-hidden="true"></span></p>
+      </article>
+    </main>
+    <div class="draw-controls">
+      <button class="btn btn--ghost" data-action="redraw">换一个问题</button>
+      <button class="btn btn--primary" data-action="toSetup">就从这个回答开始</button>
     </div>
+    <div class="enter-hint"><span>ENTER</span> 显示完整回答</div>
+    <div class="sr-only" aria-live="polite">刘看山正在回答问题</div>
   </div>`;
 }
 
@@ -645,6 +660,10 @@ document.addEventListener('click', (e)=>{
   }else pendingActions.delete(action);
 });
 document.addEventListener('keydown', (e)=>{
+  if(state?.phase==='draw'&&e.key==='Enter'&&!e.altKey&&!e.ctrlKey&&!e.metaKey){
+    if(!state.drawFast){e.preventDefault();state.drawFast=true;render();}
+    return;
+  }
   if(state?.overlay || state?.phase!=='chapter' || e.altKey || e.ctrlKey || e.metaKey) return;
   const keys = ['1','2','3','4','5','a','b','c','d','e'];
   const pos = keys.indexOf(String(e.key).toLowerCase());
@@ -662,6 +681,7 @@ function drawQuestion(){
   state.question = pick(CONTENT.questions.questions);
   state.genre = state.question.genre;
   state.theme = state.question.theme;
+  state.drawFast = false;
   state.phase = 'draw';
 }
 
