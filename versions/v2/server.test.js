@@ -1,9 +1,16 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const {EventEmitter} = require('node:events');
 const http = require('node:http');
 const test = require('node:test');
-const {createBackend} = require('./server');
+const {
+  createBackend,
+  createService,
+  installSignalHandlers,
+  parseAllowedOrigins,
+  resolveRuntimeConfig
+} = require('./server');
 
 const AUTH_OK = JSON.stringify({
   ok: true,
@@ -44,7 +51,7 @@ async function withServer(options, callback) {
 
 async function getJson(base, pathname, options) {
   const response = await fetch(`${base}${pathname}`, options);
-  return {status: response.status, body: await response.json()};
+  return {status: response.status, headers: response.headers, body: await response.json()};
 }
 
 const validChapterRequest = {
@@ -52,6 +59,85 @@ const validChapterRequest = {
   headers: {'Content-Type': 'application/json'},
   body: JSON.stringify({genre: '悬疑反转', beats: 4})
 };
+
+test('runtime config defaults to loopback and honors deployment environment', () => {
+  const local = resolveRuntimeConfig({LOCALAPPDATA: 'C:\\Local'});
+  assert.equal(local.host, '127.0.0.1');
+  assert.equal(local.port, 4173);
+  assert.equal(local.cliPath, 'C:\\Local\\ZhihuCLI\\current\\zhihu-cli.exe');
+  assert.deepEqual(local.allowedOrigins, []);
+
+  const deployed = resolveRuntimeConfig({
+    HOST: '0.0.0.0',
+    PORT: '8088',
+    ZHIHU_CLI_PATH: '/usr/local/bin/zhihu-cli',
+    ALLOWED_ORIGINS: 'https://rucheck.github.io, https://preview.example'
+  });
+  assert.equal(deployed.host, '0.0.0.0');
+  assert.equal(deployed.port, 8088);
+  assert.equal(deployed.cliPath, '/usr/local/bin/zhihu-cli');
+  assert.deepEqual(deployed.allowedOrigins, ['https://rucheck.github.io', 'https://preview.example']);
+  assert.deepEqual(parseAllowedOrigins(' https://a.example,https://a.example, https://b.example '), [
+    'https://a.example',
+    'https://b.example'
+  ]);
+});
+
+test('backend invokes the explicitly configured CLI path', async () => {
+  const binaries = [];
+  await withServer({
+    cliPath: '/usr/local/bin/zhihu-cli',
+    execFile: (binary, args, _options, callback) => {
+      binaries.push(binary);
+      if (args[0] === 'auth') callback(null, AUTH_OK, '');
+      else callback(null, QUOTA_OK, '');
+    }
+  }, async base => {
+    const result = await getJson(base, '/api/health');
+    assert.equal(result.body.ok, true);
+    assert.deepEqual(binaries, ['/usr/local/bin/zhihu-cli', '/usr/local/bin/zhihu-cli']);
+  });
+});
+
+test('allowed cross-origin API requests receive explicit CORS headers', async () => {
+  await withServer({allowedOrigins: ['https://rucheck.github.io']}, async base => {
+    const result = await getJson(base, '/api/chapter/00000000-0000-4000-8000-000000000000', {
+      headers: {Origin: 'https://rucheck.github.io'}
+    });
+    assert.equal(result.status, 404);
+    assert.equal(result.headers.get('access-control-allow-origin'), 'https://rucheck.github.io');
+    assert.equal(result.headers.get('vary'), 'Origin');
+    assert.equal(result.headers.get('access-control-allow-methods'), 'GET, POST, OPTIONS');
+    assert.equal(result.headers.get('access-control-allow-headers'), 'Content-Type');
+  });
+});
+
+test('disallowed cross-origin API requests are rejected without CORS authorization', async () => {
+  await withServer({allowedOrigins: ['https://rucheck.github.io']}, async base => {
+    const result = await getJson(base, '/api/health', {headers: {Origin: 'https://attacker.example'}});
+    assert.equal(result.status, 403);
+    assert.equal(result.body.error, 'ORIGIN_REJECTED');
+    assert.equal(result.headers.get('access-control-allow-origin'), null);
+  });
+});
+
+test('allowed OPTIONS preflight returns 204 with CORS headers', async () => {
+  await withServer({allowedOrigins: ['https://rucheck.github.io']}, async base => {
+    const response = await fetch(`${base}/api/chapter`, {
+      method: 'OPTIONS',
+      headers: {
+        Origin: 'https://rucheck.github.io',
+        'Access-Control-Request-Method': 'POST',
+        'Access-Control-Request-Headers': 'Content-Type'
+      }
+    });
+    assert.equal(response.status, 204);
+    assert.equal(await response.text(), '');
+    assert.equal(response.headers.get('access-control-allow-origin'), 'https://rucheck.github.io');
+    assert.equal(response.headers.get('access-control-allow-methods'), 'GET, POST, OPTIONS');
+    assert.equal(response.headers.get('access-control-allow-headers'), 'Content-Type');
+  });
+});
 
 test('GET /api/health reports a ready server without running generation', async () => {
   const calls = [];
@@ -208,4 +294,74 @@ test('GET /api/status keeps compatibility fields and adds diagnostics', async ()
     assert.equal(result.body.authentication.valid, true);
     assert.equal(calls.length, 2);
   });
+});
+
+test('API responses never expose CLI error details or runtime secrets', async () => {
+  const marker = 'test-only-sensitive-marker';
+  const failure = Object.assign(new Error(`Bearer ${marker}`), {
+    killed: true,
+    signal: 'SIGTERM',
+    stderr: JSON.stringify({message: `ZHIHU_ACCESS_SECRET=${marker}`})
+  });
+  await withServer({execFile: mockExec({'auth status': AUTH_OK, 'quota --api-id': failure})}, async base => {
+    const chapter = await getJson(base, '/api/chapter', validChapterRequest);
+    assert.equal(chapter.status, 504);
+    assert.equal(chapter.body.error, 'ZHIHU_TIMEOUT');
+    assert.equal(JSON.stringify(chapter.body).includes(marker), false);
+    assert.equal(JSON.stringify(chapter.body).includes('ZHIHU_ACCESS_SECRET'), false);
+  });
+});
+
+test('backend stops accepting new generation jobs during shutdown', async () => {
+  await withServer({execFile: mockExec({})}, async (base, backend) => {
+    assert.equal(backend.beginShutdown(), true);
+    assert.equal(backend.beginShutdown(), false);
+    const result = await getJson(base, '/api/chapter', validChapterRequest);
+    assert.equal(result.status, 503);
+    assert.equal(result.body.error, 'SERVER_SHUTTING_DOWN');
+  });
+});
+
+test('shutdown terminates an active CLI child process', async () => {
+  let finish;
+  let killedWith = null;
+  const child = {kill: signal => { killedWith = signal; }};
+  const backend = createBackend({
+    cliPath: 'mock-zhihu-cli',
+    existsSync: () => true,
+    execFile: (_binary, _args, _options, callback) => {
+      finish = callback;
+      return child;
+    }
+  });
+  const healthPromise = backend.health();
+  await new Promise(resolve => setImmediate(resolve));
+
+  backend.beginShutdown();
+  assert.equal(killedWith, 'SIGTERM');
+  finish(Object.assign(new Error('terminated'), {killed: true, signal: 'SIGTERM'}), '', '');
+  const health = await healthPromise;
+  assert.equal(health.ok, false);
+  assert.equal(health.diagnostic.error, 'ZHIHU_TIMEOUT');
+});
+
+test('SIGTERM and SIGINT initiate graceful service shutdown once', () => {
+  for (const signal of ['SIGTERM', 'SIGINT']) {
+    const signalSource = new EventEmitter();
+    const events = [];
+    const backend = {beginShutdown: () => events.push('backend')};
+    const server = {close: callback => { events.push('server'); callback(); }};
+    const logger = {
+      log: message => events.push(message),
+      error: message => events.push(message)
+    };
+    const service = createService({backend, server, logger, onClosed: error => events.push(error)});
+    const uninstall = installSignalHandlers(service, signalSource);
+
+    signalSource.emit(signal);
+    signalSource.emit(signal);
+    assert.equal(service.stopping, true);
+    assert.deepEqual(events, [`收到 ${signal}，服务正在关闭。`, 'backend', 'server', null]);
+    uninstall();
+  }
 });

@@ -10,7 +10,7 @@ for (const f of files) {
 }
 
 const css = ['style.css','pacing.css'].map(f=>fs.readFileSync(path.join(ROOT,'src',f),'utf8')).join('\n');
-const js = ['save.js','app.js','pacing.js'].map(f=>fs.readFileSync(path.join(ROOT,'src',f),'utf8')).join('\n');
+const js = ['api.js','save.js','app.js','pacing.js'].map(f=>fs.readFileSync(path.join(ROOT,'src',f),'utf8')).join('\n');
 
 const contentJs = 'window.CONTENT = ' + JSON.stringify(content).replace(/<\//g, '<\\/') + ';';
 

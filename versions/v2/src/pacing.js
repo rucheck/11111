@@ -29,7 +29,7 @@ function setSchedule(){
 async function refreshUsage(){
   if(typeof fetch==='undefined'||typeof location==='undefined'||location.protocol==='file:')return;
   try{
-    const r=await fetch('/api/status',{cache:'no-store'}),data=await r.json();
+    const r=await fetch(ApiConfig.url('/api/status'),{cache:'no-store'}),data=await r.json();
     if(r.ok&&data.usage){state.zhihuUsage=data.usage;if(['prologue','workbench','map'].includes(state.phase))render();}
   }catch{}
 }
@@ -438,18 +438,18 @@ async function waitForGeneration(ch,jobId){
   try{
     while(true){
       await pollDelay(1200);
-      const r=await fetch(`/api/chapter/${encodeURIComponent(jobId)}`,{cache:'no-store'});
-      let data;try{data=await r.json();}catch{throw Error('本地生成服务返回了无法识别的内容。');}
+      const r=await fetch(ApiConfig.url(`/api/chapter/${encodeURIComponent(jobId)}`),{cache:'no-store'});
+      let data;try{data=await r.json();}catch{throw Error('知乎生成服务返回了无法识别的内容。');}
       if(data.usage)state.zhihuUsage=data.usage;
       if(r.status===202)continue;
-      if(!r.ok){state.generationJob='';throw Error(data.error||'生成失败');}
+      if(!r.ok){state.generationJob='';throw Error(data.message||data.error||'生成失败');}
       state.generationJob='';ch.generated=data;
       if(state.storyBible.length)ch.generated.beats[0].situation=`承接上章：${continuitySentence()}\n\n${ch.generated.beats[0].situation}`;
       state.phase='workbench';enterLocal();render();return;
     }
   }catch(e){
     const network=/network|fetch|网络请求|failed/i.test(String(e.message));
-    state.generationError=network?'本地生成服务连接中断。任务可能仍在继续。':e.message;
+    state.generationError=network?'知乎生成服务连接中断。任务可能仍在继续。':e.message;
     state.phase='generationError';render();
   }
 }
@@ -474,14 +474,14 @@ enterChapter = function(){
   return (async()=>{
     const ch=state.currentChapter;state.phase='generating';state.generationError='';render();
     try{
-      const r=await fetch('/api/chapter',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({genre:state.genre,question:state.question,chapter:ch.num,chapters:mode().chapters,beats:mode().beats,tone:mode().tone,plan:state.chapterPlan,history:state.memory.slice(-6),storyBible:state.storyBible.slice(-6),continuity:{lastChapter:state.storyBible.at(-1)||null,openThreads:state.foreshadowing.slice(-5),relationship:state.trust,evidence:state.evidence},editor:state.pendingDemand?.constraint,feedback:state.feedbackKey,trust:state.trust,evidence:state.evidence})});
-      let data;try{data=await r.json();}catch{throw Error('本地生成服务返回了无法识别的内容。');}
-      if(data.usage)state.zhihuUsage=data.usage;if(!r.ok)throw Error(data.error||'生成失败');
-      if(!data.jobId)throw Error('本地生成服务没有返回任务编号。');
+      const r=await fetch(ApiConfig.url('/api/chapter'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({genre:state.genre,question:state.question,chapter:ch.num,chapters:mode().chapters,beats:mode().beats,tone:mode().tone,plan:state.chapterPlan,history:state.memory.slice(-6),storyBible:state.storyBible.slice(-6),continuity:{lastChapter:state.storyBible.at(-1)||null,openThreads:state.foreshadowing.slice(-5),relationship:state.trust,evidence:state.evidence},editor:state.pendingDemand?.constraint,feedback:state.feedbackKey,trust:state.trust,evidence:state.evidence})});
+      let data;try{data=await r.json();}catch{throw Error('知乎生成服务返回了无法识别的内容。');}
+      if(data.usage)state.zhihuUsage=data.usage;if(!r.ok)throw Error(data.message||data.error||'生成失败');
+      if(!data.jobId)throw Error('知乎生成服务没有返回任务编号。');
       state.generationJob=data.jobId;persistGame();return waitForGeneration(ch,data.jobId);
     }catch(e){
       const network=/network|fetch|网络请求|failed/i.test(String(e.message));
-      state.generationError=network?'无法连接本地生成服务，请刷新页面后重试。':e.message;state.phase='generationError';render();
+      state.generationError=network?'无法连接知乎生成服务，请刷新页面后重试。':e.message;state.phase='generationError';render();
     }
   })();
 };

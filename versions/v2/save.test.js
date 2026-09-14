@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('fs'),path=require('path'),assert=require('assert');
 const CONTENT=Object.fromEntries(['questions','story','readers','editor','endings','events'].map(f=>[f,JSON.parse(fs.readFileSync(path.join(__dirname,'content',f+'.json'),'utf8'))]));
-const code=['save.js','app.js','pacing.js'].map(f=>fs.readFileSync(path.join(__dirname,'src',f),'utf8')).join('\n');
+const code=['api.js','save.js','app.js','pacing.js'].map(f=>fs.readFileSync(path.join(__dirname,'src',f),'utf8')).join('\n');
 
 class MemoryStorage{
   constructor(){this.data=new Map();}

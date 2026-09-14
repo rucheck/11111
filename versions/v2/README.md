@@ -13,7 +13,7 @@ node server.js
 
 开场动画结束后选择生成方式：知乎模式调用已配置的知乎 CLI，并展示 CLI 返回的当日实际额度；本地模式使用内置剧情，不联网且不限次数。Windows 默认读取当前用户 LocalAppData 下的 ZhihuCLI/current/zhihu-cli.exe；其他位置使用 ZHIHU_CLI_PATH 环境变量指定完整路径。凭据由 CLI 从操作系统凭据库读取，或由部署环境注入 ZHIHU_ACCESS_SECRET，不提交密钥。
 
-本地服务仅监听 127.0.0.1，不是公网部署。GitHub Pages 仅能运行静态版本，无法执行 CLI。直接双击 index.html 使用内置剧情，需要同时保留 assets 目录。
+服务默认仅监听 127.0.0.1；可用 `HOST` 修改监听地址，并继续通过 `PORT` 指定端口。GitHub Pages 仅能运行静态版本，无法执行 CLI。直接双击 index.html 使用内置剧情，需要同时保留 assets 目录。
 
 ### 后端状态与接口
 
@@ -36,11 +36,27 @@ node server.js
 }
 ```
 
-API 错误统一为 `{"ok":false,"error":"稳定错误码","message":"可展示消息"}`。错误码包括 `CLI_NOT_FOUND`、`ZHIHU_AUTH_REQUIRED`、`ZHIHU_AUTH_INVALID`、`ZHIHU_KEYCHAIN_UNAVAILABLE`、`ZHIHU_AUTH_SOURCE_CONFLICT`、`ZHIHU_TIMEOUT`、`ZHIHU_NETWORK_ERROR`、`ZHIHU_QUOTA_EXHAUSTED`、`ZHIHU_RATE_LIMITED`、`ZHIHU_INVALID_JSON`、`ZHIHU_INVALID_RESPONSE`、`ZHIHU_UPSTREAM_ERROR`、`ZHIHU_CLI_FAILED`、`GENERATION_JOB_NOT_FOUND` 和 `INTERNAL_SERVER_ERROR`。响应不包含 CLI 原始 stderr、堆栈、本机路径或凭据。
+API 错误统一为 `{"ok":false,"error":"稳定错误码","message":"可展示消息"}`。错误码包括 `CLI_NOT_FOUND`、`ZHIHU_AUTH_REQUIRED`、`ZHIHU_AUTH_INVALID`、`ZHIHU_KEYCHAIN_UNAVAILABLE`、`ZHIHU_AUTH_SOURCE_CONFLICT`、`ZHIHU_TIMEOUT`、`ZHIHU_NETWORK_ERROR`、`ZHIHU_QUOTA_EXHAUSTED`、`ZHIHU_RATE_LIMITED`、`ZHIHU_INVALID_JSON`、`ZHIHU_INVALID_RESPONSE`、`ZHIHU_UPSTREAM_ERROR`、`ZHIHU_CLI_FAILED`、`GENERATION_JOB_NOT_FOUND`、`SERVER_SHUTTING_DOWN` 和 `INTERNAL_SERVER_ERROR`。响应不包含 CLI 原始 stderr、堆栈、本机路径或凭据。
 
 生成任务只保存在当前 Node 进程内，完成或失败 10 分钟后清理。服务重启后旧 `jobId` 会明确返回 `GENERATION_JOB_NOT_FOUND`；第一阶段不提供任务持久化或多实例共享。
 
 Windows 凭据库按 Windows 安全身份隔离。`server.js` 与手动执行 `zhihu-cli` 必须由同一 Windows 用户身份启动；在沙箱、Windows 服务、计划任务或其他账户下运行时，即使 `USERPROFILE` 相同也可能无法读取交互式用户保存的凭据，此时应通过部署环境安全注入 `ZHIHU_ACCESS_SECRET`，不要写入项目文件。
+
+## Railway + Docker 部署
+
+仓库根目录的 Dockerfile 使用 Debian Bookworm 系列 Node.js 22 镜像，以固定官方地址下载 Linux amd64 的 `zhihu-cli 0.6.0-beta.20260908125143`。构建阶段会先核对压缩包大小 `3000352` 字节，再校验 SHA-256 `d21691ac3bebeac4fb29f6982da6b4e4dddf659b731cd8f65dea1c0242a7d0ba` 和归档内容；任一校验失败都会中止镜像构建。最终镜像只保留 CLI、CA 证书以及 `server.js`、`index.html`、`assets/`，并使用非 root 的 `node` 用户启动服务。
+
+在 Railway 服务中使用根目录 Dockerfile，并配置：
+
+- `HOST=0.0.0.0`
+- `ALLOWED_ORIGINS=https://rucheck.github.io`
+- `ZHIHU_ACCESS_SECRET`：仅在 Railway Variables 中设置实际值，不要写进 Dockerfile、仓库文件、构建参数或日志。
+
+Railway 会提供 `PORT`，无需硬编码或手动覆盖。镜像已经设置 `ZHIHU_CLI_PATH=/usr/local/bin/zhihu-cli`，通常无需另设；只有自定义 CLI 安装位置时才覆盖它。部署健康检查路径使用 `/api/health`。
+
+`ALLOWED_ORIGINS` 可用逗号分隔多个完整 Origin。Origin 只包含协议、主机和可选端口，因此 GitHub Pages 应填写 `https://rucheck.github.io`，不包含 `/yanxuan-writer/`。白名单内 API 请求会收到精确的 `Access-Control-Allow-Origin`、`Vary: Origin`、允许的 `GET, POST, OPTIONS` 方法和 `Content-Type` 请求头；预检返回 204。其他跨域来源返回 `ORIGIN_REJECTED`，不会得到 CORS 授权，也不会使用通配符。
+
+容器收到 `SIGTERM` 或 `SIGINT` 后停止接受新生成任务、关闭 HTTP 监听并终止仍在运行的 CLI 子进程。任务仍然只保存在当前进程内；容器重启、重新部署或扩缩容会丢失未完成任务和旧 `jobId`。第一阶段不使用 Redis 或数据库，也尚未把 GitHub Pages 前端切换到 Railway 域名。
 
 ## 体验
 
@@ -62,4 +78,4 @@ node --test server.test.js
 node inspect.js
 ```
 
-test.js 覆盖全部篇幅、题材、具体度的 54 种完整对局，以及重复点击保护、资源范围、模式切换和生成数据校验。save.test.js 覆盖刷新、关闭后恢复、跨章恢复、新游戏清档及损坏存档降级。server.test.js 使用 mock CLI 覆盖健康检查、CLI 缺失、认证缺失或失效、超时、网络失败、配额耗尽、非法响应、任务丢失和正常状态，不调用真实生成接口。
+test.js 覆盖全部篇幅、题材、具体度的 54 种完整对局，以及重复点击保护、资源范围、模式切换和生成数据校验。save.test.js 覆盖刷新、关闭后恢复、跨章恢复、新游戏清档及损坏存档降级。server.test.js 使用 mock CLI 覆盖健康检查、CLI 缺失、认证缺失或失效、超时、网络失败、配额耗尽、非法响应、任务丢失、部署配置、CORS 和关闭信号，不调用真实生成接口。
