@@ -25,7 +25,7 @@ function run(length,specificity,genre){
     click('toWorkbench');assert.equal(g.get().workbenchStep,0);click('plan',c%2?'修复关系':'追寻事实');assert.equal(g.get().workbenchStep,1);click('closeOverlay');
     click('prepare',null,2);click('prepare',null,0);
     click('nextWorkbench');assert.equal(g.get().workbenchStep,2);click('pickSpec',specificity);
-    click('enterChapter');assert.equal(g.get().phase,'transition');click('continueTransition');
+    click('enterChapter');assert.equal(g.get().phase,'transition');assert(app.innerHTML.includes('realm-transition')&&app.innerHTML.includes('开始呼吸'));click('continueTransition');
     for(let b=0;b<beats;b++){
       assert.equal(g.get().phase,'chapter');assert(g.get().currentChapter.decisions.length>=3);assert(app.innerHTML.includes('story-atmosphere')&&app.innerHTML.includes('data-tension='));
       if(c>0&&b===0)assert(app.innerHTML.includes('前情承接'));

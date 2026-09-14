@@ -335,6 +335,14 @@ body.game-atmosphere[data-realm="author"] .map-screen::after{
 .consequence-stage .memory-slip{border-color:rgba(255,255,255,.11);background:rgba(255,255,255,.055)}.consequence-stage .memory-slip b{color:#d9c89e}
 .suspense-motes{position:absolute;inset:0;z-index:2;overflow:hidden;pointer-events:none}.suspense-motes i{position:absolute;width:3px;height:3px;border-radius:50%;background:#d8c490;box-shadow:0 0 10px #d4b878;opacity:.2;animation:mote-rise 6s ease-in-out infinite}.suspense-motes i:nth-child(1){left:12%;top:76%;animation-delay:-1s}.suspense-motes i:nth-child(2){left:27%;top:62%;animation-delay:-4s;animation-duration:8s}.suspense-motes i:nth-child(3){left:48%;top:84%;animation-delay:-2s}.suspense-motes i:nth-child(4){left:67%;top:71%;animation-delay:-5s;animation-duration:7s}.suspense-motes i:nth-child(5){left:82%;top:58%;animation-delay:-3s;animation-duration:9s}.suspense-motes i:nth-child(6){left:91%;top:82%;animation-delay:-6s}
 
+/* 作者落笔后，光线收束成墨并自动切入主角视角 */
+.realm-transition{position:relative;display:grid;place-items:center;min-height:100vh;overflow:hidden;background:#020405;color:#edf0e9;isolation:isolate}
+.realm-transition::before{content:"";position:absolute;inset:-12%;z-index:0;background:radial-gradient(circle at 50% 48%,rgba(97,135,124,.34),rgba(22,36,36,.2) 24%,rgba(3,7,8,.97) 62%);animation:realm-breath 3s cubic-bezier(.45,0,.3,1) both}
+.realm-transition::after{content:"";position:absolute;inset:0;z-index:1;background:radial-gradient(circle at 50% 48%,rgba(229,216,176,.24),transparent 8%,rgba(0,0,0,.78) 46%);mix-blend-mode:screen;animation:realm-flash 3s ease-in-out both}
+.realm-ink{position:absolute;inset:0;z-index:2;display:grid;place-items:center;pointer-events:none}.realm-ink i{position:absolute;border-radius:50%;border:1px solid rgba(210,198,158,.2);box-shadow:0 0 45px rgba(119,159,148,.14),inset 0 0 50px rgba(0,0,0,.52)}.realm-ink i:nth-child(1){width:22vmax;height:22vmax;animation:ink-ring-one 3s cubic-bezier(.3,.7,.2,1) both}.realm-ink i:nth-child(2){width:37vmax;height:37vmax;border-color:rgba(125,159,149,.13);animation:ink-ring-two 3s cubic-bezier(.3,.7,.2,1) both}.realm-ink i:nth-child(3){width:4vmax;height:4vmax;border:0;background:#000;filter:blur(8px);animation:ink-core 3s ease-in-out both}
+.realm-copy{position:relative;z-index:4;text-align:center;animation:realm-copy-in 3s ease-in-out both}.realm-copy>span{display:block;margin-bottom:19px;color:#b79a63;font-size:9px;font-weight:800;letter-spacing:.32em}.realm-copy h1{margin:0;font:700 clamp(34px,5vw,64px)/1.42 var(--serif);letter-spacing:-.04em;text-shadow:0 8px 34px rgba(0,0,0,.8)}.realm-copy p{margin:18px 0 0;color:#91a29c;font:13px/1.8 var(--serif);letter-spacing:.12em}
+.realm-skip{position:absolute;z-index:5;left:50%;bottom:7vh;display:flex;align-items:center;gap:8px;transform:translateX(-50%);color:#71827c;font-size:9px;letter-spacing:.14em;animation:realm-skip-in 3s ease both}.realm-skip span{padding:3px 6px;border:1px solid #53635e;border-radius:4px;color:#9baca5;font-size:8px}.realm-skip:hover{color:#d7c18e}
+
 /* 教程浮层 */
 .tutorial-panel{width:min(1040px,100%)}
 .tutorial-loop{display:flex;align-items:center;gap:9px;margin:4px 0 24px;padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--brand);font-size:11px;font-weight:800}
@@ -375,6 +383,13 @@ body.game-atmosphere[data-realm="author"] .map-screen::after{
 @keyframes suspense-dust{to{transform:translate3d(4vw,-5vh,0);opacity:.55}}
 @keyframes suspense-ring{0%,100%{transform:scale(.86);opacity:.15}50%{transform:scale(1.12);opacity:.52}}
 @keyframes mote-rise{0%,100%{transform:translateY(18px) scale(.7);opacity:.08}50%{transform:translate(12px,-38px) scale(1.25);opacity:.5}}
+@keyframes realm-breath{0%{transform:scale(1.28);filter:brightness(1.25)}38%{transform:scale(.86);filter:brightness(.58)}62%{transform:scale(.82);filter:brightness(.42)}100%{transform:scale(1.08);filter:brightness(.82)}}
+@keyframes realm-flash{0%,24%{opacity:.55;transform:scale(1.4)}46%{opacity:0;transform:scale(.55)}68%{opacity:.28;transform:scale(.86)}100%{opacity:0;transform:scale(1.2)}}
+@keyframes ink-ring-one{0%{transform:scale(2.8);opacity:0}28%{opacity:.72}54%{transform:scale(.34);opacity:.32}78%{transform:scale(.72);opacity:.68}100%{transform:scale(1.15);opacity:0}}
+@keyframes ink-ring-two{0%{transform:scale(1.8);opacity:0}36%{opacity:.28}60%{transform:scale(.28);opacity:.52}100%{transform:scale(.88);opacity:0}}
+@keyframes ink-core{0%{transform:scale(.2);opacity:0}42%{transform:scale(5);opacity:.9}64%{transform:scale(9);opacity:1}100%{transform:scale(17);opacity:0}}
+@keyframes realm-copy-in{0%,34%{opacity:0;transform:translateY(12px);filter:blur(6px)}52%,78%{opacity:1;transform:none;filter:none}100%{opacity:0;transform:translateY(-7px);filter:blur(2px)}}
+@keyframes realm-skip-in{0%,48%{opacity:0}62%,88%{opacity:.65}100%{opacity:0}}
 @keyframes draw-orbit{to{transform:translate(3vw,2vh) scale(1.08);opacity:.62}}
 @keyframes question-arrive{from{opacity:0;transform:translateY(-14px) scale(.992)}to{opacity:1;transform:none}}
 @keyframes answer-arrive{from{opacity:0;transform:translateY(14px) scale(.992)}to{opacity:1;transform:none}}

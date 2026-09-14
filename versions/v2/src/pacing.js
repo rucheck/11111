@@ -16,6 +16,7 @@ const originalBoot = boot, originalAct = act, originalWorkbench = openWorkbench;
 const originalPublish = publish, originalAuthor = authorDecide, originalFinal = finalChoice;
 const originalRenderWB = renderWorkbench, originalRenderSetup = renderSetup, originalFeedback = renderFeedback, originalEnding = renderEnding;
 let resumableState = null;
+let realmTransitionToken = 0;
 function mode(){ return LENGTHS[state.length || 'medium']; }
 function setSchedule(){
   CHAPTERS = Array.from({length:mode().chapters},(_,i)=>{
@@ -89,7 +90,10 @@ function effectChips(effect,compact=false){
   }).join('')||'<span class="effect-chip is-neutral">状态不变</span>';
 }
 function bridge(target,title,body){ state.transition={target,title,body}; state.phase='transition'; }
-screens.transition = ()=>`<section class="passage passage--bridge"><div class="transition-glyph">${uiIcon(state.transition.target==='chapter'?'book':'feather')}</div>${mascot()}<span class="eyebrow">${state.transition.target==='chapter'?'进入小说':'回到书桌'}</span><h1>${esc(state.transition.title)}</h1><p>${esc(state.transition.body)}</p><button class="btn btn--primary" data-action="continueTransition"><span>继续</span>${uiIcon('arrowRight')}</button></section>`;
+screens.transition = ()=>{
+  if(state.transition.target==='chapter')return `<section class="realm-transition" aria-label="从作者层进入主角层"><div class="realm-ink" aria-hidden="true"><i></i><i></i><i></i></div><div class="realm-copy"><span>AUTHOR / CHARACTER</span><h1>你写下的人，<br>开始呼吸。</h1><p>下一次睁眼，你在故事里。</p></div><button class="realm-skip" data-action="continueTransition" aria-label="跳过转场"><span>ENTER</span> 跳过</button></section>`;
+  return `<section class="passage passage--bridge"><div class="transition-glyph">${uiIcon('feather')}</div>${mascot()}<span class="eyebrow">回到书桌</span><h1>${esc(state.transition.title)}</h1><p>${esc(state.transition.body)}</p><button class="btn btn--primary" data-action="continueTransition"><span>继续</span>${uiIcon('arrowRight')}</button></section>`;
+};
 screens.title = ()=>`<section class="new-title"><div class="title-copy"><span class="eyebrow">知乎盐选互动叙事 / 90 DAYS</span><h1>盐选人生<span>写下故事，<br>也被故事改变。</span></h1>${resumableState?`<div class="resume-card"><span class="resume-icon">${uiIcon('book')}</span><div><b>第 ${Math.min(resumableState.chapterIndex+1,LENGTHS[resumableState.length].chapters)} 章 · D-${resumableState.day}</b><span>上次写到这里，存档已留在当前浏览器。</span></div></div><div class="title-actions"><button class="btn btn--primary btn--big" data-action="continueGame"><span>继续游戏</span>${uiIcon('arrowRight')}</button><button class="btn btn--quiet" data-action="newGame">新游戏 · 清除存档</button></div>`:`<button class="btn btn--primary btn--big" data-action="startPrologue"><span>开始游戏</span>${uiIcon('arrowRight')}</button>`}</div><div class="title-art"><div class="art-orbit art-orbit--one"></div><div class="art-orbit art-orbit--two"></div><div class="art-book"><small>盐选连载 · 草稿</small><span>未完成的<br>第九十天</span><i></i></div>${mascot('电脑_6秒_320x320_20fps_透明.gif')}<span class="art-note">距交稿 <b>90</b> 天</span></div></section>`;
 const PROLOGUE=[
   {tag:'知乎盐选写手 · 匿名用户',title:'谢邀。人在第九十天，稿子还没活过来。',body:'起初，你以为这只是一次普通更新。直到评论区里，有人叫出了一个尚未写下的名字。',visual:'question'},
@@ -337,17 +341,26 @@ function tutorialOverlay(){
   return `<div class="game-overlay" role="dialog" aria-modal="true" aria-label="游戏教程"><div class="overlay-panel tutorial-panel"><button class="overlay-close" data-action="closeOverlay" aria-label="关闭">${uiIcon('close')}</button><div class="overlay-title"><span class="overlay-title-icon">${uiIcon('guide')}</span><div><span class="overlay-kicker">游戏教程</span><h2>一篇故事，两个身份。</h2></div></div><div class="tutorial-loop"><span>作者层</span>${uiIcon('arrowRight')}<span>主角层</span>${uiIcon('arrowRight')}<span>读者反馈</span>${uiIcon('arrowRight')}<span>下一章</span></div><div class="tutorial-grid">${steps.map(item=>`<article class="tutorial-step"><span class="tutorial-step-icon">${uiIcon(item.icon)}</span><small>${item.no}</small><h3>${item.title}</h3><p>${item.body}</p></article>`).join('')}</div><div class="tutorial-tip"><span>${uiIcon('spark')}</span><p><b>不必寻找“正确答案”。</b> 资源、人物关系和你坚持的写法，会共同决定结局。</p></div></div></div>`;
 }
 const baseRender=render;
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&state?.overlay){state.overlay='';render();}});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&state?.overlay){state.overlay='';render();return;}
+  if(e.key==='Enter'&&state?.phase==='transition'&&state.transition?.target==='chapter'){e.preventDefault();act('continueTransition',{dataset:{}});}
+});
 render = function(){
+  const transitionToken=++realmTransitionToken;
   baseRender();
   const el=$('#app');
+  if(state.phase==='transition'&&state.transition?.target==='chapter'&&typeof window.setTimeout==='function'){
+    window.setTimeout(()=>{if(transitionToken===realmTransitionToken&&state.phase==='transition'&&state.transition?.target==='chapter')act('continueTransition',{dataset:{}});},3000);
+  }
   if(!state.question||['title','prologue','draw','setup'].includes(state.phase)){
     if(document.body){document.body.classList.remove('game-atmosphere');delete document.body.dataset.realm;delete document.body.dataset.tension;delete document.body.dataset.mood;delete document.body.dataset.condition;}
     return;
   }
-  const inner=['chapter','consequence'].includes(state.phase);
+  const enteringStory=state.phase==='transition'&&state.transition?.target==='chapter';
+  const inner=['chapter','consequence'].includes(state.phase)||enteringStory;
   const visual=narrativeVisualState(inner);
   if(document.body){document.body.classList.add('game-atmosphere');document.body.dataset.realm=visual.realm;document.body.dataset.tension=visual.tension;document.body.dataset.mood=visual.mood;document.body.dataset.condition=visual.condition;}
+  if(enteringStory)return;
   const modeText=state.generationMode==='local'?'本地模式 · 不限次数':`知乎模式 · ${usageLabel()}`;
   const mini=RES_DEFS.slice(0,3).map(item=>`<span class="hud-resource" title="${item.label}">${uiIcon(item.icon)}<b>${Math.round(state.resources[item.key])}</b></span>`).join('');
   const overlay=state.overlay==='map'?mapOverlay():state.overlay==='status'?statusOverlay():state.overlay==='tutorial'?tutorialOverlay():state.overlay==='lowAction'?lowActionOverlay():state.overlay==='hint'?hintOverlay():state.overlay==='prepAdvice'?prepAdviceOverlay():'';
