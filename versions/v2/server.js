@@ -1,4 +1,4 @@
-/* 本地运行入口：静态资源 + 知乎 CLI 章节生成。仅监听回环地址。 */
+/* 静态资源 + 知乎 CLI 章节生成服务。默认仅监听回环地址。 */
 'use strict';
 
 const http = require('node:http');
@@ -8,8 +8,22 @@ const crypto = require('node:crypto');
 const childProcess = require('node:child_process');
 
 const ROOT = __dirname;
-const PORT = Number(process.env.PORT || 4173);
-const CLI = process.env.ZHIHU_CLI_PATH || path.join(process.env.LOCALAPPDATA || '', 'ZhihuCLI', 'current', 'zhihu-cli.exe');
+
+function parseAllowedOrigins(value = '') {
+  return [...new Set(String(value).split(',').map(origin => origin.trim()).filter(Boolean))];
+}
+
+function resolveRuntimeConfig(environment = process.env) {
+  return {
+    host: environment.HOST || '127.0.0.1',
+    port: Number(environment.PORT || 4173),
+    cliPath: environment.ZHIHU_CLI_PATH || path.join(environment.LOCALAPPDATA || '', 'ZhihuCLI', 'current', 'zhihu-cli.exe'),
+    allowedOrigins: parseAllowedOrigins(environment.ALLOWED_ORIGINS)
+  };
+}
+
+const RUNTIME_CONFIG = resolveRuntimeConfig();
+const {host: HOST, port: PORT, cliPath: CLI} = RUNTIME_CONFIG;
 
 const ERROR_DEFINITIONS = Object.freeze({
   CLI_NOT_FOUND: [503, '未找到知乎 CLI，请先安装或配置 ZHIHU_CLI_PATH。'],
@@ -27,6 +41,7 @@ const ERROR_DEFINITIONS = Object.freeze({
   ZHIHU_CLI_FAILED: [502, '知乎 CLI 调用失败。'],
   GENERATION_JOB_NOT_FOUND: [404, '生成任务不存在、已过期，或因服务重启而丢失。'],
   GENERATION_BUSY: [429, '正在写作，请稍候。'],
+  SERVER_SHUTTING_DOWN: [503, '服务正在关闭，请稍后重试。'],
   INVALID_REQUEST_JSON: [400, '请求正文不是有效 JSON。'],
   INVALID_REQUEST: [400, '请求参数无效。'],
   REQUEST_TOO_LARGE: [413, '请求内容过长。'],
@@ -206,16 +221,24 @@ function validatePlan(raw, count) {
 }
 
 function createBackend(options = {}) {
-  const cliPath = options.cliPath || CLI;
+  const cliPath = options.cliPath ?? CLI;
   const execFile = options.execFile || childProcess.execFile;
   const fetchImpl = options.fetch || globalThis.fetch;
   const existsSync = options.existsSync || fs.existsSync;
   const randomUUID = options.randomUUID || crypto.randomUUID;
   const now = options.now || Date.now;
   const setTimer = options.setTimeout || setTimeout;
-  const port = Number(options.port || PORT);
+  const port = Number(options.port ?? PORT);
+  const configuredOrigins = options.allowedOrigins ?? RUNTIME_CONFIG.allowedOrigins;
+  const allowedOrigins = new Set([
+    `http://localhost:${port}`,
+    `http://127.0.0.1:${port}`,
+    ...parseAllowedOrigins(Array.isArray(configuredOrigins) ? configuredOrigins.join(',') : configuredOrigins)
+  ]);
   const jobs = new Map();
+  const activeChildren = new Set();
   let busy = false;
+  let shuttingDown = false;
   let storyCache = null;
   let healthCache = null;
 
@@ -230,15 +253,18 @@ function createBackend(options = {}) {
   function runCli(args, runOptions = {}) {
     return new Promise((resolve, reject) => {
       const callback = (error, stdout = '', stderr = '') => {
+        if (child) activeChildren.delete(child);
         if (error) return reject(classifyCliError(error, stdout, stderr));
         resolve(String(stdout));
       };
+      let child;
       try {
-        execFile(cliPath, args, {
+        child = execFile(cliPath, args, {
           timeout: runOptions.timeout || 15000,
           maxBuffer: runOptions.maxBuffer || 256 * 1024,
           windowsHide: true
         }, callback);
+        if (child && typeof child.kill === 'function') activeChildren.add(child);
       } catch (error) {
         reject(classifyCliError(error));
       }
@@ -417,6 +443,21 @@ function createBackend(options = {}) {
 
   async function handle(req, res) {
     const url = new URL(req.url, 'http://localhost');
+    const isApi = url.pathname.startsWith('/api/');
+    const origin = typeof req.headers.origin === 'string' ? req.headers.origin : '';
+    const originAllowed = !origin || allowedOrigins.has(origin);
+
+    if (isApi && origin && !originAllowed) return sendError(res, new ApiError('ORIGIN_REJECTED'));
+    if (isApi && originAllowed && origin) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Vary', 'Origin');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    }
+    if (isApi && req.method === 'OPTIONS') {
+      res.writeHead(204, {'Cache-Control': 'no-store'});
+      return res.end();
+    }
 
     if (url.pathname === '/api/health' && req.method === 'GET') return json(res, 200, await health());
     if (url.pathname === '/api/status' && req.method === 'GET') {
@@ -443,9 +484,7 @@ function createBackend(options = {}) {
     }
 
     if (url.pathname === '/api/chapter' && req.method === 'POST') {
-      if (req.headers.origin && ![`http://localhost:${port}`, `http://127.0.0.1:${port}`].includes(req.headers.origin)) {
-        return sendError(res, new ApiError('ORIGIN_REJECTED'));
-      }
+      if (shuttingDown) return sendError(res, new ApiError('SERVER_SHUTTING_DOWN'));
       if (busy) return sendError(res, new ApiError('GENERATION_BUSY'));
       try {
         const payload = await readRequestJson(req);
@@ -486,6 +525,15 @@ function createBackend(options = {}) {
     Promise.resolve(handle(req, res)).catch(() => sendError(res, new ApiError('INTERNAL_SERVER_ERROR')));
   }
 
+  function beginShutdown() {
+    if (shuttingDown) return false;
+    shuttingDown = true;
+    for (const child of activeChildren) {
+      try { child.kill('SIGTERM'); } catch {}
+    }
+    return true;
+  }
+
   return {
     listener,
     handle,
@@ -497,22 +545,62 @@ function createBackend(options = {}) {
     generateChapter,
     startChapterJob,
     usage,
+    beginShutdown,
     jobs,
-    get busy() { return busy; }
+    get busy() { return busy; },
+    get shuttingDown() { return shuttingDown; }
+  };
+}
+
+function createService(options = {}) {
+  const backend = options.backend || createBackend(options.backendOptions);
+  const server = options.server || http.createServer(backend.listener);
+  const logger = options.logger || console;
+  let stopping = false;
+
+  function shutdown(signal = 'SIGTERM') {
+    if (stopping) return false;
+    stopping = true;
+    logger.log(`收到 ${signal}，服务正在关闭。`);
+    backend.beginShutdown();
+    server.close(error => {
+      if (error) logger.error('服务关闭失败。');
+      options.onClosed?.(error || null);
+    });
+    return true;
+  }
+
+  return {backend, server, shutdown, get stopping() { return stopping; }};
+}
+
+function installSignalHandlers(service, signalSource = process) {
+  const onSigterm = () => service.shutdown('SIGTERM');
+  const onSigint = () => service.shutdown('SIGINT');
+  signalSource.once('SIGTERM', onSigterm);
+  signalSource.once('SIGINT', onSigint);
+  return () => {
+    signalSource.off('SIGTERM', onSigterm);
+    signalSource.off('SIGINT', onSigint);
   };
 }
 
 const backend = createBackend();
 
 if (require.main === module) {
-  http.createServer(backend.listener).listen(PORT, '127.0.0.1', () => {
-    console.log(`盐选人生 http://127.0.0.1:${PORT}`);
+  const service = createService({backend});
+  service.server.listen(PORT, HOST, () => {
+    console.log(`盐选人生 http://${HOST}:${PORT}`);
   });
+  installSignalHandlers(service);
 }
 
 module.exports = {
   ...backend,
   createBackend,
+  createService,
+  installSignalHandlers,
+  parseAllowedOrigins,
+  resolveRuntimeConfig,
   ApiError,
   ERROR_DEFINITIONS,
   publicError,
