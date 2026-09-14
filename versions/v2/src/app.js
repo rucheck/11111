@@ -21,12 +21,12 @@ const SPECIFICS = [
   { key:"broad",    label:"宽泛", hint:"5 个开放行动 · 可观察、绕行或触发隐藏事件", cost:25, choices:5, heat:0, quality:0 },
 ];
 const RES_DEFS = [
-  { key:"action",  label:"行动力",   icon:"⚡" },
-  { key:"energy",  label:"精力",     icon:"🫀" },
-  { key:"heat",    label:"热度",     icon:"🔥" },
-  { key:"quality", label:"质量",     icon:"✒️" },
-  { key:"style",   label:"作者风格", icon:"🎨" },
-  { key:"sign",    label:"签约概率", icon:"📝" },
+  { key:"action",  label:"行动力",   icon:"bolt" },
+  { key:"energy",  label:"精力",     icon:"heart" },
+  { key:"heat",    label:"热度",     icon:"trend" },
+  { key:"quality", label:"质量",     icon:"feather" },
+  { key:"style",   label:"作者风格", icon:"spark" },
+  { key:"sign",    label:"签约概率", icon:"contract" },
 ];
 let CHAPTERS = [
   { day:90, stage:"起步期" },
@@ -61,6 +61,34 @@ const rand = (n) => Math.floor(Math.random()*n);
 const pick = (arr) => arr[rand(arr.length)];
 const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const UI_ICONS = {
+  bolt:'<path d="M13 2 4.8 13H11l-1 9 8.2-11H12l1-9Z"/>',
+  heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',
+  trend:'<path d="m3 17 6-6 4 4 8-9"/><path d="M15 6h6v6"/>',
+  feather:'<path d="M20.2 4.8c-4.4-4.4-12.6.8-14.9 5.9-1 2.3-.9 4.5-.2 6.1L3 21l4.2-2.1c1.6.7 3.8.8 6.1-.2 5.1-2.3 10.3-9.9 6.9-13.9Z"/><path d="m7 17 8-8M9.5 14.5H15V9"/>',
+  spark:'<path d="m12 3 1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3Z"/><path d="m19 15 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"/>',
+  contract:'<path d="M6 2h9l4 4v16H6z"/><path d="M14 2v5h5M9 12h7M9 16h7"/>',
+  map:'<path d="m3 6 5-3 8 3 5-3v15l-5 3-8-3-5 3z"/><path d="M8 3v15M16 6v15"/>',
+  status:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',
+  arrowRight:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  arrowLeft:'<path d="M19 12H5M11 18l-6-6 6-6"/>',
+  infinity:'<path d="M18.5 7.5c-3.5 0-5 4.5-6.5 4.5s-3-4.5-6.5-4.5a4.5 4.5 0 0 0 0 9c3.5 0 5-4.5 6.5-4.5s3 4.5 6.5 4.5a4.5 4.5 0 0 0 0-9Z"/>',
+  cloud:'<path d="M17.5 19H7a5 5 0 0 1-.8-9.9A7 7 0 0 1 19.8 11a4 4 0 0 1-2.3 8Z"/>',
+  book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5z"/><path d="M8 7h8M8 11h6"/>',
+  message:'<path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8M8 13h5"/>',
+  alert:'<path d="M12 3 2.8 20h18.4L12 3Z"/><path d="M12 9v5M12 17.5v.5"/>',
+  compass:'<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
+  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>',
+  shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>',
+  edit:'<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/>',
+  eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+  close:'<path d="m6 6 12 12M18 6 6 18"/>',
+  check:'<path d="m5 12 4 4L19 6"/>',
+};
+function uiIcon(name, cls='ui-icon'){
+  return `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${UI_ICONS[name]||UI_ICONS.spark}</svg>`;
+}
 const shuffle = (arr) => { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=rand(i+1);[a[i],a[j]]=[a[j],a[i]];} return a; };
 
 function fill(t, ctx){
@@ -294,7 +322,7 @@ function renderWorkbench(){
 
   const bars = RES_DEFS.map(r=>`
     <div class="bar-row">
-      <div class="bar-label">${r.icon} ${r.label}</div>
+      <div class="bar-label"><span class="bar-icon">${uiIcon(r.icon)}</span>${r.label}</div>
       <div class="bar-track"><div class="bar-fill" style="width:${clamp(res[r.key],0,100)}%;background:${resColor(r.key)}"></div></div>
       <div class="bar-val">${Math.round(res[r.key])}</div>
     </div>`).join('');
@@ -333,7 +361,7 @@ function renderWorkbench(){
       </div>
 
       <div class="wb-col wb-comments">
-        <div class="col-title">💬 评论区</div>
+        <div class="col-title">${uiIcon('message')} 评论区</div>
         <div class="comment-list">
           ${state.chapters.length===0 ? '<div class="dim">还没有读者。发布第一章后，AI 读者会带着立场涌进来。</div>' : renderComments(state.chapters[state.chapters.length-1].comments, true)}
         </div>
@@ -413,12 +441,12 @@ function renderFeedback(){
     <div class="phase-tag">发布第 ${ch.num} 章 · 读者反馈</div>
     <div class="fb-grid">
       <div class="fb-comments">
-        <div class="col-title">💬 AI 读者评论（${ch.comments.length}）</div>
+        <div class="col-title">${uiIcon('message')} AI 读者评论（${ch.comments.length}）</div>
         <div class="comment-list">${renderComments(ch.comments, false)}</div>
       </div>
       <div class="fb-side">
         <div class="doc-block"><div class="doc-h">本章数据变动</div>${renderDelta(ch.delta)}</div>
-        ${ch.event ? `<div class="event-card"><div class="event-h">⚡ 突发事件 · ${esc(ch.event.name)}</div><p>${esc(fill(ch.event.desc, chapterCtx(ch)))}</p></div>` : ''}
+        ${ch.event ? `<div class="event-card"><div class="event-h">${uiIcon('alert')} 突发事件 · ${esc(ch.event.name)}</div><p>${esc(fill(ch.event.desc, chapterCtx(ch)))}</p></div>` : ''}
         <div class="doc-block"><div class="doc-h">作者层决策</div>
           <div class="author-choices">
             ${AUTHOR_DECISIONS.map((a,i)=>`<button class="author-choice" data-action="authorDecide" data-idx="${i}">
@@ -452,7 +480,7 @@ function renderCrisis(){
   <div class="screen screen--center">
     <div class="phase-tag">D-${CRISIS_DAY} · 最终危机</div>
     <div class="crisis-card">
-      <div class="event-h">⚡ ${esc(fill(state.crisisComplication, ctx))}</div>
+      <div class="event-h">${uiIcon('alert')} ${esc(fill(state.crisisComplication, ctx))}</div>
       <p class="crisis-desc">第 0 天将至。现在，你需要为这部作品与自己的写作生涯，做最后一个决定。</p>
     </div>
     <div class="stage-choices stage-choices--final">

@@ -31,7 +31,11 @@ function run(length,specificity,genre){
     }
     assert.equal(g.get().phase,'transition');click('continueTransition');assert.equal(g.get().phase,'manuscript');
     for(const step of g.get().currentChapter.steps)assert(g.get().currentChapter.prose.join('').includes(step.result));
-    click('publish');assert.equal(g.get().phase,'feedback');const n=g.get().chapters.length;click('publish');assert.equal(g.get().chapters.length,n);
+    click('publish');assert.equal(g.get().phase,'feedback');
+    assert(app.innerHTML.includes('decision-console')&&app.innerHTML.includes('当前路线'));
+    assert.equal((app.innerHTML.match(/class="author-action /g)||[]).length,6);
+    assert(app.innerHTML.includes('effect-chip')&&!/[⚡🔥✒🎨📝💬🫀]/u.test(app.innerHTML));
+    const n=g.get().chapters.length;click('publish');assert.equal(g.get().chapters.length,n);
     click('authorDecide',null,c%6);assert.equal(g.get().phase,'transition');click('continueTransition');
     assert.equal(g.get().storyBible.length,c+1);assert.equal(g.get().storyBible[c].decisions.length,beats);assert(g.get().memory[c].includes('行动链'));
     for(const val of Object.values(g.get().resources))assert(val>=0&&val<=100);
