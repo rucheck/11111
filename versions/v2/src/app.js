@@ -535,15 +535,19 @@ function renderCrisis(){
   ctx.goal = '收束全篇';
   ctx.cliff = '最终结局';
   return `
-  <div class="screen screen--center">
-    <div class="phase-tag">D-${CRISIS_DAY} · 最终危机</div>
+  <div class="screen screen--center crisis-screen">
+    <header class="crisis-heading">
+      <span class="phase-tag">D-${CRISIS_DAY} · 最终危机</span>
+      <h1>最后一章，<br>你准备怎样落笔？</h1>
+      <p>这次选择会同时决定作品的结局，以及你作为作者留下的名字。</p>
+    </header>
     <div class="crisis-card">
-      <div class="event-h">${uiIcon('alert')} ${esc(fill(state.crisisComplication, ctx))}</div>
+      <div class="event-h"><span>${uiIcon('alert')}</span><b>${esc(fill(state.crisisComplication, ctx))}</b></div>
       <p class="crisis-desc">第 0 天将至。现在，你需要为这部作品与自己的写作生涯，做最后一个决定。</p>
     </div>
     <div class="stage-choices stage-choices--final">
-      ${state.crisisChoices.map((d,i)=>`<button class="choice" data-action="finalChoice" data-idx="${i}">
-        <span class="choice-idx">${String.fromCharCode(65+i)}</span><span>${esc(fill(d.text, ctx))}</span>
+      ${state.crisisChoices.map((d,i)=>`<button class="choice crisis-choice" data-action="finalChoice" data-idx="${i}">
+        <span class="choice-idx">${String.fromCharCode(65+i)}</span><span class="crisis-choice-copy"><b>${esc(fill(d.text, ctx))}</b><small>${effectChips(d.effect,true)}</small></span>${uiIcon('arrowRight')}
       </button>`).join('')}
     </div>
   </div>`;

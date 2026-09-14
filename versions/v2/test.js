@@ -53,7 +53,7 @@ function run(length,specificity,genre){
     assert.equal(g.get().storyBible.length,c+1);assert.equal(g.get().storyBible[c].decisions.length,beats);assert(g.get().memory[c].includes('行动链'));
     for(const val of Object.values(g.get().resources))assert(val>=0&&val<=100);
   }
-  assert.equal(g.get().phase,'crisis');click('finalChoice',null,0);assert.equal(g.get().phase,'ending');
+  assert.equal(g.get().phase,'crisis');assert(app.innerHTML.includes('crisis-screen')&&app.innerHTML.includes('crisis-choice-copy'),'终局应使用清晰的独立决策版式');assert((app.innerHTML.match(/effect-chip/g)||[]).length>=4,'终局选项应清晰展示数值影响');click('finalChoice',null,0);assert.equal(g.get().phase,'ending');
   assert.equal(g.get().day,0);assert.equal(g.get().chapters.reduce((n,c)=>n+c.steps.length,0),count*beats);
   assert(!/\{(?:npc|protagonist|place|goal)\}/.test(app.innerHTML));
 }
