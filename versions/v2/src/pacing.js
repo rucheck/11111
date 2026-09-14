@@ -1,7 +1,7 @@
 /* 连载节奏、双层过场与持续叙事。复用基础资源与结局渲染。 */
 const LENGTHS = {
   short:{name:'短篇', chapters:6, beats:4, tone:'克制现实', desc:'24 次故事决策 · 每章四幕，聚焦一条冲突并完整落下后果。'},
-  medium:{name:'中篇', chapters:9, beats:5, tone:'层层反转', desc:'45 次故事决策 · 每章五幕，关系、线索与回收彼此咬合。'},
+  medium:{name:'中篇', chapters:9, beats:5, tone:'层层反转', desc:'45 次故事决策 · 每章五幕，关系推进、线索铺设与伏笔回收环环相扣。'},
   long:{name:'长篇', chapters:12, beats:6, tone:'戏剧升级', desc:'72 次故事决策 · 每章六幕，多方卷入并形成连锁反转。'},
 };
 const STORY_ARCS = {
@@ -17,6 +17,8 @@ const originalPublish = publish, originalAuthor = authorDecide, originalFinal = 
 const originalRenderWB = renderWorkbench, originalRenderSetup = renderSetup, originalFeedback = renderFeedback, originalEnding = renderEnding;
 let resumableState = null;
 let realmTransitionToken = 0;
+let pageTransition = null;
+let pageTransitionToken = 0;
 function mode(){ return LENGTHS[state.length || 'medium']; }
 function setSchedule(){
   CHAPTERS = Array.from({length:mode().chapters},(_,i)=>{
@@ -79,7 +81,7 @@ const AUTHOR_UI={
   ignore:{icon:'eye',tone:'calm',type:'观察',outcome:'保留创作主动权'},
   reply:{icon:'message',tone:'social',type:'互动',outcome:'用精力换取讨论'},
   argue:{icon:'alert',tone:'risk',type:'对抗',outcome:'高热度，也更失控'},
-  revise:{icon:'edit',tone:'craft',type:'修订',outcome:'调整走向并靠近签约'},
+  revise:{icon:'edit',tone:'craft',type:'修订',outcome:'调整走向，提高签约机会'},
   cater:{icon:'trend',tone:'risk',type:'迎合',outcome:'流量上涨，风格受损'},
   stick:{icon:'shield',tone:'craft',type:'坚持',outcome:'牺牲热度，稳住作品'},
 };
@@ -90,8 +92,25 @@ function effectChips(effect,compact=false){
   }).join('')||'<span class="effect-chip is-neutral">状态不变</span>';
 }
 function bridge(target,title,body){ state.transition={target,title,body}; state.phase='transition'; }
+const PAGE_TRANSITIONS = {
+  opening:{tone:'opening',label:'QUESTION / ANSWER',title:'故事，从一次回答开始。',body:'有人提问。你决定写下去。'},
+  question:{tone:'question',label:'MODE / CONNECTED',title:'问题已选定。',body:'从这个问题开始，写下你的回答。'},
+  countdown:{tone:'countdown',label:'DAY 90 / BEGIN',title:'倒计时开始。',body:'第一章尚未动笔，交稿日期已经确定。'},
+  workbench:{tone:'workbench',label:'DESK / MANUSCRIPT',title:'灯亮了。',body:'这一章，等你落笔。'},
+};
+function queuePageTransition(kind,overrides={}){
+  pageTransition={...(PAGE_TRANSITIONS[kind]||PAGE_TRANSITIONS.opening),...overrides};
+}
+function renderPageTransition(item){
+  if(item.tone==='workbench')return renderAuthorTransition(item.label,item.title,item.body,'dismissPageTransition',true);
+  return `<section class="page-transition page-transition--${item.tone}" aria-label="页面转场"><div class="realm-ink" aria-hidden="true"><i></i><i></i><i></i></div><div class="realm-copy"><span>${esc(item.label)}</span><h1>${esc(item.title)}</h1><p>${esc(item.body)}</p></div><button class="realm-skip" data-action="dismissPageTransition" aria-label="跳过转场"><span>ENTER</span> 跳过</button></section>`;
+}
+function renderAuthorTransition(label,title,body,action,isOverlay=false){
+  return `<section class="author-transition ${isOverlay?'author-transition--overlay':''}" aria-label="进入作者层"><div class="author-desk" aria-hidden="true"><div class="desk-lamp"><i></i><span></span></div><div class="paper-stack"><i></i><i></i><i></i><article><span></span><span></span><span></span><b></b></article></div></div><div class="author-transition-copy"><span>${esc(label)}</span><h1>${esc(title)}</h1><p>${esc(body)}</p></div><button class="author-transition-skip" data-action="${action}" aria-label="跳过转场"><span>ENTER</span> 跳过</button></section>`;
+}
 screens.transition = ()=>{
   if(state.transition.target==='chapter')return `<section class="realm-transition" aria-label="从作者层进入主角层"><div class="realm-ink" aria-hidden="true"><i></i><i></i><i></i></div><div class="realm-copy"><span>AUTHOR / CHARACTER</span><h1>你写下的人，<br>开始呼吸。</h1><p>下一次睁眼，你在故事里。</p></div><button class="realm-skip" data-action="continueTransition" aria-label="跳过转场"><span>ENTER</span> 跳过</button></section>`;
+  if(state.transition.target==='manuscript')return renderAuthorTransition('CHARACTER / AUTHOR','主角的经历，写进了手稿。','台灯亮起。刚才经历的一切，已经整理成文字。','continueTransition');
   return `<section class="passage passage--bridge"><div class="transition-glyph">${uiIcon('feather')}</div>${mascot()}<span class="eyebrow">回到书桌</span><h1>${esc(state.transition.title)}</h1><p>${esc(state.transition.body)}</p><button class="btn btn--primary" data-action="continueTransition"><span>继续</span>${uiIcon('arrowRight')}</button></section>`;
 };
 screens.title = ()=>`<section class="new-title"><div class="title-copy"><span class="eyebrow">知乎盐选互动叙事 / 90 DAYS</span><h1>盐选人生<span>写下故事，<br>也被故事改变。</span></h1>${resumableState?`<div class="resume-card"><span class="resume-icon">${uiIcon('book')}</span><div><b>第 ${Math.min(resumableState.chapterIndex+1,LENGTHS[resumableState.length].chapters)} 章 · D-${resumableState.day}</b><span>上次写到这里，存档已留在当前浏览器。</span></div></div><div class="title-actions"><button class="btn btn--primary btn--big" data-action="continueGame"><span>继续游戏</span>${uiIcon('arrowRight')}</button><button class="btn btn--quiet" data-action="newGame">新游戏 · 清除存档</button></div>`:`<button class="btn btn--primary btn--big" data-action="startPrologue"><span>开始游戏</span>${uiIcon('arrowRight')}</button>`}</div><div class="title-art"><div class="art-orbit art-orbit--one"></div><div class="art-orbit art-orbit--two"></div><div class="art-book"><small>盐选连载 · 草稿</small><span>未完成的<br>第九十天</span><i></i></div>${mascot('电脑_6秒_320x320_20fps_透明.gif')}<span class="art-note">距交稿 <b>90</b> 天</span></div></section>`;
@@ -107,7 +126,24 @@ screens.setup = ()=>{
   if(state.setupStep===1)return setupShell(2,'故事写什么？',`<div class="setup-question">${esc(state.question.title)}</div><div class="wizard-block"><b>类型</b><div class="chip-row">${GENRES.map(g=>`<button class="chip ${g===state.genre?'chip--on':''}" data-action="pickGenre" data-val="${esc(g)}">${esc(g)}</button>`).join('')}</div></div><div class="wizard-block"><b>主题</b><div class="chip-row">${THEMES.map(t=>`<button class="chip ${t===state.theme?'chip--on':''}" data-action="pickTheme" data-val="${esc(t)}">${esc(t)}</button>`).join('')}</div></div><div class="wizard-actions"><button class="btn btn--ghost" data-action="setupBack">上一步</button><button class="btn btn--primary" data-action="nextSetup">下一步</button></div>`);
   return setupShell(3,'你准备怎么写？',`<div class="wizard-grid route-wizard">${ROUTES.map(r=>`<button class="wizard-card route-option ${r.key===state.routeLean?'selected':''}" data-action="pickRoute" data-val="${r.key}"><span class="wizard-card-icon">${uiIcon(ROUTE_ICONS[r.key])}</span><b>${esc(r.name)}</b><span>${esc(r.desc)}</span><i>${r.key===state.routeLean?uiIcon('check'):''}</i></button>`).join('')}</div><label class="pen-label"><span>笔名</span><input class="pen-input" id="penName" maxlength="12" value="${esc(state.penName)}"></label><div class="wizard-actions"><button class="btn btn--ghost" data-action="setupBack">${uiIcon('arrowLeft')}<span>上一步</span></button><button class="btn btn--primary" data-action="startGame"><span>进入第 90 天</span>${uiIcon('arrowRight')}</button></div>`);
 };
-screens.map = ()=>`<section class="screen map-screen"><div class="map-heading"><div><span class="eyebrow">连载计划 / ${mode().name}</span><h1>还剩 <b>${state.day}</b> 天。<br>下一章等你落笔。</h1></div>${mascot()}</div><div class="chapter-track" aria-label="章节进度">${CHAPTERS.map((c,i)=>`<div class="track-node ${i===state.chapterIndex?'current':''} ${i<state.chapterIndex?'complete':''}"><i>${i<state.chapterIndex?uiIcon('check'):i+1}</i><small>D-${c.day}</small><b>第 ${i+1} 章</b><span>${i<state.chapterIndex?'已归档':i===state.chapterIndex?c.stage:'未开启'}</span></div>`).join('')}</div><div class="map-focus"><div class="map-focus-icon">${uiIcon('feather')}</div><div><span>上一章留下的线索</span><p>${esc(state.memory.at(-1)||state.question.premise)}</p></div><dl><div><dt>${uiIcon('bolt')} 行动力</dt><dd>${state.resources.action}</dd></div><div><dt>${uiIcon('heart')} 精力</dt><dd>${state.resources.energy}</dd></div><div><dt>${uiIcon(ROUTE_ICONS[dominantRouteKey()])} 路线</dt><dd>${ROUTE_MAP[dominantRouteKey()].name}</dd></div></dl></div><div class="map-action"><button class="btn btn--primary btn--big" data-action="toWorkbench"><span>打开第 ${state.chapterIndex+1} 章工作台</span>${uiIcon('arrowRight')}</button></div></section>`;
+function latestStoryCarry(){
+  const latest=state.storyBible?.at(-1);
+  if(!latest)return {label:'开篇线索',summary:state.question.premise,thread:''};
+  const finalDecision=latest.decisions?.at(-1);
+  return {
+    label:`第 ${latest.chapter||Math.max(1,state.chapterIndex)} 章归档`,
+    summary:trunc(latest.lastResult||finalDecision?.result||state.question.premise,150),
+    thread:trunc(latest.cliff||'',100),
+  };
+}
+function continuitySentence(){
+  const carry=latestStoryCarry();
+  return carry.thread?`${carry.summary} 接下来要回应：${carry.thread}`:carry.summary;
+}
+screens.map = ()=>{
+  const carry=latestStoryCarry();
+  return `<section class="screen map-screen"><div class="map-heading"><div><span class="eyebrow">连载计划 / ${mode().name}</span><h1>还剩 <b>${state.day}</b> 天。<br>下一章等你落笔。</h1></div>${mascot()}</div><div class="chapter-track" aria-label="章节进度">${CHAPTERS.map((c,i)=>`<div class="track-node ${i===state.chapterIndex?'current':''} ${i<state.chapterIndex?'complete':''}"><i>${i<state.chapterIndex?uiIcon('check'):i+1}</i><small>D-${c.day}</small><b>第 ${i+1} 章</b><span>${i<state.chapterIndex?'已归档':i===state.chapterIndex?c.stage:'未开启'}</span></div>`).join('')}</div><div class="map-focus"><div class="map-focus-icon">${uiIcon('feather')}</div><div class="map-focus-copy"><span>${esc(carry.label)}</span><p>${esc(carry.summary)}</p>${carry.thread?`<small class="map-focus-thread"><b>待回应</b>${esc(carry.thread)}</small>`:''}</div><dl><div><dt>${uiIcon('bolt')} 行动力</dt><dd>${state.resources.action}</dd></div><div><dt>${uiIcon('heart')} 精力</dt><dd>${state.resources.energy}</dd></div><div><dt>${uiIcon(ROUTE_ICONS[dominantRouteKey()])} 路线</dt><dd>${ROUTE_MAP[dominantRouteKey()].name}</dd></div></dl></div><div class="map-action"><button class="btn btn--primary btn--big" data-action="toWorkbench"><span>打开第 ${state.chapterIndex+1} 章工作台</span>${uiIcon('arrowRight')}</button></div></section>`;
+};
 const LOW_ACTION_WARN = 30;
 const LOW_ENERGY_WARN = 10;
 const PREP = [
@@ -134,7 +170,7 @@ function usageLabel(){
 function workbenchShell(step,title,body){return `<section class="screen chapter-wizard"><div class="wizard-top"><span>第 ${state.currentChapter.num} 章 · ${step}/3</span><div>${[1,2,3].map(i=>`<i class="${i<=step?'on':''}"></i>`).join('')}</div></div><h1 class="wizard-title">${title}</h1>${body}</section>`;}
 screens.workbench = ()=>{
   const ch=state.currentChapter;
-  if(state.workbenchStep===0)return workbenchShell(1,'这一章，先解决什么？',`<div class="continuity-card"><span>${uiIcon('book')} 前情</span><p>${esc(state.memory.at(-1)||state.question.premise)}</p></div><div class="intent-list">${Object.entries(PLAN_META).map(([plan,meta],i)=>`<button class="intent-option" data-action="plan" data-val="${plan}"><span class="intent-index">0${i+1}</span><span class="intent-icon">${uiIcon(meta.icon)}</span><span class="intent-copy"><small>${meta.eyebrow}</small><b>${plan}</b><em>${meta.desc}</em></span><span class="intent-effect">${meta.effect}</span>${uiIcon('arrowRight')}</button>`).join('')}</div>`);
+  if(state.workbenchStep===0)return workbenchShell(1,'这一章，先解决什么？',`<div class="continuity-card"><span>${uiIcon('book')} 前情</span><p>${esc(continuitySentence())}</p></div><div class="intent-list">${Object.entries(PLAN_META).map(([plan,meta],i)=>`<button class="intent-option" data-action="plan" data-val="${plan}"><span class="intent-index">0${i+1}</span><span class="intent-icon">${uiIcon(meta.icon)}</span><span class="intent-copy"><small>${meta.eyebrow}</small><b>${plan}</b><em>${meta.desc}</em></span><span class="intent-effect">${meta.effect}</span>${uiIcon('arrowRight')}</button>`).join('')}</div>`);
   if(state.workbenchStep===1)return workbenchShell(2,'落笔前，怎样调整状态？',`<div class="prep-head"><div class="prep-slots"><span>本章可准备</span><i class="${state.prep>0?'filled':''}"></i><i class="${state.prep>1?'filled':''}"></i><b>${Math.max(0,2-state.prep)} 次</b></div><span>当前行动力 <b>${state.resources.action}</b></span></div><div class="prep-list">${PREP.map((p,i)=>{const icons=['search','message','heart'];const desc=['整理前文的伏笔与证据','观察读者正在争论什么','暂时离开书桌恢复状态'];return `<button class="prep-option" data-action="prepare" data-idx="${i}"><span class="prep-icon">${uiIcon(icons[i])}</span><span class="prep-copy"><b>${p.label}</b><small>${desc[i]}</small></span><span class="prep-effects">${effectChips({...p.effect,action:p.action},true)}</span>${uiIcon('arrowRight')}</button>`;}).join('')}</div>${state.prepNote?`<div class="action-result">${uiIcon('check')}<span>${esc(state.prepNote)}</span></div>`:''}<div class="wizard-actions"><button class="btn btn--ghost" data-action="workbenchBack">${uiIcon('arrowLeft')}<span>上一步</span></button><button class="btn btn--primary" data-action="nextWorkbench"><span>${state.prep?'下一步':'跳过准备'}</span>${uiIcon('arrowRight')}</button></div>`);
   return workbenchShell(3,'你替主角决定到哪一步？',`<div class="freedom-scale"><div class="freedom-axis"><span>作者控制更多</span><i></i><span>主角空间更大</span></div><div class="script-grid">${SPECIFICS.map((s,i)=>`<button class="script-option ${ch.specificity===s.key?'selected':''}" data-action="pickSpec" data-val="${s.key}"><span class="script-level">0${i+1}</span><b>${s.label}</b><small>${s.hint}</small><span class="script-meta"><em>${s.choices} 个选项</em><em>-${s.cost} 行动力</em></span><i>${ch.specificity===s.key?uiIcon('check'):''}</i></button>`).join('')}</div></div><div class="chapter-ready"><span><small>本章方向</small><b>${esc(state.chapterPlan)}</b></span><span><small>生成方式</small><b>${state.generationMode==='local'?`${uiIcon('infinity')} 本地模式`:`${uiIcon('cloud')} ${usageLabel()}`}</b></span></div>${state.uiNotice?`<div class="ui-notice">${esc(state.uiNotice)}</div>`:''}<div class="wizard-actions wizard-actions--enter"><button class="btn btn--ghost" data-action="workbenchBack">${uiIcon('arrowLeft')}<span>上一步</span></button><button class="btn btn--primary btn--big" data-action="enterChapter"><span>进入故事</span>${uiIcon('arrowRight')}</button></div>`);
 };
@@ -147,7 +183,7 @@ openWorkbench = function(){ originalWorkbench(); if(state.phase==='workbench'){
 function chapterIntro(){
   const a=STORY_ARCS[state.genre], ch=state.currentChapter;
   const ctx=baseCtx(ch.scene);
-  const carry=state.memory.length?`上一章留下的事实仍在起作用：${state.memory.at(-1)}`:state.question.premise;
+  const carry=state.storyBible.length?`上一章留下的事实仍在起作用：${continuitySentence()}`:state.question.premise;
   return `${fill(ch.scene.desc,ctx)} ${carry} ${ctx.npc}把${a.object}放到面前，等着你先开口。`;
 }
 enterChapter = function(){
@@ -244,7 +280,7 @@ publish = function(){
   // 基础 publish 会重复加末次决策的热度和质量，抵消后仅结算具体度。
   const effect=ch.decision.effect;ch.decision.effect={};originalPublish();ch.decision.effect=effect;
   ch.delta=Object.fromEntries(Object.keys(state.resources).map(k=>[k,state.resources[k]-ch.before[k]]));
-  ch.comments.unshift({reader:'追读的老朋友',personaShort:'记得你的承诺',text:`这一章你选择了「${ch.steps.at(-1).text}」。${state.memory.length?'上一章留下的「'+state.memory.at(-1)+'」还没过去，':'从开篇走到这里，'}希望下一章认真回应「${ch.cliffHook}」。`});
+  ch.comments.unshift({reader:'追读的老朋友',personaShort:'记得你的承诺',text:`这一章你选择了「${ch.steps.at(-1).text}」。${state.memory.length?'上一章留下的问题还没有解决，':'从开篇走到这里，'}希望下一章认真回应「${ch.cliffHook}」。`});
 };
 authorDecide = function(idx){
   if(state.phase!=='feedback')return;
@@ -261,7 +297,7 @@ authorDecide = function(idx){
   state.memory.push(memory);
   state.storyBible.push({chapter:ch.num,goal:ch.goal,decisions:ch.steps.map(step=>({kind:step.kind,text:trunc(step.text,90),result:trunc(step.result,120)})),lastAction:last.text,lastResult:last.result,cliff:ch.cliffHook,authorResponse:a.label,trust:state.trust,evidence:state.evidence});
   originalAuthor(idx);state.resources.action=clamp(state.resources.action+20,0,100);
-  bridge(state.phase,'关掉评论区，留下一条新的承诺。',`${a.note} 下一章的选项会回应你这次的「${a.label}」。${state.chapterIndex<CHAPTERS.length?'日历翻到剩余 '+state.day+' 天。':'接下来为作品写下最终答案。'}`);
+  bridge(state.phase,'读完反馈，你确定了接下来的方向。',`${a.note} 下一章将延续你这次的「${a.label}」。${state.chapterIndex<CHAPTERS.length?'距离交稿还剩 '+state.day+' 天。':'接下来，为作品写下最终答案。'}`);
 };
 finalChoice = function(idx){
   if(state.phase!=='crisis')return;
@@ -270,11 +306,15 @@ finalChoice = function(idx){
 };
 screens.ending = ()=>`<section class="screen novel-ending"><span class="eyebrow">作品结局</span><h2>最后一页，终于有了答案。</h2><p>${esc(state.novelEnding||'')}</p><p>${mode().chapters} 章 · ${mode().chapters*mode().beats} 次主角决策 · ${state.evidence} 条核实线索</p></section>`+originalEnding();
 act = function(action,el){
-  if(action==='startPrologue'&&state.phase==='title'){state.phase='prologue';state.prologueStep=0;render();return;}
+  if(action==='dismissPageTransition'&&pageTransition){pageTransition=null;render();return;}
+  if(pageTransition)pageTransition=null;
+  if(action==='startPrologue'&&state.phase==='title'){state.phase='prologue';state.prologueStep=0;queuePageTransition('opening');render();return;}
   if(action==='nextPrologue'&&state.phase==='prologue'){state.prologueStep=Math.min(PROLOGUE.length-1,state.prologueStep+1);render();return;}
   if(action==='chooseStartMode'&&state.phase==='prologue'){
     if(el.dataset.val==='zhihu'&&(state.zhihuUsage?.remaining??5000)<=0)return;
-    state.generationMode=el.dataset.val==='local'?'local':'zhihu';drawQuestion();render();return;
+    state.generationMode=el.dataset.val==='local'?'local':'zhihu';drawQuestion();
+    queuePageTransition('question',{label:state.generationMode==='local'?'LOCAL / STORY':'ZHIHU / CONNECTED',body:state.generationMode==='local'?'故事留在本地，门已经打开。':'问题来自人群，回答将通向故事。'});
+    render();return;
   }
   if(action==='openOverlay'&&state.question){state.overlay=el.dataset.val;render();return;}
   if(action==='closeOverlay'){state.overlay='';render();return;}
@@ -303,15 +343,24 @@ act = function(action,el){
   if(action==='pickSpec'&&state.phase==='workbench'){if(state.workbenchStep!==2)return;state.currentChapter.specificity=el.dataset.val;render();return;}
   if(action==='nextBeat'&&state.phase==='consequence'){
     const ch=state.currentChapter;ch.beat++;ch.choiceLocked=false;
-    if(ch.beat<mode().beats)state.phase='chapter';else{generateProse(ch);bridge('manuscript','角色的经历，变成你桌上的手稿。','你重新成为作者。读完这一章，决定是否发布，再面对读者的反应。');}render();return;
+    if(ch.beat<mode().beats)state.phase='chapter';else{generateProse(ch);bridge('manuscript','本章内容已整理成手稿。','回到作者视角，审阅本章并决定是否发布。');}render();return;
   }
   if(action==='pickRoute'&&state.phase==='setup'){state.routeLean=el.dataset.val;state.routeAffinity={traffic:0,quality:0,controversy:0,commercial:0,self:0};state.routeAffinity[el.dataset.val]=8;render();return;}
+  if(action==='startGame'&&state.phase==='setup'){
+    const pn=$('#penName');if(pn&&pn.value.trim())state.penName=pn.value.trim();
+    state.chapterIndex=0;state.day=CHAPTERS[0].day;state.phase='map';queuePageTransition('countdown');render();return;
+  }
+  if(action==='toWorkbench'&&state.phase==='map'){
+    openWorkbench();
+    if(state.phase==='workbench')queuePageTransition('workbench',{label:`CHAPTER ${state.chapterIndex+1} / DESK`,body:`第 ${state.chapterIndex+1} 章，等待你的第一笔。`});
+    render();return;
+  }
   return originalAct(action,el);
 };
 function mapOverlay(){
   const completed=state.chapters.length,current=state.currentChapter&&!state.chapters.includes(state.currentChapter)?state.currentChapter.steps?.length||0:0;
   const done=Math.min(mode().chapters*mode().beats,completed*mode().beats+current),percent=Math.round(done/(mode().chapters*mode().beats)*100);
-  return `<div class="game-overlay" role="dialog" aria-modal="true" aria-label="故事地图"><div class="overlay-panel map-panel"><button class="overlay-close" data-action="closeOverlay" aria-label="关闭">${uiIcon('close')}</button><div class="overlay-title"><span class="overlay-title-icon">${uiIcon('map')}</span><div><span class="overlay-kicker">故事地图</span><h2>连载完成 ${percent}%</h2></div><b>${done}<small>/ ${mode().chapters*mode().beats} 次选择</small></b></div><div class="overlay-progress"><i style="width:${percent}%"></i></div><div class="overlay-chapters">${CHAPTERS.map((chapter,i)=>`<div class="${i<completed?'done':i===state.chapterIndex?'current':''}"><i>${i<completed?uiIcon('check'):i+1}</i><b>第 ${i+1} 章</b><span>D-${chapter.day}</span></div>`).join('')}</div><div class="map-now"><span>${uiIcon('feather')}</span><div><small>此刻正在发生</small><b>${state.phase==='chapter'||state.phase==='consequence'?`第 ${state.currentChapter.num} 章 · 第 ${state.currentChapter.beat+1} 幕`:`第 ${Math.min(state.chapterIndex+1,mode().chapters)} 章`}</b><p>${esc(state.currentChapter?.goal||state.memory.at(-1)||state.question.premise)}</p></div></div></div></div>`;
+  return `<div class="game-overlay" role="dialog" aria-modal="true" aria-label="故事地图"><div class="overlay-panel map-panel"><button class="overlay-close" data-action="closeOverlay" aria-label="关闭">${uiIcon('close')}</button><div class="overlay-title"><span class="overlay-title-icon">${uiIcon('map')}</span><div><span class="overlay-kicker">故事地图</span><h2>连载完成 ${percent}%</h2></div><b>${done}<small>/ ${mode().chapters*mode().beats} 次选择</small></b></div><div class="overlay-progress"><i style="width:${percent}%"></i></div><div class="overlay-chapters">${CHAPTERS.map((chapter,i)=>`<div class="${i<completed?'done':i===state.chapterIndex?'current':''}"><i>${i<completed?uiIcon('check'):i+1}</i><b>第 ${i+1} 章</b><span>D-${chapter.day}</span></div>`).join('')}</div><div class="map-now"><span>${uiIcon('feather')}</span><div><small>当前进度</small><b>${state.phase==='chapter'||state.phase==='consequence'?`第 ${state.currentChapter.num} 章 · 第 ${state.currentChapter.beat+1} 幕`:`第 ${Math.min(state.chapterIndex+1,mode().chapters)} 章`}</b><p>${esc(state.currentChapter?.goal||state.memory.at(-1)||state.question.premise)}</p></div></div></div></div>`;
 }
 function statusOverlay(){
   const modeValue=state.generationMode==='local'?'本地模式 · 不限次数':`知乎模式 · ${usageLabel()}`;
@@ -343,24 +392,36 @@ function tutorialOverlay(){
 const baseRender=render;
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&state?.overlay){state.overlay='';render();return;}
-  if(e.key==='Enter'&&state?.phase==='transition'&&state.transition?.target==='chapter'){e.preventDefault();act('continueTransition',{dataset:{}});}
+  if(e.key==='Enter'&&pageTransition){e.preventDefault();act('dismissPageTransition',{dataset:{}});return;}
+  if(e.key==='Enter'&&state?.phase==='transition'&&['chapter','manuscript'].includes(state.transition?.target)){e.preventDefault();act('continueTransition',{dataset:{}});}
 });
 render = function(){
   const transitionToken=++realmTransitionToken;
+  const pageToken=++pageTransitionToken;
   baseRender();
   const el=$('#app');
-  if(state.phase==='transition'&&state.transition?.target==='chapter'&&typeof window.setTimeout==='function'){
-    window.setTimeout(()=>{if(transitionToken===realmTransitionToken&&state.phase==='transition'&&state.transition?.target==='chapter')act('continueTransition',{dataset:{}});},3000);
+  if(pageTransition){
+    const active=pageTransition;
+    el.innerHTML=renderPageTransition(active)+el.innerHTML;
+    const reducedMotion=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(typeof window.setTimeout==='function')window.setTimeout(()=>{
+      if(pageToken===pageTransitionToken&&pageTransition===active){pageTransition=null;render();}
+    },reducedMotion?80:2400);
+  }
+  if(state.phase==='transition'&&['chapter','manuscript'].includes(state.transition?.target)&&typeof window.setTimeout==='function'){
+    const target=state.transition.target;
+    window.setTimeout(()=>{if(transitionToken===realmTransitionToken&&state.phase==='transition'&&state.transition?.target===target)act('continueTransition',{dataset:{}});},3000);
   }
   if(!state.question||['title','prologue','draw','setup'].includes(state.phase)){
     if(document.body){document.body.classList.remove('game-atmosphere');delete document.body.dataset.realm;delete document.body.dataset.tension;delete document.body.dataset.mood;delete document.body.dataset.condition;}
     return;
   }
   const enteringStory=state.phase==='transition'&&state.transition?.target==='chapter';
+  const enteringAuthor=state.phase==='transition'&&state.transition?.target==='manuscript';
   const inner=['chapter','consequence'].includes(state.phase)||enteringStory;
   const visual=narrativeVisualState(inner);
   if(document.body){document.body.classList.add('game-atmosphere');document.body.dataset.realm=visual.realm;document.body.dataset.tension=visual.tension;document.body.dataset.mood=visual.mood;document.body.dataset.condition=visual.condition;}
-  if(enteringStory)return;
+  if(enteringStory||enteringAuthor)return;
   const modeText=state.generationMode==='local'?'本地模式 · 不限次数':`知乎模式 · ${usageLabel()}`;
   const mini=RES_DEFS.slice(0,3).map(item=>`<span class="hud-resource" title="${item.label}">${uiIcon(item.icon)}<b>${Math.round(state.resources[item.key])}</b></span>`).join('');
   const overlay=state.overlay==='map'?mapOverlay():state.overlay==='status'?statusOverlay():state.overlay==='tutorial'?tutorialOverlay():state.overlay==='lowAction'?lowActionOverlay():state.overlay==='hint'?hintOverlay():state.overlay==='prepAdvice'?prepAdviceOverlay():'';
@@ -369,7 +430,7 @@ render = function(){
 screens.manuscript = ()=>renderManuscript().replace('AI 续写 · 章节成稿','作者世界 · 审阅本章').replace('AI 依大纲、人物状态与已埋伏笔续写。','正文根据本章行动记录整理。');
 screens.feedback = ()=>{
   const ch=state.currentChapter,dom=dominantRouteKey(),route=ROUTE_MAP[dom];
-  return `<section class="screen feedback-screen"><header class="feedback-head"><div><span class="eyebrow">第 ${ch.num} 章已发布</span><h1>评论区醒了。<br>下一步由作者决定。</h1></div><div class="chapter-pulse"><span>${uiIcon('trend')} 本章变化</span>${renderDelta(ch.delta)}</div></header><div class="feedback-layout"><section class="reader-panel"><div class="panel-title"><span>${uiIcon('message')}</span><div><b>读者评论</b><small>${ch.comments.length} 条新反馈</small></div></div><div class="comment-list">${renderComments(ch.comments,false)}</div></section><aside class="decision-console">${ch.event?`<div class="event-card"><div class="event-h">${uiIcon('alert')}<span>突发事件</span><b>${esc(ch.event.name)}</b></div><p>${esc(fill(ch.event.desc,chapterCtx(ch)))}</p></div>`:''}<div class="decision-console-head"><div><span>作者回应</span><h2>你准备怎么处理？</h2></div><span class="route-signal" style="--route:${route.color}">${uiIcon(ROUTE_ICONS[dom])}<small>当前路线</small><b>${route.name}</b></span></div><div class="author-actions">${AUTHOR_DECISIONS.map((a,i)=>{const meta=AUTHOR_UI[a.key];return `<button class="author-action author-action--${meta.tone}" data-action="authorDecide" data-idx="${i}"><span class="author-action-icon">${uiIcon(meta.icon)}</span><span class="author-action-copy"><small>${meta.type}</small><b>${esc(a.label)}</b><em>${esc(a.desc)} · ${meta.outcome}</em><span>${effectChips(a.eff,true)}</span></span><span class="author-action-route">${ROUTE_MAP[a.route].name}</span>${uiIcon('arrowRight')}</button>`;}).join('')}</div></aside></div></section>`;
+  return `<section class="screen feedback-screen"><header class="feedback-head"><div><span class="eyebrow">CHAPTER ${String(ch.num).padStart(2,'0')} / 已发布</span><h1>读者留下了新的评论。<br><span>现在，决定如何回应。</span></h1></div><div class="chapter-pulse"><span>${uiIcon('trend')} 本章数据</span><div>${renderDelta(ch.delta)}</div></div></header><div class="feedback-layout"><section class="reader-panel"><div class="panel-title"><span>${uiIcon('message')}</span><div><small>READERS / ${String(ch.comments.length).padStart(2,'0')}</small><b>读者评论</b></div></div><div class="comment-list">${renderComments(ch.comments,false)}</div></section><aside class="decision-console">${ch.event?`<div class="event-card"><div class="event-h">${uiIcon('alert')}<span>突发事件</span><b>${esc(ch.event.name)}</b></div><p>${esc(fill(ch.event.desc,chapterCtx(ch)))}</p></div>`:''}<div class="decision-console-head"><div><span>AUTHOR RESPONSE</span><h2>选择回应方式</h2></div><span class="route-signal" style="--route:${route.color}">${uiIcon(ROUTE_ICONS[dom])}<small>当前路线</small><b>${route.name}</b></span></div><div class="author-actions">${AUTHOR_DECISIONS.map((a,i)=>{const meta=AUTHOR_UI[a.key];return `<button class="author-action author-action--${meta.tone}" data-action="authorDecide" data-idx="${i}"><span class="author-action-no">${String(i+1).padStart(2,'0')}</span><span class="author-action-icon">${uiIcon(meta.icon)}</span><span class="author-action-copy"><small>${meta.type} · ${ROUTE_MAP[a.route].name}</small><b>${esc(a.label)}</b><em>${esc(a.desc)}。${meta.outcome}</em><span>${effectChips(a.eff,true)}</span></span><span class="author-action-enter">选择 ${uiIcon('arrowRight')}</span></button>`;}).join('')}</div></aside></div></section>`;
 };
 const enterLocal=enterChapter;
 const pollDelay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -383,7 +444,7 @@ async function waitForGeneration(ch,jobId){
       if(r.status===202)continue;
       if(!r.ok){state.generationJob='';throw Error(data.error||'生成失败');}
       state.generationJob='';ch.generated=data;
-      if(state.memory.length)ch.generated.beats[0].situation=`承接上章：${state.memory.at(-1)}\n\n${ch.generated.beats[0].situation}`;
+      if(state.storyBible.length)ch.generated.beats[0].situation=`承接上章：${continuitySentence()}\n\n${ch.generated.beats[0].situation}`;
       state.phase='workbench';enterLocal();render();return;
     }
   }catch(e){
@@ -424,8 +485,8 @@ enterChapter = function(){
     }
   })();
 };
-screens.generating=()=>`<section class="passage generation-state"><div class="generation-orbit"><span>${uiIcon('cloud')}</span>${mascot('电脑_6秒_320x320_20fps_透明.gif')}</div><span class="eyebrow">知乎模式</span><h2>正在写下一章。</h2><div class="generation-line"><i></i></div><p>今日剩余 <b>${state.zhihuUsage?.remaining??5000}</b> 次</p></section>`;
-screens.generationError=()=>`<section class="passage generation-state generation-state--error"><div class="generation-error-icon">${uiIcon('alert')}</div><span class="eyebrow">生成中断</span><h2>这一页暂时没写出来。</h2><p>${esc(state.generationError)}</p><div class="btn-row"><button class="btn btn--primary" data-action="retryGeneration"><span>${state.generationJob?'继续等待':'重新构思'}</span>${uiIcon('arrowRight')}</button><button class="btn btn--ghost" data-action="localChapter">${uiIcon('infinity')}<span>切换本地模式</span></button></div></section>`;
+screens.generating=()=>`<section class="passage generation-state"><div class="generation-orbit"><span>${uiIcon('cloud')}</span>${mascot('电脑_6秒_320x320_20fps_透明.gif')}</div><span class="eyebrow">知乎模式</span><h2>正在生成下一章。</h2><div class="generation-line"><i></i></div><p>今日剩余 <b>${state.zhihuUsage?.remaining??5000}</b> 次</p></section>`;
+screens.generationError=()=>`<section class="passage generation-state generation-state--error"><div class="generation-error-icon">${uiIcon('alert')}</div><span class="eyebrow">生成中断</span><h2>本次生成没有完成。</h2><p>${esc(state.generationError)}</p><div class="btn-row"><button class="btn btn--primary" data-action="retryGeneration"><span>${state.generationJob?'继续等待':'重新生成'}</span>${uiIcon('arrowRight')}</button><button class="btn btn--ghost" data-action="localChapter">${uiIcon('infinity')}<span>切换本地模式</span></button></div></section>`;
 const beforeRemoteAct=act;
 act=function(action,el){
   if(state.phase==='generationError'&&action==='retryGeneration'){

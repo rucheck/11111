@@ -7,22 +7,26 @@ function run(length,specificity,genre){
   const g=new Function('window','document',code+'\nreturn {get:()=>state,answer:()=>drawAnswer(state.question),act:(a,v,i)=>act(a,{dataset:{val:v,idx:i}})};')({CONTENT,scrollTo:()=>{}},doc);
   const click=(a,v,i)=>g.act(a,v,i);
   assert(app.innerHTML.includes('new-title'));
-  click('startPrologue');assert.equal(g.get().phase,'prologue');click('nextPrologue');click('nextPrologue');
+  click('startPrologue');assert.equal(g.get().phase,'prologue');assert(app.innerHTML.includes('page-transition--opening'));click('nextPrologue');click('nextPrologue');
   assert(app.innerHTML.includes('知乎模式')&&app.innerHTML.includes('本地模式'));
-  click('chooseStartMode','local');assert.equal(g.get().phase,'draw');assert.equal(g.get().generationMode,'local');
+  click('chooseStartMode','local');assert.equal(g.get().phase,'draw');assert.equal(g.get().generationMode,'local');assert(app.innerHTML.includes('page-transition--question'));
   assert(app.innerHTML.includes('qa-thread')&&app.innerHTML.includes('typed-answer-text'));
   assert(g.answer().includes('谢邀。')&&g.answer().includes(g.get().question.title));
   assert.notEqual(g.get().drawPrompt,g.get().question.title);
-  click('toSetup');click('pickLength',length);click('pickGenre',genre);click('pickTheme','真相');click('nextSetup');click('pickRoute','quality');click('startGame');
+  click('toSetup');click('pickLength',length);click('pickGenre',genre);click('pickTheme','真相');click('nextSetup');click('pickRoute','quality');click('startGame');assert(app.innerHTML.includes('page-transition--countdown'));
   const count={short:6,medium:9,long:12}[length],beats={short:4,medium:5,long:6}[length];
   for(let c=0;c<count;c++){
     assert.equal(g.get().phase,'map');
+    if(c>0){
+      assert(app.innerHTML.includes('map-focus-thread'),'章节地图应展示待回应的问题');
+      assert(!app.innerHTML.includes('行动链'),'章节地图不应暴露内部行动记录');
+    }
     if(c===0){
       click('openOverlay','map');assert(app.innerHTML.includes('故事地图'));click('closeOverlay');
       click('openOverlay','status');assert(app.innerHTML.includes('当前状态'));click('closeOverlay');
       click('openOverlay','tutorial');assert(app.innerHTML.includes('游戏教程')&&app.innerHTML.includes('一篇故事，两个身份'));click('closeOverlay');
     }
-    click('toWorkbench');assert.equal(g.get().workbenchStep,0);click('plan',c%2?'修复关系':'追寻事实');assert.equal(g.get().workbenchStep,1);click('closeOverlay');
+    click('toWorkbench');assert.equal(g.get().workbenchStep,0);assert(app.innerHTML.includes('author-transition--overlay'));click('plan',c%2?'修复关系':'追寻事实');assert.equal(g.get().workbenchStep,1);click('closeOverlay');
     click('prepare',null,2);click('prepare',null,0);
     click('nextWorkbench');assert.equal(g.get().workbenchStep,2);click('pickSpec',specificity);
     click('enterChapter');assert.equal(g.get().phase,'transition');assert(app.innerHTML.includes('realm-transition')&&app.innerHTML.includes('开始呼吸'));click('continueTransition');
@@ -33,10 +37,14 @@ function run(length,specificity,genre){
       const n=g.get().currentChapter.steps.length;click('makeDecision',null,0);assert.equal(g.get().currentChapter.steps.length,n);
       click('nextBeat');
     }
-    assert.equal(g.get().phase,'transition');click('continueTransition');assert.equal(g.get().phase,'manuscript');
+    assert.equal(g.get().phase,'transition');assert(app.innerHTML.includes('author-transition')&&app.innerHTML.includes('写进了手稿'));click('continueTransition');assert.equal(g.get().phase,'manuscript');
     for(const step of g.get().currentChapter.steps)assert(g.get().currentChapter.prose.join('').includes(step.result));
     click('publish');assert.equal(g.get().phase,'feedback');
-    assert(app.innerHTML.includes('decision-console')&&app.innerHTML.includes('当前路线'));
+    assert(g.get().currentChapter.comments[0].text.length<300,'追读评论不应复述整段章节记忆');
+    assert(!g.get().currentChapter.comments[0].text.includes('行动链'),'追读评论不应暴露内部行动记录');
+    assert(app.innerHTML.includes('reader-panel')&&app.innerHTML.includes('decision-console'),'反馈页应区分评论流与作者控制台');
+    assert(app.innerHTML.includes('author-action-no')&&app.innerHTML.includes('author-action-enter'),'作者选项应保留编号与明确入口');
+    assert(app.innerHTML.includes('当前路线'));
     assert.equal((app.innerHTML.match(/class="author-action /g)||[]).length,6);
     assert(app.innerHTML.includes('effect-chip')&&!/[⚡🔥✒🎨📝💬🫀]/u.test(app.innerHTML));
     const n=g.get().chapters.length;click('publish');assert.equal(g.get().chapters.length,n);
@@ -49,6 +57,7 @@ function run(length,specificity,genre){
   assert(!/\{(?:npc|protagonist|place|goal)\}/.test(app.innerHTML));
 }
 let total=0;for(const length of ['short','medium','long'])for(const spec of ['specific','balanced','broad'])for(const genre of Object.keys(CONTENT.story.genres)){run(length,spec,genre);total++;}
+for(const awkward of ['评论区醒了','问题正在靠近','这一页暂时没写出来'])assert(!code.includes(awkward),`界面文案不应包含：${awkward}`);
 // 行动力不足时不得静默卡死：先弹窗确认，确认后走低效更新并离开工作台（回归测试）
 {
   const app={innerHTML:'',scrollTop:0};const doc={querySelector:s=>s==='#app'?app:null,querySelectorAll:()=>[],addEventListener:()=>{}};
