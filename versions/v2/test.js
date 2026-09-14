@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('fs'),path=require('path'),assert=require('assert');
 const CONTENT=Object.fromEntries(['questions','story','readers','editor','endings','events'].map(f=>[f,JSON.parse(fs.readFileSync(path.join(__dirname,'content',f+'.json'),'utf8'))]));
-const code=['app.js','pacing.js'].map(f=>fs.readFileSync(path.join(__dirname,'src',f),'utf8')).join('\n');
+const code=['save.js','app.js','pacing.js'].map(f=>fs.readFileSync(path.join(__dirname,'src',f),'utf8')).join('\n');
 function run(length,specificity,genre){
   const app={innerHTML:'',scrollTop:0};const doc={querySelector:s=>s==='#app'?app:null,querySelectorAll:()=>[],addEventListener:()=>{}};
   const g=new Function('window','document',code+'\nreturn {get:()=>state,act:(a,v,i)=>act(a,{dataset:{val:v,idx:i}})};')({CONTENT,scrollTo:()=>{}},doc);

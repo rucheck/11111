@@ -625,7 +625,7 @@ document.addEventListener('keydown', (e)=>{
   if(t){ e.preventDefault(); t.click(); }
 });
 document.addEventListener('input', (e)=>{
-  if(e.target && e.target.id==='penName') state.penName = e.target.value;
+  if(e.target && e.target.id==='penName'){ state.penName = e.target.value; persistGame(); }
 });
 
 /* ============ 游戏逻辑 ============ */
