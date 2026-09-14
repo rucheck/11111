@@ -180,10 +180,24 @@ function effectText(d){
   if(d.effect?.energy<0)tags.push('消耗精力');
   return tags.slice(0,2).join(' · ')||'影响将在选择后揭晓';
 }
+function narrativeVisualState(inner=false){
+  const total=Math.max(1,mode().chapters),beatTotal=Math.max(1,mode().beats);
+  const chapter=Math.min(total-1,Math.max(0,state.chapterIndex||0));
+  const beat=state.currentChapter?.beat||0;
+  const progress=Math.min(1,(chapter+Math.min(1,beat/beatTotal))/total);
+  let tension=Math.min(4,Math.floor(progress*5));
+  if(state.phase==='crisis')tension=4;
+  if(state.currentChapter?.stage==='危机期'||state.currentChapter?.stage==='收束期')tension=Math.max(tension,3);
+  if(state.currentChapter?.event||state.pendingEvent)tension=Math.min(4,tension+1);
+  const mood=moodKey(state.currentChapter?.scene?.mood||'凝重');
+  const condition=state.resources?.energy<28?'exhausted':state.trust<-2?'fractured':state.evidence>=Math.max(3,chapter+1)?'clue':'steady';
+  return {tension,mood,condition,realm:inner?'story':'author'};
+}
 screens.chapter = ()=>{
   const ch=state.currentChapter,previous=state.storyBible.at(-1);ch.choiceLocked=false;ch.decisions=options();
   const carry=previous?`<div class="story-continuity"><b>前情承接 · 第 ${previous.chapter} 章</b><span>${esc(trunc(previous.lastResult,120))}</span><small>未解决：${esc(trunc(previous.cliff,72))}</small></div>`:'';
-  return `<section class="story-stage"><div class="story-sky"></div><div class="story-meta"><span>小说世界 / ${esc(ch.scene.name)}</span><span>第 ${ch.num} 章 · ${ch.beat+1}/${mode().beats} 幕</span></div><div class="beat-progress" aria-label="章节进度">${Array.from({length:mode().beats},(_,i)=>`<span class="${i<ch.beat?'done':i===ch.beat?'current':''}"><i></i>${BEAT_NAMES[i]||`第${i+1}幕`}</span>`).join('')}</div><article class="story-panel"><span class="eyebrow">${BEAT_NAMES[ch.beat]||`第 ${ch.beat+1} 幕`} · ${mode().tone}</span><h1>${esc(STORY_ARCS[state.genre].question)}？</h1>${carry}<p class="story-text">${esc(beatText())}</p><div class="story-facts"><span>关系 <b>${state.trust>0?'逐步信任':state.trust<0?'有所戒备':'尚未明朗'}</b></span><span>已核实线索 <b>${state.evidence}</b></span><span>作者意图 <b>${esc(ch.plan)}</b></span><span>${previous?'上章回应':'本章任务'} <b>${esc(previous?previous.authorResponse:'建立人物与核心冲突')}</b></span></div><div class="decision-brief"><b>你怎么做？</b></div>${state.uiNotice?`<div class="ui-notice" role="alert">${esc(state.uiNotice)}</div>`:''}<div class="story-options">${ch.decisions.map((d,i)=>`<button type="button" class="choice choice--${i}" data-action="makeDecision" data-idx="${i}" aria-label="${String.fromCharCode(65+i)}：${esc(d.text)}"><span class="choice-idx">${String.fromCharCode(65+i)}</span><span class="choice-copy"><b>${esc(d.kind||'采取行动')}</b><span>${esc(d.text)}</span><small>${esc(d.hint||effectText(d))}</small></span><span class="choice-impact">${esc(effectText(d))}</span></button>`).join('')}</div></article></section>`;
+  const visual=narrativeVisualState(true);
+  return `<section class="story-stage" data-tension="${visual.tension}" data-mood="${visual.mood}" data-condition="${visual.condition}"><div class="story-atmosphere" aria-hidden="true"><i class="story-light"></i><i class="story-shadow story-shadow--one"></i><i class="story-shadow story-shadow--two"></i><i class="story-horizon"></i><i class="story-weather"></i><i class="story-grain"></i></div><div class="story-sky"></div><div class="story-meta"><span>小说世界 / ${esc(ch.scene.name)}</span><span>第 ${ch.num} 章 · ${ch.beat+1}/${mode().beats} 幕</span></div><div class="beat-progress" aria-label="章节进度">${Array.from({length:mode().beats},(_,i)=>`<span class="${i<ch.beat?'done':i===ch.beat?'current':''}"><i></i>${BEAT_NAMES[i]||`第${i+1}幕`}</span>`).join('')}</div><article class="story-panel"><span class="eyebrow">${BEAT_NAMES[ch.beat]||`第 ${ch.beat+1} 幕`} · ${mode().tone}</span><h1>${esc(STORY_ARCS[state.genre].question)}？</h1>${carry}<p class="story-text">${esc(beatText())}</p><div class="story-facts"><span>关系 <b>${state.trust>0?'逐步信任':state.trust<0?'有所戒备':'尚未明朗'}</b></span><span>已核实线索 <b>${state.evidence}</b></span><span>作者意图 <b>${esc(ch.plan)}</b></span><span>${previous?'上章回应':'本章任务'} <b>${esc(previous?previous.authorResponse:'建立人物与核心冲突')}</b></span></div><div class="decision-brief"><b>你怎么做？</b></div>${state.uiNotice?`<div class="ui-notice" role="alert">${esc(state.uiNotice)}</div>`:''}<div class="story-options">${ch.decisions.map((d,i)=>`<button type="button" class="choice choice--${i}" data-action="makeDecision" data-idx="${i}" aria-label="${String.fromCharCode(65+i)}：${esc(d.text)}"><span class="choice-idx">${String.fromCharCode(65+i)}</span><span class="choice-copy"><b>${esc(d.kind||'采取行动')}</b><span>${esc(d.text)}</span><small>${esc(d.hint||effectText(d))}</small></span><span class="choice-impact">${esc(effectText(d))}</span></button>`).join('')}</div></article></section>`;
 };
 makeDecision = function(idx){
   if(state.phase!=='chapter')return;
@@ -272,15 +286,31 @@ function statusOverlay(){
   const modeValue=state.generationMode==='local'?'本地模式 · 不限次数':`知乎模式 · ${usageLabel()}`;
   return `<div class="game-overlay" role="dialog" aria-modal="true" aria-label="当前状态"><div class="overlay-panel status-panel"><button class="overlay-close" data-action="closeOverlay" aria-label="关闭">${uiIcon('close')}</button><div class="overlay-title"><span class="overlay-title-icon">${uiIcon('status')}</span><div><span class="overlay-kicker">当前状态</span><h2>${esc(state.penName)}</h2></div><b>D-${state.day}</b></div><div class="status-resources">${RES_DEFS.map(item=>`<div class="status-resource"><span class="status-resource-icon">${uiIcon(item.icon)}</span><span>${item.label}<i><em style="width:${state.resources[item.key]}%;background:${resColor(item.key)}"></em></i></span><b>${Math.round(state.resources[item.key])}</b></div>`).join('')}</div><div class="status-facts"><span>${uiIcon(state.generationMode==='local'?'infinity':'cloud')}<small>模式</small><b>${modeValue}</b></span><span>${uiIcon(ROUTE_ICONS[dominantRouteKey()])}<small>路线</small><b>${ROUTE_MAP[dominantRouteKey()].name}</b></span><span>${uiIcon('users')}<small>关系</small><b>${state.trust}</b></span><span>${uiIcon('search')}<small>线索</small><b>${state.evidence}</b></span></div>${state.currentChapter?`<div class="status-goal"><span>${uiIcon('compass')}</span><div><small>当前目标</small><b>${esc(state.currentChapter.goal)}</b></div></div>`:''}</div></div>`;
 }
+function tutorialOverlay(){
+  const steps=[
+    {icon:'feather',no:'01',title:'先以作者身份工作',body:'选择本章意图、安排准备，再决定给主角多少自由。'},
+    {icon:'book',no:'02',title:'进入故事成为主角',body:'每一幕都要行动。选择会改变关系、线索和后续可走的分支。'},
+    {icon:'message',no:'03',title:'发布后回应读者',body:'评论和突发事件会反过来影响作者状态，也会改写下一章。'},
+    {icon:'map',no:'04',title:'让两个世界彼此推进',body:'地图看进度，状态看资源。越接近结局，光影与风险都会加深。'},
+  ];
+  return `<div class="game-overlay" role="dialog" aria-modal="true" aria-label="游戏教程"><div class="overlay-panel tutorial-panel"><button class="overlay-close" data-action="closeOverlay" aria-label="关闭">${uiIcon('close')}</button><div class="overlay-title"><span class="overlay-title-icon">${uiIcon('guide')}</span><div><span class="overlay-kicker">游戏教程</span><h2>一篇故事，两个身份。</h2></div></div><div class="tutorial-loop"><span>作者层</span>${uiIcon('arrowRight')}<span>主角层</span>${uiIcon('arrowRight')}<span>读者反馈</span>${uiIcon('arrowRight')}<span>下一章</span></div><div class="tutorial-grid">${steps.map(item=>`<article class="tutorial-step"><span class="tutorial-step-icon">${uiIcon(item.icon)}</span><small>${item.no}</small><h3>${item.title}</h3><p>${item.body}</p></article>`).join('')}</div><div class="tutorial-tip"><span>${uiIcon('spark')}</span><p><b>不必寻找“正确答案”。</b> 资源、人物关系和你坚持的写法，会共同决定结局。</p></div></div></div>`;
+}
 const baseRender=render;
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&state?.overlay){state.overlay='';render();}});
 render = function(){
   baseRender();
-  const el=$('#app');if(!state.question||['title','prologue','draw','setup'].includes(state.phase))return;
+  const el=$('#app');
+  if(!state.question||['title','prologue','draw','setup'].includes(state.phase)){
+    if(document.body){document.body.classList.remove('game-atmosphere');delete document.body.dataset.realm;delete document.body.dataset.tension;delete document.body.dataset.mood;delete document.body.dataset.condition;}
+    return;
+  }
   const inner=['chapter','consequence'].includes(state.phase);
+  const visual=narrativeVisualState(inner);
+  if(document.body){document.body.classList.add('game-atmosphere');document.body.dataset.realm=visual.realm;document.body.dataset.tension=visual.tension;document.body.dataset.mood=visual.mood;document.body.dataset.condition=visual.condition;}
   const modeText=state.generationMode==='local'?'本地模式 · 不限次数':`知乎模式 · ${usageLabel()}`;
   const mini=RES_DEFS.slice(0,3).map(item=>`<span class="hud-resource" title="${item.label}">${uiIcon(item.icon)}<b>${Math.round(state.resources[item.key])}</b></span>`).join('');
-  el.innerHTML=`<header class="identity game-nav ${inner?'identity-story':''}"><div class="nav-left"><button class="nav-tool" data-action="openOverlay" data-val="map" aria-label="打开故事地图">${uiIcon('map')}<span>地图</span></button><button class="nav-tool" data-action="openOverlay" data-val="status" aria-label="查看当前状态">${uiIcon('status')}<span>状态</span></button></div><div class="hud-context"><span>${inner?'小说世界':'作者工作台'}</span><b>${inner?'你是主角':esc(state.penName)}</b></div><div class="hud-resources">${mini}</div><span class="identity-mode">${modeText}</span></header>`+el.innerHTML+(state.overlay==='map'?mapOverlay():state.overlay==='status'?statusOverlay():'');
+  const overlay=state.overlay==='map'?mapOverlay():state.overlay==='status'?statusOverlay():state.overlay==='tutorial'?tutorialOverlay():'';
+  el.innerHTML=`<header class="identity game-nav ${inner?'identity-story':''}"><div class="nav-left"><button class="nav-tool" data-action="openOverlay" data-val="map" aria-label="打开故事地图">${uiIcon('map')}<span>地图</span></button><button class="nav-tool" data-action="openOverlay" data-val="status" aria-label="查看当前状态">${uiIcon('status')}<span>状态</span></button><button class="nav-tool" data-action="openOverlay" data-val="tutorial" aria-label="打开游戏教程">${uiIcon('guide')}<span>教程</span></button></div><div class="hud-context"><span>${inner?'小说世界':'作者工作台'}</span><b>${inner?'你是主角':esc(state.penName)}</b></div><div class="hud-resources">${mini}</div><span class="identity-mode">${modeText}</span></header>`+el.innerHTML+overlay;
 };
 screens.manuscript = ()=>renderManuscript().replace('AI 续写 · 章节成稿','作者世界 · 审阅本章').replace('AI 依大纲、人物状态与已埋伏笔续写。','正文根据本章行动记录整理。');
 screens.feedback = ()=>{

@@ -70,6 +70,7 @@ const UI_ICONS = {
   contract:'<path d="M6 2h9l4 4v16H6z"/><path d="M14 2v5h5M9 12h7M9 16h7"/>',
   map:'<path d="m3 6 5-3 8 3 5-3v15l-5 3-8-3-5 3z"/><path d="M8 3v15M16 6v15"/>',
   status:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',
+  guide:'<path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H11v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M20 5.5A3.5 3.5 0 0 0 16.5 2H13v17h3.5A3.5 3.5 0 0 1 20 22z"/>',
   arrowRight:'<path d="M5 12h14M13 6l6 6-6 6"/>',
   arrowLeft:'<path d="M19 12H5M11 18l-6-6 6-6"/>',
   infinity:'<path d="M18.5 7.5c-3.5 0-5 4.5-6.5 4.5s-3-4.5-6.5-4.5a4.5 4.5 0 0 0 0 9c3.5 0 5-4.5 6.5-4.5s3 4.5 6.5 4.5a4.5 4.5 0 0 0 0-9Z"/>',

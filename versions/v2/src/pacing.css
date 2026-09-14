@@ -218,3 +218,119 @@ button:focus-visible,input:focus-visible{outline:3px solid #cd8a47;outline-offse
   .game-overlay{padding:12px}.overlay-panel{padding:20px 15px}.overlay-title{padding-right:42px}.overlay-title>b{display:none}.status-resources{grid-template-columns:1fr}.status-facts{grid-template-columns:1fr 1fr}.overlay-chapters{margin-inline:-4px}
 }
 @media(prefers-reduced-motion:reduce){.intent-option:hover,.prep-option:hover:not(:disabled),.author-action:hover,.wizard-card:hover:not(:disabled),.script-option:hover{transform:none}}
+
+/* v2.4 · 叙事光影系统：作者桌面与小说世界共享一套情绪色温 */
+body.game-atmosphere{
+  --ambient-top:#eef3ed;
+  --ambient-bottom:#e4e8df;
+  --ambient-light:rgba(255,239,194,.58);
+  --ambient-scene:rgba(64,116,101,.18);
+  --ambient-shadow:rgba(24,55,45,.13);
+  position:relative;
+  min-height:100vh;
+  background:
+    radial-gradient(ellipse at 76% -8%,var(--ambient-light),transparent 44%),
+    radial-gradient(ellipse at 8% 88%,var(--ambient-scene),transparent 42%),
+    linear-gradient(138deg,var(--ambient-top),var(--ambient-bottom));
+  transition:background 1.1s ease,color .7s ease;
+}
+body.game-atmosphere::before,
+body.game-atmosphere::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none}
+body.game-atmosphere::before{
+  background:
+    linear-gradient(112deg,transparent 0 58%,rgba(255,255,255,.34) 58.2% 59%,transparent 59.2%),
+    radial-gradient(ellipse at 86% 34%,var(--ambient-light),transparent 27%);
+  transform-origin:85% 0;
+  animation:author-light-breathe 13s ease-in-out infinite alternate;
+}
+body.game-atmosphere::after{
+  background:
+    linear-gradient(102deg,transparent 0 12%,var(--ambient-shadow) 12.2% 13%,transparent 13.2% 76%,var(--ambient-shadow) 76.3% 100%),
+    repeating-linear-gradient(90deg,transparent 0 119px,rgba(36,66,55,.018) 120px 121px);
+  opacity:.56;
+  transition:opacity .8s ease,filter .8s ease;
+}
+body.game-atmosphere #app{position:relative;z-index:1;min-height:100vh}
+body.game-atmosphere[data-mood="cold"]{--ambient-scene:rgba(69,108,139,.23);--ambient-light:rgba(205,226,226,.48)}
+body.game-atmosphere[data-mood="warm"]{--ambient-scene:rgba(154,92,73,.18);--ambient-light:rgba(255,220,158,.58)}
+body.game-atmosphere[data-mood="tense"]{--ambient-scene:rgba(155,62,45,.24);--ambient-light:rgba(244,186,116,.5);--ambient-shadow:rgba(81,29,23,.18)}
+body.game-atmosphere[data-mood="dark"]{--ambient-scene:rgba(42,78,65,.28);--ambient-light:rgba(181,204,176,.4);--ambient-shadow:rgba(14,35,29,.2)}
+body.game-atmosphere[data-mood="dawn"]{--ambient-scene:rgba(112,119,157,.2);--ambient-light:rgba(255,209,139,.62)}
+body.game-atmosphere[data-tension="1"]{--ambient-top:#ecefe9;--ambient-bottom:#e3e4db;--ambient-shadow:rgba(42,58,50,.15)}
+body.game-atmosphere[data-tension="2"]{--ambient-top:#e8eae5;--ambient-bottom:#dedfd9;--ambient-shadow:rgba(47,52,55,.19)}
+body.game-atmosphere[data-tension="3"]{--ambient-top:#e5e3df;--ambient-bottom:#d9d9d4;--ambient-shadow:rgba(60,43,43,.24)}
+body.game-atmosphere[data-tension="4"]{--ambient-top:#dedbd7;--ambient-bottom:#d1d2cf;--ambient-shadow:rgba(67,30,31,.29);--ambient-scene:rgba(137,55,48,.27)}
+body.game-atmosphere[data-tension="3"]::after{opacity:.78;filter:contrast(1.08)}
+body.game-atmosphere[data-tension="4"]::after{opacity:.94;filter:contrast(1.15);animation:author-shadow-shift 7s ease-in-out infinite alternate}
+body.game-atmosphere[data-condition="exhausted"]::before{filter:grayscale(.35);opacity:.55;animation-duration:18s}
+body.game-atmosphere[data-condition="fractured"]::after{background:linear-gradient(104deg,transparent 0 48%,rgba(112,42,39,.16) 48.3% 49%,transparent 49.3%),linear-gradient(74deg,transparent 0 61%,rgba(35,61,76,.15) 61.3% 62%,transparent 62.3%)}
+body.game-atmosphere[data-condition="clue"]::before{background:linear-gradient(112deg,transparent 0 57%,rgba(255,224,150,.46) 57.2% 58.2%,transparent 58.4%),radial-gradient(ellipse at 82% 30%,rgba(255,220,145,.34),transparent 25%)}
+body.game-atmosphere[data-realm="author"] .screen:not(.screen--scene),
+body.game-atmosphere[data-realm="author"] .passage{position:relative}
+body.game-atmosphere[data-realm="author"] .chapter-wizard::after,
+body.game-atmosphere[data-realm="author"] .feedback-screen::after,
+body.game-atmosphere[data-realm="author"] .map-screen::after{
+  content:"";position:absolute;right:-9vw;top:8vh;width:24vw;height:72vh;z-index:-1;
+  border-left:1px solid rgba(44,81,67,.11);
+  background:linear-gradient(100deg,transparent,var(--ambient-scene));
+  transform:skewX(-8deg);filter:blur(.3px);pointer-events:none;
+}
+
+/* 小说世界：光源、天际线与天气会随章节压力和人物状态变化 */
+.story-stage{
+  --scene-top:#1a2a39;
+  --scene-bottom:#0b151f;
+  --scene-glow:rgba(129,164,181,.42);
+  --scene-accent:rgba(208,171,103,.5);
+  --scene-shadow:rgba(3,8,13,.78);
+  isolation:isolate;overflow:hidden;
+  background:linear-gradient(155deg,var(--scene-top),var(--scene-bottom) 72%);
+  transition:background 1s ease;
+}
+.story-stage[data-mood="cold"]{--scene-top:#263b4b;--scene-bottom:#0b151f;--scene-glow:rgba(146,184,200,.42);--scene-accent:rgba(158,190,201,.42)}
+.story-stage[data-mood="warm"]{--scene-top:#442e35;--scene-bottom:#17151c;--scene-glow:rgba(222,151,105,.38);--scene-accent:rgba(235,184,107,.5)}
+.story-stage[data-mood="tense"]{--scene-top:#4a2524;--scene-bottom:#140e15;--scene-glow:rgba(218,91,64,.38);--scene-accent:rgba(243,144,72,.55)}
+.story-stage[data-mood="dark"]{--scene-top:#1f342f;--scene-bottom:#07100f;--scene-glow:rgba(108,147,122,.28);--scene-accent:rgba(145,174,129,.35)}
+.story-stage[data-mood="dawn"]{--scene-top:#3f4965;--scene-bottom:#24212b;--scene-glow:rgba(249,190,119,.48);--scene-accent:rgba(255,205,121,.65)}
+.story-stage[data-tension="2"]{--scene-shadow:rgba(2,7,12,.82)}
+.story-stage[data-tension="3"]{--scene-shadow:rgba(4,5,10,.88);--scene-glow:color-mix(in srgb,var(--scene-glow) 74%,rgba(183,54,42,.5))}
+.story-stage[data-tension="4"]{--scene-top:#352026;--scene-bottom:#090b10;--scene-shadow:rgba(1,2,5,.94);--scene-glow:rgba(184,57,43,.45);--scene-accent:rgba(242,129,62,.62)}
+.story-atmosphere{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.story-atmosphere i{position:absolute;display:block}
+.story-light{left:38%;top:-32%;width:70%;height:94%;border-radius:50%;background:radial-gradient(ellipse,var(--scene-glow),transparent 67%);filter:blur(4px);transform:rotate(-10deg);animation:scene-light-drift 12s ease-in-out infinite alternate}
+.story-shadow{background:var(--scene-shadow);filter:blur(2px);opacity:.58;transition:opacity .8s ease,transform 1.2s ease}
+.story-shadow--one{left:-12%;bottom:-25%;width:54%;height:96%;border-radius:45% 55% 12% 0;transform:rotate(14deg)}
+.story-shadow--two{right:-18%;top:6%;width:43%;height:110%;border-radius:54% 0 0 18%;transform:rotate(-8deg)}
+.story-horizon{left:0;right:0;bottom:0;height:31%;opacity:.72;background:linear-gradient(180deg,transparent,rgba(1,5,8,.72) 74%),linear-gradient(90deg,rgba(4,10,14,.85) 0 9%,transparent 9% 12%,rgba(4,10,14,.9) 12% 28%,transparent 28% 31%,rgba(4,10,14,.8) 31% 46%,transparent 46% 50%,rgba(4,10,14,.92) 50% 69%,transparent 69% 73%,rgba(4,10,14,.82) 73% 100%);clip-path:polygon(0 34%,8% 34%,8% 12%,11% 12%,11% 45%,22% 45%,22% 20%,28% 20%,28% 53%,39% 53%,39% 8%,44% 8%,44% 44%,57% 44%,57% 27%,64% 27%,64% 50%,75% 50%,75% 16%,82% 16%,82% 39%,92% 39%,92% 25%,100% 25%,100% 100%,0 100%)}
+.story-weather{inset:-20%;opacity:.16;background:repeating-linear-gradient(112deg,transparent 0 18px,rgba(219,231,232,.6) 19px,transparent 20px 38px);animation:scene-weather 9s linear infinite}
+.story-grain{inset:0;opacity:.15;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.34'/%3E%3C/svg%3E");mix-blend-mode:soft-light}
+.story-stage>.story-sky{z-index:1;opacity:.4}
+.story-stage>.story-meta,.story-stage>.beat-progress,.story-stage>.story-panel{z-index:3}
+.story-stage[data-tension="0"] .story-shadow{opacity:.38}
+.story-stage[data-tension="1"] .story-shadow{opacity:.48}
+.story-stage[data-tension="2"] .story-shadow{opacity:.61}.story-stage[data-tension="2"] .story-weather{opacity:.22}
+.story-stage[data-tension="3"] .story-shadow{opacity:.76}.story-stage[data-tension="3"] .story-shadow--one{transform:rotate(20deg) translateX(5%)}.story-stage[data-tension="3"] .story-weather{opacity:.3;animation-duration:6s}
+.story-stage[data-tension="4"] .story-shadow{opacity:.88}.story-stage[data-tension="4"] .story-shadow--one{transform:rotate(24deg) translateX(11%)}.story-stage[data-tension="4"] .story-shadow--two{transform:rotate(-13deg) translateX(-8%)}.story-stage[data-tension="4"] .story-weather{opacity:.4;animation-duration:3.8s}.story-stage[data-tension="4"] .story-light{animation-duration:5s}
+.story-stage[data-condition="exhausted"] .story-atmosphere{filter:saturate(.58) brightness(.82)}
+.story-stage[data-condition="fractured"] .story-light{background:radial-gradient(ellipse at 35% 50%,rgba(89,133,155,.36),transparent 43%),radial-gradient(ellipse at 72% 50%,rgba(190,68,50,.38),transparent 48%)}
+.story-stage[data-condition="clue"] .story-light{box-shadow:-25vw 18vh 9vw -10vw var(--scene-accent);opacity:1}
+.story-panel{background:linear-gradient(145deg,color-mix(in srgb,var(--scene-top) 70%,rgba(10,17,24,.94)),rgba(8,14,20,.9));box-shadow:0 34px 100px rgba(0,0,0,.72),inset 0 1px rgba(255,255,255,.08)}
+
+/* 教程浮层 */
+.tutorial-panel{width:min(1040px,100%)}
+.tutorial-loop{display:flex;align-items:center;gap:9px;margin:4px 0 24px;padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--brand);font-size:11px;font-weight:800}
+.tutorial-loop span{flex:1;padding:8px 10px;border-radius:8px;background:var(--mint);text-align:center}.tutorial-loop .ui-icon{width:15px;color:#9b8153}
+.tutorial-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tutorial-step{position:relative;min-height:190px;padding:18px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.82)}
+.tutorial-step-icon{display:grid;place-items:center;width:42px;height:42px;margin-bottom:24px;border-radius:11px;background:var(--mint);color:var(--brand)}.tutorial-step-icon .ui-icon{width:20px}
+.tutorial-step>small{position:absolute;right:16px;top:18px;color:#a8b3ad;font-size:10px;font-weight:800;letter-spacing:.12em}
+.tutorial-step h3{margin:0 0 9px;font:700 16px/1.5 var(--serif)}.tutorial-step p{margin:0;color:var(--ink-3);font-size:11px;line-height:1.75}
+.tutorial-tip{display:flex;align-items:center;gap:12px;margin-top:12px;padding:13px 16px;border-left:3px solid #b18a4d;border-radius:0 10px 10px 0;background:#f1ede2}.tutorial-tip>span{color:#98733d}.tutorial-tip .ui-icon{width:18px}.tutorial-tip p{margin:0;color:var(--ink-2);font-size:11px;line-height:1.6}.tutorial-tip b{color:var(--ink)}
+
+@keyframes author-light-breathe{to{transform:rotate(1.8deg) scale(1.04);opacity:.72}}
+@keyframes author-shadow-shift{to{transform:translateX(-1.6vw);filter:contrast(1.22)}}
+@keyframes scene-light-drift{to{transform:translate(-4%,5%) rotate(-5deg) scale(1.08);opacity:.72}}
+@keyframes scene-weather{to{transform:translate(12%,18%)}}
+@media(max-width:900px){.tutorial-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){.tutorial-loop{overflow-x:auto}.tutorial-loop span{min-width:92px}.tutorial-grid{grid-template-columns:1fr}.tutorial-step{min-height:0}.game-nav .nav-left{gap:2px}}
+@media(prefers-reduced-motion:reduce){body.game-atmosphere::before,body.game-atmosphere::after,.story-atmosphere i{animation:none!important}}
