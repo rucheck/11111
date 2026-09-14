@@ -51,5 +51,7 @@ assert.equal(parseLooseJson('{"ok":true,}').ok,true);
 assert.equal(parseLooseJson(JSON.stringify(JSON.stringify({nested:true}))).nested,true);
 assert.equal(JSON.parse(cliContent(JSON.stringify({choices:[{message:{content:JSON.stringify(generated)}}]}))).beats.length,4);
 assert.equal(JSON.parse(cliContent(JSON.stringify({output_text:JSON.stringify(generated)}))).beats.length,4);
-assert.equal(cliError({code:4},'{"ok":false,"error":{"message":"直答额度不足"}}',''),'直答额度不足');
+assert.equal(cliError({code:4},'{"ok":false,"error":{"message":"直答额度不足"}}',''),'知乎服务额度不足，请稍后重试或切换本地模式。');
+assert.equal(cliError({code:7},'',''),'当前运行身份无法访问知乎 CLI 凭据库。');
+assert.equal(cliError({code:3},'{"ok":false,"error":{"code":"ENV_SHADOWS_KEYCHAIN"}}',''),'环境凭据覆盖了系统凭据库，请检查运行环境配置。');
 console.log(`${total} full runs passed: all lengths, genres and specificity settings; phase guards, resource bounds and chapter validation passed.`);
