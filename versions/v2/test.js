@@ -17,13 +17,14 @@ function run(length,specificity,genre){
     if(c===0){
       click('openOverlay','map');assert(app.innerHTML.includes('故事地图'));click('closeOverlay');
       click('openOverlay','status');assert(app.innerHTML.includes('当前状态'));click('closeOverlay');
+      click('openOverlay','tutorial');assert(app.innerHTML.includes('游戏教程')&&app.innerHTML.includes('一篇故事，两个身份'));click('closeOverlay');
     }
     click('toWorkbench');assert.equal(g.get().workbenchStep,0);click('plan',c%2?'修复关系':'追寻事实');assert.equal(g.get().workbenchStep,1);click('closeOverlay');
     click('prepare',null,2);click('prepare',null,0);
     click('nextWorkbench');assert.equal(g.get().workbenchStep,2);click('pickSpec',specificity);
     click('enterChapter');assert.equal(g.get().phase,'transition');click('continueTransition');
     for(let b=0;b<beats;b++){
-      assert.equal(g.get().phase,'chapter');assert(g.get().currentChapter.decisions.length>=3);
+      assert.equal(g.get().phase,'chapter');assert(g.get().currentChapter.decisions.length>=3);assert(app.innerHTML.includes('story-atmosphere')&&app.innerHTML.includes('data-tension='));
       if(c>0&&b===0)assert(app.innerHTML.includes('前情承接'));
       click('makeDecision',null,b%2);assert.equal(g.get().phase,'consequence');
       const n=g.get().currentChapter.steps.length;click('makeDecision',null,0);assert.equal(g.get().currentChapter.steps.length,n);
