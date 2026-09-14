@@ -79,7 +79,7 @@ test('network failure reaches the existing recovery UI and can switch to local m
   const runtimeLocation={protocol:'https:',hostname:'rucheck.github.io'};
   const calls=[];
   const mockFetch=async(url,options={})=>{
-    calls.push({url,method:options.method||'GET'});
+    calls.push({url,method:options.method||'GET',body:options.body});
     if(url===`${PUBLIC_BASE}/api/status`)return {ok:true,json:async()=>({ok:true,usage:{limit:2,used:0,remaining:2}})};
     if(url===`${PUBLIC_BASE}/api/chapter`&&options.method==='POST')throw new TypeError('Failed to fetch');
     throw new Error(`Unexpected mock request: ${url}`);
@@ -100,6 +100,15 @@ test('network failure reaches the existing recovery UI and can switch to local m
   click('localChapter');
   assert.equal(game.get().generationMode,'local');
   assert.notEqual(game.get().phase,'generationError');
-  assert.equal(calls.some(call=>call.url===`${PUBLIC_BASE}/api/chapter`&&call.method==='POST'),true);
+  const chapterCall=calls.find(call=>call.url===`${PUBLIC_BASE}/api/chapter`&&call.method==='POST');
+  assert(chapterCall);
+  const payload=JSON.parse(chapterCall.body);
+  assert.deepEqual(Object.keys(payload).sort(),[
+    'beats','chapter','chapters','continuity','editor','evidence','feedback','genre','history','plan','question','storyBible','tone','trust'
+  ]);
+  assert.equal(typeof payload.question.protagonist.secret,'string');
+  assert.equal(payload.genre,'悬疑反转');
+  assert.equal(payload.beats,4);
+  assert.equal(typeof payload.editor,'string');
   assert.equal(calls.some(call=>call.url.includes('/api/chapter/')),false);
 });

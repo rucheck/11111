@@ -423,11 +423,16 @@ function createBackend(options = {}) {
     return id;
   }
 
-  function containsSensitiveFields(value) {
+  function containsSensitiveFields(value, path = []) {
     if (!value || typeof value !== 'object') return false;
     for (const [key, child] of Object.entries(value)) {
-      if (/(secret|token|oauth|api[_-]?key|credential|password|authorization)/i.test(key)) return true;
-      if (containsSensitiveFields(child)) return true;
+      const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const narrativeSecret = normalizedKey === 'secret'
+        && path.length === 2
+        && path[0] === 'question'
+        && path[1] === 'protagonist';
+      if (!narrativeSecret && /(secret|token|oauth|api[_-]?key|credential|password|authorization)/i.test(key)) return true;
+      if (containsSensitiveFields(child, [...path, normalizedKey])) return true;
     }
     return false;
   }
