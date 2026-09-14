@@ -776,13 +776,13 @@ body.game-atmosphere[data-realm="author"] .map-screen::after{
 .zh-avatar{position:relative;width:42px;height:42px;overflow:hidden;border-radius:50%;background:linear-gradient(155deg,#77949f,#354d59);box-shadow:inset 0 0 0 2px rgba(255,255,255,.4)}.zh-avatar::before{content:"";position:absolute;left:14px;top:8px;width:14px;height:14px;border-radius:50%;background:#d8c8b6}.zh-avatar i{position:absolute;left:8px;bottom:-7px;width:27px;height:23px;border-radius:50% 50% 0 0;background:#d8c8b6}
 .kanshan-answer .qa-person>img{width:50px;height:50px;margin:-6px 0 -3px;object-fit:contain;filter:drop-shadow(0 7px 7px rgba(24,52,42,.12))}
 .question-post h1{max-width:820px;margin:22px 0 19px;font:700 clamp(23px,3.3vw,38px)/1.5 var(--serif);letter-spacing:-.025em}.question-stats{display:flex;align-items:center;gap:11px;color:var(--ink-3);font-size:9px}.question-stats i{width:3px;height:3px;border-radius:50%;background:#aab5af}
-.typed-answer{min-height:124px;margin:20px 0 0;font:16px/2 var(--serif);color:var(--ink-2)}
-.type-char{opacity:0;animation:type-char-in 1ms step-end forwards;animation-delay:calc(.72s + var(--char) * 32ms)}
+.typed-answer{min-height:124px;margin:20px 0 0;font:16px/2 var(--serif);color:var(--ink-2);white-space:pre-wrap}
+.typed-answer-text{white-space:pre-wrap}
 .typing-caret{display:inline-block;width:2px;height:1.15em;margin-left:3px;vertical-align:-.16em;background:#356b58;animation:caret-blink .7s step-end infinite}
 .typing-dots{display:flex;gap:3px;align-items:center}.typing-dots i{width:4px;height:4px;border-radius:50%;background:#5b8172;animation:typing-dot 1s ease-in-out infinite}.typing-dots i:nth-child(2){animation-delay:.16s}.typing-dots i:nth-child(3){animation-delay:.32s}
-.draw-controls{position:relative;z-index:2;display:flex;justify-content:flex-end;gap:10px;max-width:1000px;margin:20px auto 0;opacity:0;transform:translateY(8px);animation:controls-arrive .3s ease forwards;animation-delay:calc(.9s + var(--chars) * 32ms)}
+.draw-controls{position:relative;z-index:2;display:flex;justify-content:flex-end;gap:10px;max-width:1000px;margin:20px auto 0;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .28s ease,transform .28s ease}
 .enter-hint{position:relative;z-index:2;display:flex;justify-content:center;align-items:center;gap:8px;margin:26px auto 0;color:#78847e;font-size:9px;letter-spacing:.12em;animation:hint-breathe 1.5s ease-in-out infinite}.enter-hint span{padding:3px 6px;border:1px solid #aab6af;border-radius:4px;background:rgba(255,255,255,.5);color:#50635a;font-size:8px}
-.draw-screen.is-fast .type-char{opacity:1;animation:none}.draw-screen.is-fast .draw-controls{opacity:1;transform:none;animation:none}.draw-screen.is-fast .typing-dots{display:none}.draw-screen.is-fast .typing-caret{animation:caret-blink .7s step-end 3}.draw-screen.is-fast .enter-hint{opacity:.45;animation:none}
+.draw-screen.is-complete .draw-controls{opacity:1;pointer-events:auto;transform:none}.draw-screen.is-complete .typing-dots{display:none}.draw-screen.is-complete .typing-caret{animation:caret-blink .7s step-end 3}.draw-screen.is-complete .enter-hint{opacity:.35;animation:none}
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 
 @keyframes author-light-breathe{to{transform:rotate(1.8deg) scale(1.04);opacity:.72}}
@@ -792,14 +792,12 @@ body.game-atmosphere[data-realm="author"] .map-screen::after{
 @keyframes draw-orbit{to{transform:translate(3vw,2vh) scale(1.08);opacity:.62}}
 @keyframes question-arrive{from{opacity:0;transform:translateY(-14px) scale(.992)}to{opacity:1;transform:none}}
 @keyframes answer-arrive{from{opacity:0;transform:translateY(14px) scale(.992)}to{opacity:1;transform:none}}
-@keyframes type-char-in{to{opacity:1}}
 @keyframes caret-blink{50%{opacity:0}}
 @keyframes typing-dot{50%{transform:translateY(-3px);opacity:.35}}
-@keyframes controls-arrive{to{opacity:1;transform:none}}
 @keyframes hint-breathe{50%{opacity:.38;transform:translateY(2px)}}
 @media(max-width:900px){.tutorial-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:760px){.tutorial-loop{overflow-x:auto}.tutorial-loop span{min-width:92px}.tutorial-grid{grid-template-columns:1fr}.tutorial-step{min-height:0}.game-nav .nav-left{gap:2px}.draw-screen{padding:22px 14px 48px}.draw-heading{margin-bottom:14px}.question-post{padding:18px}.kanshan-answer{width:calc(100% - 20px);margin-left:20px;padding:18px}.question-post h1{font-size:23px}.typed-answer{min-height:180px;font-size:15px}.draw-controls{flex-direction:column}.draw-controls .btn{width:100%}}
-@media(prefers-reduced-motion:reduce){body.game-atmosphere::before,body.game-atmosphere::after,.story-atmosphere i,.draw-ambient i{animation:none!important}.type-char{opacity:1;animation:none}.draw-controls{opacity:1;transform:none;animation:none}}
+@media(prefers-reduced-motion:reduce){body.game-atmosphere::before,body.game-atmosphere::after,.story-atmosphere i,.draw-ambient i{animation:none!important}.draw-controls{transition:none}}
 </style>
 </head>
 <body>
@@ -956,6 +954,14 @@ const CONTENT = window.CONTENT;
 /* ============ 常量 ============ */
 const GENRES  = ["悬疑反转","都市情感","女性成长","民俗怪谈","职场冲突","历史脑洞"];
 const THEMES  = ["真相","尊严","牺牲","亲密关系","现实困境"];
+const QUESTION_PROMPTS = {
+  "悬疑反转":["你经历过最惊心动魄的一件事是什么？","你遇到过哪些细思极恐的巧合？","你有没有怀疑过身边最熟悉的人？"],
+  "都市情感":["你在感情里最无能为力的瞬间是什么？","哪一刻让你意识到一段关系已经结束了？","你见过最沉默的告别是什么？"],
+  "女性成长":["你做过最不被理解、但从未后悔的决定是什么？","你在哪一刻决定不再忍了？","一个人真正强大起来是什么感觉？"],
+  "民俗怪谈":["你遇到过最诡异、至今无法解释的事是什么？","你家乡有哪些不能随便触犯的规矩？","你听过最让人后背发凉的真实经历是什么？"],
+  "职场冲突":["你在职场经历过最惊心动魄的反击是什么？","你见过最令人窒息的职场博弈是什么？","哪一刻让你决定不再替别人背锅？"],
+  "历史脑洞":["如果忠诚和活下去只能选一个，你会怎么选？","历史上有哪些身不由己的瞬间让你久久不能平静？","如果一纸命令可能改变所有人的命运，你会服从吗？"],
+};
 const ROUTES = [
   { key:"traffic",     name:"流量路线", desc:"热门标签、强冲突、快速更新",   color:"#e0533f" },
   { key:"quality",     name:"质量路线", desc:"伏笔、人物、慢热铺垫",         color:"#2f7fd0" },
@@ -1003,6 +1009,7 @@ const FALLBACK = {
 
 /* ============ 状态 ============ */
 let state = null;
+let drawTypingToken = 0;
 
 /* ============ 工具 ============ */
 const $ = (s, r=document) => r.querySelector(s);
@@ -1088,10 +1095,12 @@ function chapterCtx(ch){
 
 /* ============ 渲染入口 ============ */
 function render(){
+  const typingToken = ++drawTypingToken;
   const app = $('#app');
   app.innerHTML = screens[state.phase]();
   app.scrollTop = 0;
   window.scrollTo(0,0);
+  if(state.phase==='draw'&&!state.drawFast&&typeof window.setTimeout==='function')window.setTimeout(()=>startDrawTypewriter(typingToken),90);
 }
 
 const screens = {
@@ -1132,22 +1141,21 @@ function renderTitle(){
 /* ============ 界面：抽题 ============ */
 function renderDraw(){
   const q = state.question;
-  const answer = `${q.hook} ${q.premise}`;
-  const chars = [...answer];
-  const typed = chars.map((char,i)=>`<span class="type-char" style="--char:${i}" aria-hidden="true">${char===' '? '&nbsp;':esc(char)}</span>`).join('');
+  const answer = drawAnswer(q);
+  const prompt = state.drawPrompt || QUESTION_PROMPTS[q.genre]?.[0] || '你有什么至今难忘的经历？';
   return `
-  <div class="draw-screen ${state.drawFast?'is-fast':''}" style="--chars:${chars.length}">
+  <div class="draw-screen ${state.drawFast?'is-fast is-complete':''}">
     <div class="draw-ambient" aria-hidden="true"><i></i><i></i><i></i></div>
     <header class="draw-heading"><span>知乎 · 为你推荐</span><b>${esc(q.genre)}</b></header>
     <main class="qa-thread">
       <article class="question-post">
         <div class="qa-person"><span class="zh-avatar" aria-hidden="true"><i></i></span><div><b>知乎用户</b><small>${esc(q.setting)} · 刚刚提问</small></div></div>
-        <h1>${esc(q.title)}</h1>
+        <h1>${esc(prompt)}</h1>
         <div class="question-stats"><span>等待回答</span><i></i><span>关注问题</span></div>
       </article>
       <article class="kanshan-answer">
         <div class="qa-person"><img src="assets/liu-kanshan/animations/打招呼_4秒_320x320_20fps_透明.gif" alt="刘看山"><div><b>刘看山</b><small>知乎官方账号 · 正在回答</small></div><span class="typing-dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
-        <p class="typed-answer" aria-label="${esc(answer)}">${typed}<span class="typing-caret" aria-hidden="true"></span></p>
+        <p class="typed-answer"><span class="typed-answer-text">${state.drawFast?esc(answer):''}</span><span class="typing-caret" aria-hidden="true"></span></p>
       </article>
     </main>
     <div class="draw-controls">
@@ -1157,6 +1165,34 @@ function renderDraw(){
     <div class="enter-hint"><span>ENTER</span> 显示完整回答</div>
     <div class="sr-only" aria-live="polite">刘看山正在回答问题</div>
   </div>`;
+}
+
+function drawAnswer(q){
+  const story = String(q.premise||'').replace(/贯穿悬念[：:].*$/u,'').trim();
+  return `谢邀。\n\n${q.title}\n\n${q.hook}\n\n${story}`;
+}
+
+function startDrawTypewriter(token){
+  if(token!==drawTypingToken||state.phase!=='draw'||state.drawFast)return;
+  const holder=document.querySelector('.typed-answer-text'),screen=document.querySelector('.draw-screen');
+  if(!holder||!screen)return;
+  const chars=[...drawAnswer(state.question)];let index=0;
+  holder.textContent='';
+  const step=()=>{
+    if(token!==drawTypingToken||state.phase!=='draw'||state.drawFast)return;
+    holder.textContent+=chars[index++]||'';
+    if(index>=chars.length){screen.classList.add('is-complete');return;}
+    const char=chars[index-1],pause=/[。！？]/u.test(char)?210:/[，；：\n]/u.test(char)?95:30;
+    window.setTimeout(step,pause);
+  };
+  step();
+}
+
+function finishDrawTypewriter(){
+  state.drawFast=true;drawTypingToken++;
+  const holder=document.querySelector('.typed-answer-text'),screen=document.querySelector('.draw-screen');
+  if(holder&&screen){holder.textContent=drawAnswer(state.question);screen.classList.add('is-fast','is-complete');}
+  else render();
 }
 
 function questionCard(q, big){
@@ -1611,7 +1647,7 @@ document.addEventListener('click', (e)=>{
 });
 document.addEventListener('keydown', (e)=>{
   if(state?.phase==='draw'&&e.key==='Enter'&&!e.altKey&&!e.ctrlKey&&!e.metaKey){
-    if(!state.drawFast){e.preventDefault();state.drawFast=true;render();}
+    if(!state.drawFast){e.preventDefault();finishDrawTypewriter();}
     return;
   }
   if(state?.overlay || state?.phase!=='chapter' || e.altKey || e.ctrlKey || e.metaKey) return;
@@ -1631,6 +1667,7 @@ function drawQuestion(){
   state.question = pick(CONTENT.questions.questions);
   state.genre = state.question.genre;
   state.theme = state.question.theme;
+  state.drawPrompt = pick(QUESTION_PROMPTS[state.question.genre]||['你有什么至今难忘的经历？']);
   state.drawFast = false;
   state.phase = 'draw';
 }

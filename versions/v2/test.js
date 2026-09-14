@@ -4,12 +4,15 @@ const CONTENT=Object.fromEntries(['questions','story','readers','editor','ending
 const code=['save.js','app.js','pacing.js'].map(f=>fs.readFileSync(path.join(__dirname,'src',f),'utf8')).join('\n');
 function run(length,specificity,genre){
   const app={innerHTML:'',scrollTop:0};const doc={querySelector:s=>s==='#app'?app:null,querySelectorAll:()=>[],addEventListener:()=>{}};
-  const g=new Function('window','document',code+'\nreturn {get:()=>state,act:(a,v,i)=>act(a,{dataset:{val:v,idx:i}})};')({CONTENT,scrollTo:()=>{}},doc);
+  const g=new Function('window','document',code+'\nreturn {get:()=>state,answer:()=>drawAnswer(state.question),act:(a,v,i)=>act(a,{dataset:{val:v,idx:i}})};')({CONTENT,scrollTo:()=>{}},doc);
   const click=(a,v,i)=>g.act(a,v,i);
   assert(app.innerHTML.includes('new-title'));
   click('startPrologue');assert.equal(g.get().phase,'prologue');click('nextPrologue');click('nextPrologue');
   assert(app.innerHTML.includes('知乎模式')&&app.innerHTML.includes('本地模式'));
   click('chooseStartMode','local');assert.equal(g.get().phase,'draw');assert.equal(g.get().generationMode,'local');
+  assert(app.innerHTML.includes('qa-thread')&&app.innerHTML.includes('typed-answer-text'));
+  assert(g.answer().includes('谢邀。')&&g.answer().includes(g.get().question.title));
+  assert.notEqual(g.get().drawPrompt,g.get().question.title);
   click('toSetup');click('pickLength',length);click('pickGenre',genre);click('pickTheme','真相');click('nextSetup');click('pickRoute','quality');click('startGame');
   const count={short:6,medium:9,long:12}[length],beats={short:4,medium:5,long:6}[length];
   for(let c=0;c<count;c++){

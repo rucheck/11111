@@ -6,6 +6,14 @@ const CONTENT = window.CONTENT;
 /* ============ 常量 ============ */
 const GENRES  = ["悬疑反转","都市情感","女性成长","民俗怪谈","职场冲突","历史脑洞"];
 const THEMES  = ["真相","尊严","牺牲","亲密关系","现实困境"];
+const QUESTION_PROMPTS = {
+  "悬疑反转":["你经历过最惊心动魄的一件事是什么？","你遇到过哪些细思极恐的巧合？","你有没有怀疑过身边最熟悉的人？"],
+  "都市情感":["你在感情里最无能为力的瞬间是什么？","哪一刻让你意识到一段关系已经结束了？","你见过最沉默的告别是什么？"],
+  "女性成长":["你做过最不被理解、但从未后悔的决定是什么？","你在哪一刻决定不再忍了？","一个人真正强大起来是什么感觉？"],
+  "民俗怪谈":["你遇到过最诡异、至今无法解释的事是什么？","你家乡有哪些不能随便触犯的规矩？","你听过最让人后背发凉的真实经历是什么？"],
+  "职场冲突":["你在职场经历过最惊心动魄的反击是什么？","你见过最令人窒息的职场博弈是什么？","哪一刻让你决定不再替别人背锅？"],
+  "历史脑洞":["如果忠诚和活下去只能选一个，你会怎么选？","历史上有哪些身不由己的瞬间让你久久不能平静？","如果一纸命令可能改变所有人的命运，你会服从吗？"],
+};
 const ROUTES = [
   { key:"traffic",     name:"流量路线", desc:"热门标签、强冲突、快速更新",   color:"#e0533f" },
   { key:"quality",     name:"质量路线", desc:"伏笔、人物、慢热铺垫",         color:"#2f7fd0" },
@@ -53,6 +61,7 @@ const FALLBACK = {
 
 /* ============ 状态 ============ */
 let state = null;
+let drawTypingToken = 0;
 
 /* ============ 工具 ============ */
 const $ = (s, r=document) => r.querySelector(s);
@@ -138,10 +147,12 @@ function chapterCtx(ch){
 
 /* ============ 渲染入口 ============ */
 function render(){
+  const typingToken = ++drawTypingToken;
   const app = $('#app');
   app.innerHTML = screens[state.phase]();
   app.scrollTop = 0;
   window.scrollTo(0,0);
+  if(state.phase==='draw'&&!state.drawFast&&typeof window.setTimeout==='function')window.setTimeout(()=>startDrawTypewriter(typingToken),90);
 }
 
 const screens = {
@@ -182,22 +193,21 @@ function renderTitle(){
 /* ============ 界面：抽题 ============ */
 function renderDraw(){
   const q = state.question;
-  const answer = `${q.hook} ${q.premise}`;
-  const chars = [...answer];
-  const typed = chars.map((char,i)=>`<span class="type-char" style="--char:${i}" aria-hidden="true">${char===' '? '&nbsp;':esc(char)}</span>`).join('');
+  const answer = drawAnswer(q);
+  const prompt = state.drawPrompt || QUESTION_PROMPTS[q.genre]?.[0] || '你有什么至今难忘的经历？';
   return `
-  <div class="draw-screen ${state.drawFast?'is-fast':''}" style="--chars:${chars.length}">
+  <div class="draw-screen ${state.drawFast?'is-fast is-complete':''}">
     <div class="draw-ambient" aria-hidden="true"><i></i><i></i><i></i></div>
     <header class="draw-heading"><span>知乎 · 为你推荐</span><b>${esc(q.genre)}</b></header>
     <main class="qa-thread">
       <article class="question-post">
         <div class="qa-person"><span class="zh-avatar" aria-hidden="true"><i></i></span><div><b>知乎用户</b><small>${esc(q.setting)} · 刚刚提问</small></div></div>
-        <h1>${esc(q.title)}</h1>
+        <h1>${esc(prompt)}</h1>
         <div class="question-stats"><span>等待回答</span><i></i><span>关注问题</span></div>
       </article>
       <article class="kanshan-answer">
         <div class="qa-person"><img src="assets/liu-kanshan/animations/打招呼_4秒_320x320_20fps_透明.gif" alt="刘看山"><div><b>刘看山</b><small>知乎官方账号 · 正在回答</small></div><span class="typing-dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
-        <p class="typed-answer" aria-label="${esc(answer)}">${typed}<span class="typing-caret" aria-hidden="true"></span></p>
+        <p class="typed-answer"><span class="typed-answer-text">${state.drawFast?esc(answer):''}</span><span class="typing-caret" aria-hidden="true"></span></p>
       </article>
     </main>
     <div class="draw-controls">
@@ -207,6 +217,34 @@ function renderDraw(){
     <div class="enter-hint"><span>ENTER</span> 显示完整回答</div>
     <div class="sr-only" aria-live="polite">刘看山正在回答问题</div>
   </div>`;
+}
+
+function drawAnswer(q){
+  const story = String(q.premise||'').replace(/贯穿悬念[：:].*$/u,'').trim();
+  return `谢邀。\n\n${q.title}\n\n${q.hook}\n\n${story}`;
+}
+
+function startDrawTypewriter(token){
+  if(token!==drawTypingToken||state.phase!=='draw'||state.drawFast)return;
+  const holder=document.querySelector('.typed-answer-text'),screen=document.querySelector('.draw-screen');
+  if(!holder||!screen)return;
+  const chars=[...drawAnswer(state.question)];let index=0;
+  holder.textContent='';
+  const step=()=>{
+    if(token!==drawTypingToken||state.phase!=='draw'||state.drawFast)return;
+    holder.textContent+=chars[index++]||'';
+    if(index>=chars.length){screen.classList.add('is-complete');return;}
+    const char=chars[index-1],pause=/[。！？]/u.test(char)?210:/[，；：\n]/u.test(char)?95:30;
+    window.setTimeout(step,pause);
+  };
+  step();
+}
+
+function finishDrawTypewriter(){
+  state.drawFast=true;drawTypingToken++;
+  const holder=document.querySelector('.typed-answer-text'),screen=document.querySelector('.draw-screen');
+  if(holder&&screen){holder.textContent=drawAnswer(state.question);screen.classList.add('is-fast','is-complete');}
+  else render();
 }
 
 function questionCard(q, big){
@@ -661,7 +699,7 @@ document.addEventListener('click', (e)=>{
 });
 document.addEventListener('keydown', (e)=>{
   if(state?.phase==='draw'&&e.key==='Enter'&&!e.altKey&&!e.ctrlKey&&!e.metaKey){
-    if(!state.drawFast){e.preventDefault();state.drawFast=true;render();}
+    if(!state.drawFast){e.preventDefault();finishDrawTypewriter();}
     return;
   }
   if(state?.overlay || state?.phase!=='chapter' || e.altKey || e.ctrlKey || e.metaKey) return;
@@ -681,6 +719,7 @@ function drawQuestion(){
   state.question = pick(CONTENT.questions.questions);
   state.genre = state.question.genre;
   state.theme = state.question.theme;
+  state.drawPrompt = pick(QUESTION_PROMPTS[state.question.genre]||['你有什么至今难忘的经历？']);
   state.drawFast = false;
   state.phase = 'draw';
 }
