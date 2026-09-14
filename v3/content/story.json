@@ -1,0 +1,338 @@
+{
+  "genres": {
+    "悬疑反转": {
+      "chapterGoals": [
+        "揭露一条关键线索",
+        "制造一次身份反转",
+        "让{npc}的动机暴露一半",
+        "埋下一处会被读者误解的伏笔",
+        "把嫌疑引向错误的方向",
+        "在结尾抛出新的不在场证明"
+      ],
+      "scenes": [
+        {"name": "深夜地铁末班车", "desc": "空荡的车厢里，{protagonist}注意到对面乘客的鞋底沾着不属于这个季节的泥土", "mood": "压抑"},
+        {"name": "老旧派出所档案室", "desc": "泛黄的卷宗堆到天花板，{protagonist}在最后一格翻出一页被撕掉一半的口供", "mood": "凝重"},
+        {"name": "雾中的江边栈道", "desc": "能见度不足十米，{npc}的影子在雾里时隐时现，脚步声却始终停在原地", "mood": "不安"},
+        {"name": "写字楼天台的凌晨", "desc": "城市的灯光在脚下铺开，{protagonist}的手机震了一下，屏幕亮起的是三年前的聊天记录", "mood": "紧张"},
+        {"name": "二手市场的旧相机摊", "desc": "摊主指着一张照片说认识{protagonist}，而照片拍摄日期比案发还早两天", "mood": "诡异"}
+      ],
+      "decisions": [
+        {"text": "当面质问{npc}的行踪", "effect": {"heat": 2, "quality": 1, "energy": -1, "style": 0, "sign": 1}, "consequence": "对方先是一愣，随即反问{protagonist}有什么证据，话题被轻巧地拨了回来"},
+        {"text": "趁夜潜入{npc}的住处暗中翻找", "effect": {"heat": 1, "quality": 2, "energy": -2, "style": 0, "sign": 0}, "consequence": "在床头柜夹层摸到一把钥匙，形状正好对应{place}那扇从没人打开过的门"},
+        {"text": "拨打报警电话，把掌握的线索交给警方", "effect": {"heat": -1, "quality": 1, "energy": 0, "style": 0, "sign": 0}, "consequence": "接线员记下了{protagonist}的陈述，可一句“证据不足”让所有努力悬在半空"},
+        {"text": "设一个局，用假消息引真正的嫌疑人现身", "effect": {"heat": 3, "quality": 1, "energy": -2, "style": -1, "sign": 0}, "consequence": "对方确实上钩了，可出现的却不止一个人，{npc2}的脸也出现在人群里"},
+        {"text": "偷偷销毁那条对自己不利的旧记录", "effect": {"heat": -2, "quality": -2, "energy": -1, "style": -2, "sign": -1}, "consequence": "眼下是干净了，可{protagonist}知道自己从此也成了这桩案子里说不清的人"},
+        {"text": "保持沉默，继续暗中观察{npc}的一举一动", "effect": {"heat": 0, "quality": 2, "energy": 0, "style": 1, "sign": 0}, "consequence": "两天后，{npc}主动约{protagonist}喝茶，开口第一句就点破了{protagonist}在跟踪"},
+        {"text": "用手里握着的秘密反过来要挟{npc}交代真相", "effect": {"heat": 2, "quality": -1, "energy": -1, "style": -3, "sign": -1}, "consequence": "{npc}笑了，说这个秘密早在三年前就被{protagonist}自己写进了那篇没发表的日记"},
+        {"text": "把调查进展写进章节，向读者征集细节", "effect": {"heat": 3, "quality": 1, "energy": -1, "style": 1, "sign": 1}, "consequence": "评论区有人补上了一条{protagonist}忽略的时间线，正好卡在{cliff}之前"}
+      ],
+      "openings": [
+        "{protagonist}是在{place}见到{npc}之后，才第一次认真回想那个被所有人回避的夜晚。",
+        "报警记录显示{npc}那天并不在场，可{protagonist}手里的车票却印着对方的名字。",
+        "{goal}这件事，{protagonist}瞒了所有人三天，直到{npc}主动找上门。",
+        "如果早知道那张照片会引出{npc2}，{protagonist}宁可它永远留在{place}的抽屉里。",
+        "那天{place}下着雨，{protagonist}在监控录像里看到一个不可能出现的人。",
+        "所有人都说{npc}已经死了，除了{protagonist}——因为昨晚刚有人用{npc}的手机回了消息。"
+      ],
+      "bodies": [
+        "{protagonist}把时间线铺在桌上，一笔一笔地核：案发当晚{npc}的票根、{npc2}的口供、还有那通只响了五秒的电话，三件事里至少有一件是假的。",
+        "{npc}没有正面回答，只是把一张皱巴巴的照片推到{protagonist}面前，说这就是当年{place}那场事故的全部真相。",
+        "监控里那个人影拐进巷子就消失了，{protagonist}追进去才发现那是一条死胡同，墙上只贴着一张新的寻人启事。",
+        "{protagonist}意识到自己一直把{npc}当嫌疑人，却从没想过，也许对方才是那个一直在保护{theme}的人。",
+        "真相像一块被反复擦写的黑板，{protagonist}每擦掉一层，底下露出的字就更陌生一点。",
+        "那晚{protagonist}假装离开，又折返回来，正好看见{npc2}把一袋东西塞进了{place}的垃圾桶。",
+        "手机震动了，是{npc}发来的：别查了，再查下去，你会变成下一个被写进{genre}故事的人。",
+        "{protagonist}终于明白，所谓{cliff}并不是巧合，而是有人从一开始就设计好的局。"
+      ],
+      "cliffhangers": [
+        "就在{protagonist}以为抓到真凶的那一刻，手机收到一条定位，来源是{cliff}。",
+        "门开了，站在外面的，是和监控里一模一样的那张脸——可这个人三年前就死了。",
+        "证据袋里那枚指纹，比对结果指向{protagonist}自己。",
+        "{npc}凑到{protagonist}耳边说了一句：“那天晚上，动手的人其实是我，也是你。”",
+        "当{protagonist}终于拨通那个号码，接电话的人却在电话那头叫出了{protagonist}的真名。",
+        "所有人都离开后，{place}的监控画面里，又多出了一个和{protagonist}动作完全同步的影子。"
+      ]
+    },
+    "都市情感": {
+      "chapterGoals": [
+        "让{npc}说出那句憋了很久的话",
+        "制造一次误会与澄清的拉扯",
+        "把过去一段旧账重新摆上台面",
+        "推进{protagonist}与{npc}之间的距离",
+        "用一件小事暴露两人关系的裂痕",
+        "在结尾留下一个无法回头的选择"
+      ],
+      "scenes": [
+        {"name": "深夜亮着灯的出租屋", "desc": "两人合租的餐桌上摆着两副碗筷，一副还热着，一副从没动过", "mood": "疲惫"},
+        {"name": "地铁换乘站的扶梯", "desc": "人潮把{protagonist}和{npc}冲散又聚拢，谁都没有先开口", "mood": "疏离"},
+        {"name": "老同学婚礼的角落", "desc": "敬酒声里，{npc}的目光越过所有人，停在{protagonist}无名指上", "mood": "酸涩"},
+        {"name": "雨夜便利店的门口", "desc": "一包没拆封的烟和一把忘带的伞，两个人隔着玻璃门僵持", "mood": "僵持"},
+        {"name": "出租房的旧沙发", "desc": "沙发垫下还压着上一任租客留下的相框，照片里的人像极了{npc}", "mood": "恍惚"}
+      ],
+      "decisions": [
+        {"text": "直接摊牌，把憋在心里的话一次说完", "effect": {"heat": 2, "quality": 1, "energy": -1, "style": 1, "sign": 0}, "consequence": "{npc}沉默了很久，最后只问了一句“你是什么时候开始这么想的”"},
+        {"text": "用开玩笑的口吻试探{npc}的心意", "effect": {"heat": 1, "quality": 0, "energy": 0, "style": -1, "sign": 0}, "consequence": "玩笑话被当成真的，又没被当成真的，两个人之间的空气更僵了"},
+        {"text": "借口加班回避和{npc}的独处", "effect": {"heat": -1, "quality": -1, "energy": 0, "style": -1, "sign": 0}, "consequence": "电梯门关上那刻，{protagonist}看见{npc}在楼道里站了很久"},
+        {"text": "主动挽留，约{npc}好好谈一次", "effect": {"heat": 1, "quality": 2, "energy": -1, "style": 1, "sign": 1}, "consequence": "话说到一半，{npc2}的一通电话把两人又拽回了现实"},
+        {"text": "收拾行李准备搬出这间{place}", "effect": {"heat": 0, "quality": 1, "energy": -2, "style": 1, "sign": 0}, "consequence": "箱子合上的声音很轻，却让{npc}第一次主动抓住了{protagonist}的手腕"},
+        {"text": "把过去的旧账当面对质，问清当年的事", "effect": {"heat": 2, "quality": 2, "energy": -1, "style": 1, "sign": 0}, "consequence": "真相没有想象中那么不堪，却也没有想象中那么清白"},
+        {"text": "向共同的朋友求助，让第三个人来调和", "effect": {"heat": 0, "quality": 0, "energy": -1, "style": -1, "sign": 0}, "consequence": "朋友一句“你们俩就是嘴硬”，把最该由两人说的话替他们说了"},
+        {"text": "把这段关系原样写进{genre}章节，用文字梳理自己", "effect": {"heat": 2, "quality": 3, "energy": -1, "style": 2, "sign": 0}, "consequence": "写着写着，{protagonist}发现{theme}的答案其实早就藏在自己笔下"}
+      ],
+      "openings": [
+        "分手是{protagonist}提的，可三个月后的深夜，{npc}又出现在了{place}楼下。",
+        "两个人在同一张饭桌上住了五年，最近却连对方几点回家都不知道了。",
+        "{protagonist}一直以为{npc}不知道那件事，直到抽屉里多出一张写满日期的车票。",
+        "婚礼请柬寄来的那天，{protagonist}才想起，{npc}说过最重的一句话是“你别后悔”。",
+        "{place}的灯坏了半个月，{protagonist}和{npc}谁都没有提，也谁都没有修。",
+        "那晚{protagonist}喝多了，把{npc}的名字打成了通讯录里另一个人的备注。"
+      ],
+      "bodies": [
+        "{protagonist}本来只想问一句“今天回来吃饭吗”，打出来又删掉，最后改成了一条群发的工作消息。",
+        "{npc}把热好的饭推到{protagonist}面前，说自己其实早就吃过了，可那副碗筷分明是刚摆上的。",
+        "两个人像陌生人一样客气，礼貌得让{protagonist}心里发慌，因为真正亲密过的人不该这么说话。",
+        "{protagonist}翻出手机里五年前的聊天记录，发现原来那些“以后再说”的事，后来真的再也没说过。",
+        "那天{protagonist}在医院走廊里等结果，脑子里闪过的第一个名字，还是{npc}。",
+        "争吵到了最后，谁都没提真正的原因，两个人都在为一件更久远的事找替罪羊。",
+        "{npc}说，我们不是不爱了，是太累了，累到连确认对方还在不在都省了。",
+        "{protagonist}终于明白，{theme}从来不是谁对谁错，而是两个人都害怕先开口。"
+      ],
+      "cliffhangers": [
+        "{npc}把戒指盒子推过来，说：“要么戴上，要么这次真的算了。”",
+        "电梯门关上前，{protagonist}听见{npc}在身后小声说了三个字。",
+        "手机里那段没发出去的语音，是{npc}在{cliff}那晚录下的告别。",
+        "门铃响了，{protagonist}打开门，看见{npc}手里拖着一个行李箱，还有一句话。",
+        "婚礼进行到交换戒指，{protagonist}的手机突然亮起，来电显示是{npc}。",
+        "那晚之后，{place}的灯终于亮了，可坐在灯下的两个人中间，隔了一整段说没说完的话。"
+      ]
+    },
+    "女性成长": {
+      "chapterGoals": [
+        "让{protagonist}拒绝一次不合理的安排",
+        "撕开一段被“为你好”包装的控制",
+        "让{protagonist}第一次为自己做决定",
+        "面对{npc}的贬低并重新评估自己",
+        "用一次小的成功重建信心",
+        "在结尾迈出离开{place}的第一步"
+      ],
+      "scenes": [
+        {"name": "加班的工位", "desc": "凌晨两点，{protagonist}的桌角还压着一张写着“女孩子稳定就好”的便签", "mood": "隐忍"},
+        {"name": "父母家的老餐桌", "desc": "一桌人热热闹闹，只有{protagonist}碗里的菜是别人替她夹好的", "mood": "窒息"},
+        {"name": "出租屋的化妆镜前", "desc": "镜子里的人敷着面膜，眼里却像熬了整整一个通宵", "mood": "疲惫"},
+        {"name": "朋友的新工作室", "desc": "墙上贴满她签下的项目，{protagonist}第一次觉得自己也可以伸手够一够", "mood": "松动"},
+        {"name": "深夜的空旷地铁", "desc": "末班车上只剩{protagonist}一个，她终于不用对任何人解释去向", "mood": "自由"}
+      ],
+      "decisions": [
+        {"text": "当面拒绝{npc}那句“为你好”的安排", "effect": {"heat": 2, "quality": 2, "energy": -1, "style": 2, "sign": 0}, "consequence": "饭桌安静了几秒，{npc}的表情僵住，却第一次没再替{protagonist}做决定"},
+        {"text": "向信任的朋友倾诉，寻求一条出路", "effect": {"heat": 0, "quality": 1, "energy": 1, "style": 1, "sign": 0}, "consequence": "朋友没有给答案，只把一张招生简章和一句“你想过吗”推到{protagonist}面前"},
+        {"text": "在公开场合反击{npc}的贬低", "effect": {"heat": 3, "quality": 0, "energy": -2, "style": 1, "sign": -1}, "consequence": "那一句反驳换来满场安静，也换来{npc}长达一周的冷脸"},
+        {"text": "辞掉这份稳定但耗尽她的工作，自己单干", "effect": {"heat": 1, "quality": 2, "energy": -2, "style": 3, "sign": -1}, "consequence": "少了工资，却多出了夜里能睡着的一整段时间"},
+        {"text": "尝试和{npc}和解，把话说清楚", "effect": {"heat": 0, "quality": 1, "energy": -1, "style": 0, "sign": 0}, "consequence": "和解没有想象中圆满，{protagonist}至少确认了一件事：被理解不是前提"},
+        {"text": "收拾东西离开{place}，去陌生的城市", "effect": {"heat": 2, "quality": 2, "energy": -2, "style": 3, "sign": 0}, "consequence": "高铁启动那刻，{protagonist}没哭，只是把手机里{npc}的备注改回了本名"},
+        {"text": "报名课程，把一直想做却没做的事捡起来", "effect": {"heat": 0, "quality": 3, "energy": -2, "style": 2, "sign": 1}, "consequence": "第一份作业被老师打回，{protagonist}却第一次为“自己的东西”较起了真"},
+        {"text": "在章节里写下自己的真实经历，借此重新审视{theme}", "effect": {"heat": 2, "quality": 3, "energy": -1, "style": 3, "sign": 1}, "consequence": "评论区很多人说感同身受，{protagonist}才发现原来不止自己一个人这样过"}
+      ],
+      "openings": [
+        "三十岁生日那天，{protagonist}收到的最大一份“礼物”，是{npc}替她约好的一场相亲。",
+        "所有人都说{protagonist}活得体面，只有她自己知道，那件“体面”的外套是别人硬套上去的。",
+        "辞职信写了七遍，每一遍都在“稳定”两个字上卡住。",
+        "{protagonist}第一次对{npc}说“不”，是在{place}的饭桌上，话说完手还在抖。",
+        "镜子里的那个人越来越像{npc}口中“应该的样子”，{protagonist}突然有点认不出自己。",
+        "那天{protagonist}在{place}等了四十分钟，才发现自己在等的，是别人的一个肯定。"
+      ],
+      "bodies": [
+        "{protagonist}学会了把“我应该”改成“我想要”，尽管每一次说出口，心里都像在拆一块积木。",
+        "{npc}还在用“我们都是为你好”开场，{protagonist}却第一次听出这句话背后藏着的控制。",
+        "她把从小到大别人替她做的选择列成一张表，发现那些“稳妥”里，没有一样是她自己点的头。",
+        "{protagonist}开始记账、存钱、学技能，每一笔都让她离那个“被安排的人生”远一点。",
+        "朋友问她怕不怕，{protagonist}说怕，但更怕十年后还在同一张饭桌上被夹菜。",
+        "那次小的成功没人鼓掌，{protagonist}却一个人在{place}的阳台上站了很久，第一次觉得脚下是实的。",
+        "她不再急着向{npc}证明什么，因为证明这件事本身，就是把定义自己的权力又交了出去。",
+        "{protagonist}明白，{theme}这条路没有捷径，但每一步都是她自己踩出来的。"
+      ],
+      "cliffhangers": [
+        "{npc}把户口本拍在桌上：“你要走，就把这个也带走，从此别再回来。”",
+        "录取通知到的当天，{protagonist}却在医院拿到了另一张单子。",
+        "她把手机里所有“为你好”的消息一键清空，然后拨通了一个陌生城市的号码。",
+        "房子退了，行李寄了，{protagonist}最后看了一眼{place}，转身走进检票口。",
+        "那封迟到了十年的信被{protagonist}拆开，落款是{npc}，而内容只有一句话。",
+        "{protagonist}在{cliff}上写下第一行属于自己的字，笔尖却停在了半空。"
+      ]
+    },
+    "民俗怪谈": {
+      "chapterGoals": [
+        "让{protagonist}接触到一条地方禁忌的源头",
+        "制造一次超自然现象的可疑证据",
+        "让{npc}讲出一个半真半假的旧俗",
+        "在结尾留下一个无法用科学解释的细节",
+        "让{protagonist}开始怀疑自己的记忆",
+        "把{place}的历史翻出一页"
+      ],
+      "scenes": [
+        {"name": "山坳里的老祠堂", "desc": "牌位上落满灰，供桌上的香却还是热的，像刚刚有人来过", "mood": "森然"},
+        {"name": "村口的老槐树", "desc": "树皮上刻满认不出的符号，{protagonist}数了数，正好比村子的户数多一个", "mood": "诡异"},
+        {"name": "塌了一半的土坯房", "desc": "屋里的床铺叠得整整齐齐，灶台里却塞着没烧完的纸钱", "mood": "阴冷"},
+        {"name": "夜里的打谷场", "desc": "月光下没有风，晒谷的竹席却一张张自己卷了起来", "mood": "毛骨悚然"},
+        {"name": "镇上的老照相馆", "desc": "橱窗里那张泛黄的合影，站在最后排的人，脸上没有五官", "mood": "压抑"}
+      ],
+      "decisions": [
+        {"text": "追查禁忌的源头，翻阅地方志和旧档案", "effect": {"heat": 1, "quality": 3, "energy": -1, "style": 1, "sign": 0}, "consequence": "卷宗里夹着一张{place}的地契，上面签的名字和{protagonist}一模一样"},
+        {"text": "连夜收拾东西逃离{place}", "effect": {"heat": 1, "quality": -1, "energy": -2, "style": -1, "sign": 0}, "consequence": "车开出三里地又绕回原点，导航上{place}的名字始终显示在正前方"},
+        {"text": "按{npc}的指点，补上那场没做完的祭祀", "effect": {"heat": 2, "quality": 0, "energy": -2, "style": -2, "sign": 0}, "consequence": "香点着的那刻，{protagonist}听见身后传来一个和自己一样的脚步声"},
+        {"text": "当众揭穿这是装神弄鬼", "effect": {"heat": 3, "quality": -1, "energy": -1, "style": 1, "sign": -1}, "consequence": "揭穿的话说到一半，{npc2}从人群里走出来，手里举着一件{protagonist}昨天才丢的东西"},
+        {"text": "向村里最老的老人请教旧俗", "effect": {"heat": 0, "quality": 2, "energy": 0, "style": 1, "sign": 0}, "consequence": "老人只说了一句“别问，问了你就算签了字”，就把门关上了"},
+        {"text": "用手机拍下那些诡异的细节留作证据", "effect": {"heat": 2, "quality": 1, "energy": 0, "style": 0, "sign": 0}, "consequence": "回放时，照片里的供桌旁多了一个人，而拍摄时{protagonist}明明独自在场"},
+        {"text": "老老实实遵守那条“入夜不回头”的禁忌", "effect": {"heat": 0, "quality": 1, "energy": 0, "style": 0, "sign": 0}, "consequence": "一路没回头，可{protagonist}始终觉得有只手就悬在自己后颈一尺的地方"},
+        {"text": "把可疑的物证一把火烧掉，装作没看见", "effect": {"heat": -1, "quality": -1, "energy": -1, "style": -2, "sign": -1}, "consequence": "灰烬散开时，{protagonist}在火里看见{cliff}四个字一闪而过"}
+      ],
+      "openings": [
+        "进村的第一晚，{npc}就警告{protagonist}：天黑以后，别回应任何叫自己名字的声音。",
+        "{protagonist}是被一阵唱戏声吵醒的，可{place}这地方，已经三十年没人搭过戏台了。",
+        "那口井是全村唯一的禁忌，而{protagonist}要找的人，据说就是掉进去之后消失的。",
+        "桌上多出一碗饭，没人认领，也没人敢倒掉。",
+        "{npc}说这是祖上传下来的规矩，{protagonist}却在老照片里看见，规矩上画着的正是自己的脸。",
+        "来之前{protagonist}只当{genre}是个传说，直到她在{place}看见了那条不该存在的路。"
+      ],
+      "bodies": [
+        "{npc}压低声音说，那不是鬼，是{place}早年间欠下的一笔债，如今到了该还的人身上。",
+        "{protagonist}把白天拍的照片一张张放大，发现每张的边角都有半只不属于任何人的鞋印。",
+        "村里的老人说，{theme}这东西信则有，可{protagonist}发现自己越是不信，身边的事就越发真。",
+        "那晚{protagonist}在日记里记下时间，第二天翻看，却发现昨天的笔迹写的是今天才发生的事。",
+        "香烧得极快，三炷香在无风的屋里同时断掉，断口平整得像被刀切过。",
+        "{npc2}突然改口，说其实{protagonist}要找的人从没离开过，一直都在她身后。",
+        "{protagonist}终于想起，自己之所以来{place}，就是因为梦里那个反复出现的人说：回来把事办完。",
+        "一切线索都指向同一个结论：那场{cliff}，早在她出生前就已经写好了。"
+      ],
+      "cliffhangers": [
+        "镜子里，{protagonist}看见自己身后的墙上，不知什么时候多出了一行红字。",
+        "鸡叫了，天却一直没亮，村里的人都说，这是{cliff}要来了。",
+        "那卷录像带的最后十秒里，出现了一个正在冲镜头笑的人，是{protagonist}自己。",
+        "{npc}转过头，用一种{protagonist}没听过的声音说：“你终于回来了。”",
+        "井盖在深夜自己移开了，{protagonist}蹲下去，听见井底传来她自己的声音在求救。",
+        "天快亮时，{protagonist}发现所有村民都站在{place}门口，面朝同一个方向，一动不动。"
+      ]
+    },
+    "职场冲突": {
+      "chapterGoals": [
+        "让{protagonist}和{npc}为一次失误正面交锋",
+        "暴露一个被掩盖的项目问题",
+        "让{protagonist}在站队中被迫表态",
+        "用一封邮件引爆办公室矛盾",
+        "推进一次关键的绩效谈判",
+        "在结尾留下一个非走不可的选择"
+      ],
+      "scenes": [
+        {"name": "凌晨的工位", "desc": "显示器还亮着，{protagonist}的键盘上压着一份被打回的方案，批注红得像判决", "mood": "焦灼"},
+        {"name": "会议室的长桌", "desc": "十几个人的目光同时转向{protagonist}，没人接话，也没人替她解围", "mood": "孤立"},
+        {"name": "茶水间的角落", "desc": "咖啡机嗡嗡响着，{npc}压低声音说了半句话，又在有人进来时笑着岔开", "mood": "暗流"},
+        {"name": "老板办公室门口", "desc": "玻璃门里谈笑风生，门外的{protagonist}攥着的那份数据已经等了四十分钟", "mood": "憋闷"},
+        {"name": "下班后的写字楼大堂", "desc": "打卡机已经安静下来，{protagonist}却听见楼上那间办公室的灯还亮着", "mood": "疲惫"}
+      ],
+      "decisions": [
+        {"text": "在会上硬刚{npc}，把数据甩在桌上", "effect": {"heat": 2, "quality": 1, "energy": -2, "style": 1, "sign": 0}, "consequence": "全场安静了三秒，{npc}没接话，散会后却把{protagonist}叫进了小黑屋"},
+        {"text": "先隐忍下来，把证据攒够了再动", "effect": {"heat": 0, "quality": 2, "energy": 0, "style": 1, "sign": 1}, "consequence": "三个月后，{protagonist}手里已经有了一整条{npc}经手出错的记录链"},
+        {"text": "公开站队支持{npc}，换一个安全位置", "effect": {"heat": 1, "quality": -1, "energy": -1, "style": -3, "sign": 1}, "consequence": "位置是稳了，可{protagonist}每次路过那位被排挤的同事，都不敢看对方眼睛"},
+        {"text": "抢先一步把锅甩给团队里的{npc2}", "effect": {"heat": 2, "quality": -2, "energy": -1, "style": -3, "sign": -1}, "consequence": "这关是过去了，可从那以后，再没人敢在{protagonist}的项目里说真话"},
+        {"text": "越过{npc}，直接向更上层反映问题", "effect": {"heat": 1, "quality": 1, "energy": -1, "style": 1, "sign": -1}, "consequence": "上头派人来查了，可查来查去，最后被问责的还是{protagonist}这个“不守规矩”的人"},
+        {"text": "私下收集邮件和聊天记录，留作底牌", "effect": {"heat": 0, "quality": 2, "energy": -1, "style": 1, "sign": 1}, "consequence": "记录越攒越多，{protagonist}也越清醒地看见自己曾替谁背过多少黑锅"},
+        {"text": "当着全组的面把误会一条条澄清", "effect": {"heat": 2, "quality": 2, "energy": -1, "style": 1, "sign": 0}, "consequence": "有人开始信了，也有人觉得{protagonist}小题大做，办公室裂成了两半"},
+        {"text": "直接提离职，用离开换一份体面", "effect": {"heat": 1, "quality": 1, "energy": 0, "style": 3, "sign": -1}, "consequence": "走的那天没人送，{protagonist}却第一次觉得背上的东西轻了下来"}
+      ],
+      "openings": [
+        "周报交上去的第十天，{protagonist}才发现，那个坑是{npc}早就挖好的。",
+        "领导在群里@了{protagonist}，让她“给个说法”，而原话明明是{npc}说的。",
+        "加薪名单里没有{protagonist}，可她的活，是组里最多的。",
+        "一场会开下来，{protagonist}成了唯一没说话的人，也成了唯一背锅的人。",
+        "那天{place}的电梯里，{npc}笑着说了句“辛苦”，转头就把{protagonist}的名字从名单上划掉。",
+        "{protagonist}本来只想安安分分做完这个项目，直到她看见了那份被改过的数据。"
+      ],
+      "bodies": [
+        "{protagonist}把项目从一开始的邮件翻出来，一条条对齐，终于看清了{npc}是怎么把责任慢慢移到自己头上的。",
+        "会议上{npc}说话滴水不漏，{protagonist}却发现他每次提到关键数字，都会恰到好处地“记不清”。",
+        "她开始学会留痕：每一句口头交代，都补一封确认邮件；每一次改动，都截一张带时间的图。",
+        "有同事劝{protagonist}别较真，说公司里最不值钱的就是“对错”，{protagonist}听完没说话。",
+        "{npc2}悄悄给{protagonist}递了条消息，说这次的风向不对，让她别再往前冲。",
+        "{protagonist}终于明白，{theme}不是写进制度里的漂亮话，而是每个人在利益面前的真实选择。",
+        "那晚她删掉了写了一半的辞职信，决定先把这局棋下完。",
+        "考核表发下来，{protagonist}盯着“配合度”那一栏的分数，突然觉得一切都通了。"
+      ],
+      "cliffhangers": [
+        "第二天早上，{protagonist}的工位上多了一份没署名的文件，是她本不该看到的东西。",
+        "领导把{npc}和{protagonist}一起叫进办公室，说：“你们俩，只能留一个。”",
+        "邮件点了发送的前一秒，{protagonist}发现收件人列表里，多了一个不该出现的人。",
+        "那个替{protagonist}说话的同事，第二天就提交了离职申请。",
+        "项目上线前夜，{npc}突然把最关键的那块责任，白纸黑字地推到了{protagonist}头上。",
+        "{protagonist}的手机亮了，是猎头发来的消息，而{place}这边，正等着她做最后的决定。"
+      ]
+    },
+    "历史脑洞": {
+      "chapterGoals": [
+        "让{protagonist}改写一个关键的历史节点",
+        "制造一次古今信息的错位",
+        "让{npc}对{protagonist}的“预言”半信半疑",
+        "在结尾留下蝴蝶效应的第一波后果",
+        "让{protagonist}面临改变历史的道德拷问",
+        "把一段被正史省略的细节补出来"
+      ],
+      "scenes": [
+        {"name": "泛黄的驿馆", "desc": "烛火摇曳，{protagonist}在纸窗上看见自己的影子多出了一顶官帽", "mood": "恍惚"},
+        {"name": "城门口的告示墙", "desc": "告示上的年份和{protagonist}记得的史书相差了整整三年", "mood": "错愕"},
+        {"name": "深夜的书坊", "desc": "{npc}把一卷密信塞进{protagonist}手里，说这是能改朝换代的半句话", "mood": "紧绷"},
+        {"name": "江上的小舟", "desc": "一叶扁舟顺流而下，{protagonist}知道自己此去，可能再也回不到来的地方", "mood": "苍凉"},
+        {"name": "荒郊的古碑", "desc": "碑文被风雨磨去大半，只剩最后一行，写着{protagonist}的名字", "mood": "震撼"}
+      ],
+      "decisions": [
+        {"text": "用后世的知识改写这个关键节点", "effect": {"heat": 3, "quality": 2, "energy": -2, "style": 2, "sign": 0}, "consequence": "事情确实变了，可{protagonist}发现自己能记住的“历史”也开始跟着一块块模糊"},
+        {"text": "向{npc}求证那件史书上没写的事", "effect": {"heat": 0, "quality": 2, "energy": 0, "style": 1, "sign": 0}, "consequence": "{npc}盯着{protagonist}看了很久，问：“你到底是什么人，为何知道这些还没发生的事”"},
+        {"text": "保守秘密，尽量不改变任何历史", "effect": {"heat": -1, "quality": 1, "energy": 0, "style": 1, "sign": 0}, "consequence": "{protagonist}刻意绕开所有大事，可她的存在本身，已经悄悄改变了几个人的命运"},
+        {"text": "利用先知先觉为自己谋一条生路", "effect": {"heat": 2, "quality": -1, "energy": -1, "style": -3, "sign": 0}, "consequence": "路是走通了，可{protagonist}也成了局中人，再分不清自己是棋子还是棋手"},
+        {"text": "销毁那件可能改写历史的物证", "effect": {"heat": -1, "quality": -1, "energy": -1, "style": -1, "sign": 0}, "consequence": "火烧起来那刻，{protagonist}听见身后{npc}的声音冷了下去：“你果然不是这个朝代的人”"},
+        {"text": "向关键人物发出警示，试图阻止一场灾祸", "effect": {"heat": 2, "quality": 3, "energy": -2, "style": 2, "sign": 0}, "consequence": "对方信了一半，也猜疑了一半，把{protagonist}当成细作关进了{place}"},
+        {"text": "顺水推舟，让历史朝它“本该”的方向走", "effect": {"heat": 1, "quality": 1, "energy": 0, "style": -1, "sign": 0}, "consequence": "{protagonist}做了那个推手，却也在事成之后第一次做噩梦"},
+        {"text": "袖手旁观，眼看着一切发生", "effect": {"heat": -1, "quality": 0, "energy": 0, "style": 0, "sign": 0}, "consequence": "什么都没做，可那场灾祸的名单里，多了一个{protagonist}本来认识的人"}
+      ],
+      "openings": [
+        "{protagonist}醒来时，发现自己躺在{place}，而手机屏幕上显示的时间，是公元一千年前的某一天。",
+        "那卷史书上说，这段历史“语焉不详”，因为亲历的人都死在了同一年。",
+        "{npc}第一次见{protagonist}时，就笃定地说她“不像这个时代的人”。",
+        "一场梦把{protagonist}送回了过去，而梦里反复出现的，正是眼前这座城。",
+        "史官笔下只写了一句话的事，{protagonist}如今要亲眼看着它发生。",
+        "那枚玉佩是{protagonist}从现代带来的，可{place}的集市上，竟有人一眼认出了它。"
+      ],
+      "bodies": [
+        "{protagonist}翻遍记忆里那点可怜的历史知识，才明白自己正站在一个“被后人一笔带过”的岔路口上。",
+        "{npc}半信半疑地听完{protagonist}的“预言”，最后说：“若真如你所言，那我今日就该杀你。”",
+        "她每改一个细节，{place}的天气、路人的话、甚至自己掌心的纹路，都会跟着起一点变化。",
+        "{protagonist}开始怀疑，自己究竟是来改变历史的，还是历史本来就需要她来补上这一笔。",
+        "那封密信里只有半句话，剩下的半句，{protagonist}却凭后世的记载补了出来。",
+        "她终于面对那个最难的问题：如果救了这个人，就会死更多人，那{theme}还值不值得坚持。",
+        "{npc2}在城楼下对{protagonist}喊：“你既知天命，为何还来蹚这趟浑水？”",
+        "史书上没写的真相，{protagonist}在亲眼看过之后，反而一个字都不愿再记下来。"
+      ],
+      "cliffhangers": [
+        "那一晚之后，{protagonist}发现自己再也记不起现代的任何事了。",
+        "城门将闭，{npc}在火光里回头，对{protagonist}说：“记住，是你让我做的这个决定。”",
+        "史书在{protagonist}眼前浮现出新的一页，而页首写的，正是她自己的名字。",
+        "玉佩裂成两半的瞬间，{protagonist}听见两个时代的钟声同时在耳边响起。",
+        "那场本该死很多人的灾祸，如今名单上只剩一个名字，是{protagonist}的。",
+        "{protagonist}终于找到回去的路，却在迈出{place}前，被{cliff}拦住了去路。"
+      ]
+    }
+  },
+  "crisis": {
+    "complications": [
+      "编辑深夜来电，说数据如果三章内起不来，{protagonist}的连载会被直接下架，而{npc}的结局线还没写完。",
+      "评论区被价值观审判者屠版，{route}路线引来的争议正把{theme}这个话题顶向不可控的方向。",
+      "连续熬夜让{protagonist}在章节里写错了关键伏笔，被剧情分析帝截图挂了出来。",
+      "{npc}这个角色在读者投票里人气爆了，可{protagonist}原定让他下线的那场戏，就在{cliff}之后。",
+      "签约合同摆在桌上，条款里有一条，要求{protagonist}把{genre}改写成更讨喜的走向。",
+      "大纲彻底失控，前三章的伏笔和后三章的结局已经对不上了，{protagonist}必须在{place}里重做决定。"
+    ],
+    "finalChoices": [
+      {"text": "按编辑的要求改结局，换来签约", "effect": {"heat": 3, "quality": -2, "energy": -2, "style": -4, "sign": 3}, "consequence": "{protagonist}把{cliff}改成了读者想看的团圆，签了字，却把{npc}最真实的结局藏进了废稿里"},
+      {"text": "坚持原定结局，拒绝迎合", "effect": {"heat": -2, "quality": 3, "energy": 0, "style": 4, "sign": -2}, "consequence": "数据应声下跌，可{protagonist}把{theme}写到了最后，一个字都没改"},
+      {"text": "用一次疯狂更新博一把流量", "effect": {"heat": 3, "quality": -1, "energy": -3, "style": -2, "sign": 1}, "consequence": "三章连更把热度顶了上去，{protagonist}却在电脑前睡着了，醒来时手指还在键盘上"},
+      {"text": "停更一天，把大纲重新理顺再写", "effect": {"heat": -2, "quality": 3, "energy": 1, "style": 2, "sign": 1}, "consequence": "这一天让{protagonist}找回了故事的骨架，代价是流失了一批等不起的读者"}
+    ]
+  }
+}

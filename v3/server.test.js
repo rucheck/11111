@@ -1,0 +1,211 @@
+'use strict';
+
+const assert = require('node:assert/strict');
+const http = require('node:http');
+const test = require('node:test');
+const {createBackend} = require('./server');
+
+const AUTH_OK = JSON.stringify({
+  ok: true,
+  environment_set: false,
+  keychain: 'found',
+  verification: 'not_performed'
+});
+const QUOTA_OK = JSON.stringify({
+  Data: [{APIID: 'zhida_openai', TotalQuota: 100, TotalUsed: 4, RemainingQuota: 96}]
+});
+
+function mockExec(handlers) {
+  return (_binary, args, _options, callback) => {
+    const key = args.slice(0, 2).join(' ');
+    const handler = handlers[key] || handlers[args[0]];
+    if (!handler) return callback(Object.assign(new Error('unexpected CLI call'), {code: 1}), '', '');
+    if (handler instanceof Error) return callback(handler, handler.stdout || '', handler.stderr || '');
+    if (typeof handler === 'function') return handler(args, callback);
+    callback(null, handler, '');
+  };
+}
+
+async function withServer(options, callback) {
+  const backend = createBackend({
+    cliPath: 'mock-zhihu-cli',
+    existsSync: () => true,
+    ...options
+  });
+  const server = http.createServer(backend.listener);
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const address = server.address();
+  try {
+    await callback(`http://127.0.0.1:${address.port}`, backend);
+  } finally {
+    await new Promise(resolve => server.close(resolve));
+  }
+}
+
+async function getJson(base, pathname, options) {
+  const response = await fetch(`${base}${pathname}`, options);
+  return {status: response.status, body: await response.json()};
+}
+
+const validChapterRequest = {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({genre: '悬疑反转', beats: 4})
+};
+
+test('GET /api/health reports a ready server without running generation', async () => {
+  const calls = [];
+  await withServer({
+    execFile: mockExec({
+      'auth status': (args, callback) => { calls.push(args); callback(null, AUTH_OK, ''); },
+      'quota --api-id': (args, callback) => { calls.push(args); callback(null, QUOTA_OK, ''); }
+    })
+  }, async base => {
+    const result = await getJson(base, '/api/health');
+    assert.equal(result.status, 200);
+    assert.equal(result.body.ok, true);
+    assert.deepEqual(result.body.server, {ok: true});
+    assert.deepEqual(result.body.cli, {installed: true, callable: true});
+    assert.equal(result.body.authentication.configured, true);
+    assert.equal(result.body.authentication.valid, true);
+    assert.equal(result.body.mode, 'zhihu');
+    assert.equal(result.body.usage.source, 'zhihu-cli');
+    assert.equal(result.body.usage.remaining, 96);
+    assert.equal(calls.some(args => args[0] === 'answer'), false);
+  });
+});
+
+test('missing CLI is a degraded health result and a standardized API error', async () => {
+  await withServer({existsSync: () => false, execFile: mockExec({})}, async base => {
+    const health = await getJson(base, '/api/health');
+    assert.equal(health.status, 200);
+    assert.equal(health.body.ok, false);
+    assert.equal(health.body.cli.installed, false);
+    assert.equal(health.body.usage, null);
+    assert.equal(health.body.diagnostic.error, 'CLI_NOT_FOUND');
+
+    const chapter = await getJson(base, '/api/chapter', validChapterRequest);
+    assert.equal(chapter.status, 503);
+    assert.equal(chapter.body.ok, false);
+    assert.equal(chapter.body.error, 'CLI_NOT_FOUND');
+  });
+});
+
+test('unconfigured authentication returns ZHIHU_AUTH_REQUIRED', async () => {
+  const authMissing = JSON.stringify({ok: true, environment_set: false, keychain: 'not_found', verification: 'not_performed'});
+  await withServer({execFile: mockExec({'auth status': authMissing})}, async base => {
+    const chapter = await getJson(base, '/api/chapter', validChapterRequest);
+    assert.equal(chapter.status, 401);
+    assert.equal(chapter.body.error, 'ZHIHU_AUTH_REQUIRED');
+  });
+});
+
+test('invalid authentication is distinguished from missing authentication', async () => {
+  const authInvalid = JSON.stringify({ok: true, environment_set: true, keychain: 'not_found', verification: 'invalid'});
+  await withServer({execFile: mockExec({'auth status': authInvalid})}, async base => {
+    const chapter = await getJson(base, '/api/chapter', validChapterRequest);
+    assert.equal(chapter.status, 401);
+    assert.equal(chapter.body.error, 'ZHIHU_AUTH_INVALID');
+  });
+});
+
+test('CLI timeout is converted to ZHIHU_TIMEOUT', async () => {
+  const timeout = Object.assign(new Error('private machine path'), {killed: true, signal: 'SIGTERM'});
+  await withServer({execFile: mockExec({'auth status': AUTH_OK, 'quota --api-id': timeout})}, async base => {
+    const chapter = await getJson(base, '/api/chapter', validChapterRequest);
+    assert.equal(chapter.status, 504);
+    assert.equal(chapter.body.error, 'ZHIHU_TIMEOUT');
+    assert.equal(JSON.stringify(chapter.body).includes('private machine path'), false);
+  });
+});
+
+test('CLI network failure is converted to ZHIHU_NETWORK_ERROR', async () => {
+  const network = Object.assign(new Error('network'), {code: 5});
+  await withServer({execFile: mockExec({'auth status': AUTH_OK, 'quota --api-id': network})}, async base => {
+    const chapter = await getJson(base, '/api/chapter', validChapterRequest);
+    assert.equal(chapter.status, 502);
+    assert.equal(chapter.body.error, 'ZHIHU_NETWORK_ERROR');
+  });
+});
+
+test('exhausted quota is reported without starting a generation task', async () => {
+  const emptyQuota = JSON.stringify({Data: [{APIID: 'zhida_openai', TotalQuota: 100, TotalUsed: 100, RemainingQuota: 0}]});
+  await withServer({execFile: mockExec({'auth status': AUTH_OK, 'quota --api-id': emptyQuota})}, async base => {
+    const chapter = await getJson(base, '/api/chapter', validChapterRequest);
+    assert.equal(chapter.status, 429);
+    assert.equal(chapter.body.error, 'ZHIHU_QUOTA_EXHAUSTED');
+  });
+});
+
+test('invalid CLI JSON is returned as a safe structured error', async () => {
+  await withServer({execFile: mockExec({'auth status': '<not-json>'})}, async base => {
+    const chapter = await getJson(base, '/api/chapter', validChapterRequest);
+    assert.equal(chapter.status, 502);
+    assert.equal(chapter.body.error, 'ZHIHU_INVALID_JSON');
+    assert.deepEqual(Object.keys(chapter.body).sort(), ['error', 'message', 'ok']);
+  });
+});
+
+test('valid JSON with missing quota fields is ZHIHU_INVALID_RESPONSE', async () => {
+  await withServer({execFile: mockExec({'auth status': AUTH_OK, 'quota --api-id': '{"Data":[]}'})}, async base => {
+    const chapter = await getJson(base, '/api/chapter', validChapterRequest);
+    assert.equal(chapter.status, 502);
+    assert.equal(chapter.body.error, 'ZHIHU_INVALID_RESPONSE');
+  });
+});
+
+test('invalid generation output is stored as a safe task error', async () => {
+  let quotaCalls = 0;
+  await withServer({
+    fetch: async () => ({ok: true, json: async () => []}),
+    execFile: mockExec({
+      'auth status': AUTH_OK,
+      'quota --api-id': (_args, callback) => { quotaCalls += 1; callback(null, QUOTA_OK, ''); },
+      'answer --query': '<not-json>'
+    })
+  }, async base => {
+    const accepted = await getJson(base, '/api/chapter', validChapterRequest);
+    assert.equal(accepted.status, 202);
+    assert.equal(typeof accepted.body.jobId, 'string');
+
+    let result;
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      result = await getJson(base, `/api/chapter/${accepted.body.jobId}`);
+      if (result.status !== 202) break;
+      await new Promise(resolve => setTimeout(resolve, 5));
+    }
+    assert.equal(result.status, 502);
+    assert.equal(result.body.error, 'ZHIHU_INVALID_JSON');
+    assert.equal(quotaCalls, 1);
+  });
+});
+
+test('unknown generation task returns GENERATION_JOB_NOT_FOUND', async () => {
+  await withServer({execFile: mockExec({})}, async base => {
+    const result = await getJson(base, '/api/chapter/00000000-0000-4000-8000-000000000000');
+    assert.equal(result.status, 404);
+    assert.deepEqual(result.body, {
+      ok: false,
+      error: 'GENERATION_JOB_NOT_FOUND',
+      message: '生成任务不存在、已过期，或因服务重启而丢失。'
+    });
+  });
+});
+
+test('GET /api/status keeps compatibility fields and adds diagnostics', async () => {
+  const calls = [];
+  await withServer({execFile: mockExec({
+    'auth status': (args, callback) => { calls.push(args); callback(null, AUTH_OK, ''); },
+    'quota --api-id': (args, callback) => { calls.push(args); callback(null, QUOTA_OK, ''); }
+  })}, async base => {
+    const health = await getJson(base, '/api/health');
+    assert.equal(health.body.ok, true);
+    const result = await getJson(base, '/api/status');
+    assert.equal(result.status, 200);
+    assert.equal(result.body.ok, true);
+    assert.equal(result.body.mode, 'zhihu');
+    assert.equal(result.body.cliInstalled, true);
+    assert.equal(result.body.authentication.valid, true);
+    assert.equal(calls.length, 2);
+  });
+});
