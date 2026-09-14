@@ -42,6 +42,7 @@ function run(length,specificity,genre){
     click('publish');assert.equal(g.get().phase,'feedback');
     assert(g.get().currentChapter.comments[0].text.length<300,'追读评论不应复述整段章节记忆');
     assert(!g.get().currentChapter.comments[0].text.includes('行动链'),'追读评论不应暴露内部行动记录');
+    assert(!app.innerHTML.includes('。」。')&&!app.innerHTML.includes('。的时候'),'评论占位文本不应产生重复或机械拼接的标点');
     assert(app.innerHTML.includes('reader-panel')&&app.innerHTML.includes('decision-console'),'反馈页应区分评论流与作者控制台');
     assert(app.innerHTML.includes('author-action-no')&&app.innerHTML.includes('author-action-enter'),'作者选项应保留编号与明确入口');
     assert(app.innerHTML.includes('当前路线'));

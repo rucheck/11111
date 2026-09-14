@@ -141,8 +141,12 @@ function chapterCtx(ch){
   const ctx = baseCtx(ch.scene);
   ctx.goal = ch.goal;
   ctx.decision = ch.decision ? fill(ch.decision.text, ctx) : '';
-  ctx.cliff = ch.cliffHook || ch.goal;
+  ctx.cliff = trimTerminalPunctuation(ch.cliffHook || ch.goal);
   return ctx;
+}
+
+function trimTerminalPunctuation(value){
+  return String(value||'').trim().replace(/[，,。；;：:！？!?、]+$/u,'');
 }
 
 /* ============ 渲染入口 ============ */

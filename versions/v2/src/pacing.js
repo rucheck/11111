@@ -280,7 +280,7 @@ publish = function(){
   // 基础 publish 会重复加末次决策的热度和质量，抵消后仅结算具体度。
   const effect=ch.decision.effect;ch.decision.effect={};originalPublish();ch.decision.effect=effect;
   ch.delta=Object.fromEntries(Object.keys(state.resources).map(k=>[k,state.resources[k]-ch.before[k]]));
-  ch.comments.unshift({reader:'追读的老朋友',personaShort:'记得你的承诺',text:`这一章你选择了「${ch.steps.at(-1).text}」。${state.memory.length?'上一章留下的问题还没有解决，':'从开篇走到这里，'}希望下一章认真回应「${ch.cliffHook}」。`});
+  ch.comments.unshift({reader:'追读的老朋友',personaShort:'记得你的承诺',text:`这一章你选择了「${trimTerminalPunctuation(ch.steps.at(-1).text)}」。${state.memory.length?'上一章留下的问题还没有解决，':'从开篇走到这里，'}希望下一章认真回应「${trimTerminalPunctuation(ch.cliffHook)}」。`});
 };
 authorDecide = function(idx){
   if(state.phase!=='feedback')return;
